@@ -140,8 +140,15 @@ class PortfolioService {
 
 export const portfolioService = new PortfolioService();
 
-export const getInvestments = (): Observable<Investment[]> => {
-  return portfolioService.getInvestments();
+export const getInvestments = async (): Promise<{ investments: Investment[] }> => {
+  try {
+    // Use the mock data directly instead of making an API call
+    const investments = await portfolioService.getInvestments().toPromise();
+    return { investments: investments || [] };
+  } catch (error) {
+    console.error('Error fetching investments:', error);
+    throw error;
+  }
 };
 
 export const getCurrentInvestment = (): Observable<Investment | null> => {
