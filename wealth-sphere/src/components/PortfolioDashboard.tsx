@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Investment } from '../types';
-import { portfolioService, getBestPerformer, getWorstPerformer, deleteInvestment, updateInvestment } from '../services/portfolio.service';
+import { portfolioService, getBestPerformer, getWorstPerformer, deleteInvestment, updateInvestment, addInvestment } from '../services/portfolio.service';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowUpIcon, ArrowDownIcon, Eye, Pencil, Trash2, PlusIcon, X } from 'lucide-react';
 import { PerformerCard } from './PerformerCard';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { EditInvestmentForm } from './EditInvestmentForm';
+import { AddInvestmentForm } from './AddInvestmentForm';
 
 export const PortfolioDashboard: React.FC = () => {
     const [investments, setInvestments] = useState<Investment[]>([]);
@@ -19,6 +20,7 @@ export const PortfolioDashboard: React.FC = () => {
     const [worstPerformer, setWorstPerformer] = useState<Investment | null>(null);
     const [investmentToDelete, setInvestmentToDelete] = useState<Investment | null>(null);
     const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null);
+    const [isAddInvestmentOpen, setIsAddInvestmentOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -52,8 +54,9 @@ export const PortfolioDashboard: React.FC = () => {
         navigate(`/investment/${id}`);
     };
 
-    const handleAddInvestment = () => {
-        navigate('/add-investment');
+    const handleAddInvestment = async (newInvestment: Investment) => {
+        await addInvestment(newInvestment);
+        setIsAddInvestmentOpen(false);
     };
 
     const handleEditInvestment = (investment: Investment) => {
@@ -132,9 +135,28 @@ export const PortfolioDashboard: React.FC = () => {
                             />
                         )}
                     </div>
-                    <Button onClick={handleAddInvestment} className="mb-4">
-                        <PlusIcon className="w-4 h-4 mr-2" /> Add Investment
-                    </Button>
+                    <Collapsible
+                        open={isAddInvestmentOpen}
+                        onOpenChange={setIsAddInvestmentOpen}
+                        className="mb-4"
+                    >
+                        <CollapsibleTrigger asChild>
+                            <Button>
+                                {isAddInvestmentOpen ? (
+                                    <>
+                                        <X className="w-4 h-4 mr-2" /> Cancel
+                                    </>
+                                ) : (
+                                    <>
+                                        <PlusIcon className="w-4 h-4 mr-2" /> Add Investment
+                                    </>
+                                )}
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-4">
+                            <AddInvestmentForm onAddInvestment={handleAddInvestment} />
+                        </CollapsibleContent>
+                    </Collapsible>
                     {investments.length > 0 ? (
                         <Table>
                             <TableHeader>
