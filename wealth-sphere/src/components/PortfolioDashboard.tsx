@@ -11,13 +11,14 @@ import { DeleteTransactionDialog } from './DeleteTransactionDialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { EditInvestmentForm } from './EditInvestmentForm';
 import { AddInvestmentForm } from './AddInvestmentForm';
+import { calculateProfitLoss } from '@/utils/investmentCalculations';
 
 export const PortfolioDashboard: React.FC = () => {
     const [investments, setInvestments] = useState<Investment[]>([]);
     const [totalValue, setTotalValue] = useState(0);
     const [totalGainLoss, setTotalGainLoss] = useState(0);
-    const [bestPerformer, setBestPerformer] = useState<Investment | null>(null);
-    const [worstPerformer, setWorstPerformer] = useState<Investment | null>(null);
+    const [bestPerformer, setBestPerformer] = useState<{ investment: Investment; profitLoss: number; profitLossPercentage: number } | null>(null);
+    const [worstPerformer, setWorstPerformer] = useState<{ investment: Investment; profitLoss: number; profitLossPercentage: number } | null>(null);
     const [investmentToDelete, setInvestmentToDelete] = useState<Investment | null>(null);
     const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null);
     const [isAddInvestmentOpen, setIsAddInvestmentOpen] = useState(false);
@@ -28,8 +29,9 @@ export const PortfolioDashboard: React.FC = () => {
             (fetchedInvestments) => {
                 setInvestments(fetchedInvestments);
                 calculateTotals(fetchedInvestments);
-                setBestPerformer(getBestPerformer());
-                setWorstPerformer(getWorstPerformer());
+                const { best, worst } = calculateBestAndWorstPerformers(fetchedInvestments);
+                setBestPerformer(best);
+                setWorstPerformer(worst);
             }
         );
 
@@ -48,6 +50,27 @@ export const PortfolioDashboard: React.FC = () => {
         });
         setTotalValue(value);
         setTotalGainLoss(gainLoss);
+    };
+
+    const calculateBestAndWorstPerformers = (investmentList: Investment[]) => {
+        let best = null;
+        let worst = null;
+        let bestPerformance = -Infinity;
+        let worstPerformance = Infinity;
+
+        investmentList.forEach(inv => {
+            const { profitLoss, profitLossPercentage } = calculateProfitLoss(inv.transactions, inv.currentPrice);
+            if (profitLossPercentage > bestPerformance) {
+                bestPerformance = profitLossPercentage;
+                best = { investment: inv, profitLoss, profitLossPercentage };
+            }
+            if (profitLossPercentage < worstPerformance) {
+                worstPerformance = profitLossPercentage;
+                worst = { investment: inv, profitLoss, profitLossPercentage };
+            }
+        });
+
+        return { best, worst };
     };
 
     const handleViewDetails = (symbol: string) => {
@@ -77,13 +100,6 @@ export const PortfolioDashboard: React.FC = () => {
     const handleUpdateInvestment = async (updatedInvestment: Investment) => {
         await updateInvestment(updatedInvestment);
         setEditingInvestment(null);
-    };
-
-    const calculatePerformance = (investment: Investment): number => {
-        const totalQuantity = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
-        const currentValue = totalQuantity * investment.currentPrice;
-        const costBasis = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
-        return (currentValue - costBasis) / costBasis * 100;
     };
 
     return (
@@ -117,21 +133,19 @@ export const PortfolioDashboard: React.FC = () => {
                         {bestPerformer && (
                             <PerformerCard
                                 title="Best Performer"
-                                symbol={bestPerformer.symbol}
-                                name={bestPerformer.name}
-                                value={calculatePerformance(bestPerformer) * totalValue / 100}
-                                percentage={calculatePerformance(bestPerformer)}
-                                isPositive={true}
+                                symbol={bestPerformer.investment.symbol}
+                                name={bestPerformer.investment.name}
+                                value={bestPerformer.profitLoss}
+                                percentage={bestPerformer.profitLossPercentage}
                             />
                         )}
                         {worstPerformer && (
                             <PerformerCard
                                 title="Worst Performer"
-                                symbol={worstPerformer.symbol}
-                                name={worstPerformer.name}
-                                value={calculatePerformance(worstPerformer) * totalValue / 100}
-                                percentage={calculatePerformance(worstPerformer)}
-                                isPositive={false}
+                                symbol={worstPerformer.investment.symbol}
+                                name={worstPerformer.investment.name}
+                                value={worstPerformer.profitLoss}
+                                percentage={worstPerformer.profitLossPercentage}
                             />
                         )}
                     </div>
