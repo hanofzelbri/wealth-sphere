@@ -50,8 +50,8 @@ export const PortfolioDashboard: React.FC = () => {
         setTotalGainLoss(gainLoss);
     };
 
-    const handleViewDetails = (id: string) => {
-        navigate(`/investment/${id}`);
+    const handleViewDetails = (symbol: string) => {
+        navigate(`/investment/${symbol}`);
     };
 
     const handleAddInvestment = async (newInvestment: Investment) => {
@@ -191,7 +191,7 @@ export const PortfolioDashboard: React.FC = () => {
                                                         <Button
                                                             size="icon"
                                                             variant="ghost"
-                                                            onClick={() => handleViewDetails(investment.id)}
+                                                            onClick={() => handleViewDetails(investment.symbol)}
                                                         >
                                                             <Eye className="h-4 w-4" />
                                                         </Button>

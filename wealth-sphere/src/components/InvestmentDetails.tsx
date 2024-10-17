@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Investment, Transaction } from '../types';
-import { getCurrentInvestment, fetchInvestmentById, addTransaction, updateInvestment } from '../services/portfolio.service';
+import { getCurrentInvestment, addTransaction, updateInvestment, fetchInvestmentBySymbol } from '../services/portfolio.service';
 import { AddTransactionForm } from './AddTransactionForm';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, X, ArrowUpIcon, ArrowDownIcon, Pencil, Trash2 } from 'lucide-react';
+import { Plus, X, Pencil, Trash2 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { InvestmentSummary } from './InvestmentSummary';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -21,11 +21,11 @@ export const InvestmentDetails: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
-  const { id } = useParams<{ id: string }>();
+  const { symbol } = useParams<{ symbol: string }>();
 
   useEffect(() => {
-    if (id) {
-      fetchInvestmentById(id);
+    if (symbol) {
+      fetchInvestmentBySymbol(symbol);
     }
 
     const subscription = getCurrentInvestment().subscribe(
@@ -35,10 +35,10 @@ export const InvestmentDetails: React.FC = () => {
     );
 
     return () => subscription.unsubscribe();
-  }, [id]);
+  }, [symbol]);
 
   const handleSubmitTransaction = async (transaction: Omit<Transaction, 'id'> & { id?: string }) => {
-    if (investment && id) {
+    if (investment && symbol) {
       try {
         if (transaction.id) {
           const updatedTransactions = investment.transactions.map(t =>
@@ -49,7 +49,7 @@ export const InvestmentDetails: React.FC = () => {
             transactions: updatedTransactions
           });
         } else {
-          await addTransaction(id, transaction);
+          await addTransaction(symbol, transaction);
         }
         setIsAddTransactionOpen(false);
         setEditingTransaction(null);
@@ -89,10 +89,6 @@ export const InvestmentDetails: React.FC = () => {
       });
       setTransactionToDelete(null);
     }
-  };
-
-  const handleUpdateInvestment = (updatedInvestment: Investment) => {
-    setInvestment(updatedInvestment);
   };
 
   if (!investment) {
@@ -153,7 +149,7 @@ export const InvestmentDetails: React.FC = () => {
                   <TableCell>{transaction.type}</TableCell>
                   <TableCell>{transaction.quantity}</TableCell>
                   <TableCell>${transaction.price.toFixed(2)}</TableCell>
-                  <TableCell>${transaction.price * transaction.quantity.toFixed(2)}</TableCell>
+                  <TableCell>${(transaction.price * transaction.quantity).toFixed(2)}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button

@@ -84,6 +84,11 @@ class PortfolioService {
     this.currentInvestmentSubject.next(investment || null);
   }
 
+  async fetchInvestmentBySymbol(symbol: string): Promise<void> {
+    const investment = this.investments.find((inv) => inv.symbol === symbol);
+    this.currentInvestmentSubject.next(investment || null);
+  }
+
   async addTransaction(
     investmentId: string,
     newTransaction: Omit<Transaction, "id">
@@ -174,7 +179,6 @@ export const portfolioService = new PortfolioService();
 
 export const getInvestments = async (): Promise<{ investments: Investment[] }> => {
   try {
-    // Use the mock data directly instead of making an API call
     const investments = await portfolioService.getInvestments().toPromise();
     return { investments: investments || [] };
   } catch (error) {
@@ -189,6 +193,10 @@ export const getCurrentInvestment = (): Observable<Investment | null> => {
 
 export const fetchInvestmentById = async (id: string): Promise<void> => {
   return portfolioService.fetchInvestmentById(id);
+};
+
+export const fetchInvestmentBySymbol = async (symbol: string): Promise<void> => {
+  return portfolioService.fetchInvestmentBySymbol(symbol);
 };
 
 export const addTransaction = async (
