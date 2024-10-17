@@ -1,32 +1,23 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PortfolioDashboard } from './components/PortfolioDashboard';
 import { InvestmentDetails } from './components/InvestmentDetails';
-import { ErrorPage } from './components/ErrorPage';
-import { useInvestment } from './hooks/useInvestment';
+import { AddInvestment } from './components/AddInvestment';
+import { EditInvestment } from './components/EditInvestment';
 
-const InvestmentRoute: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const { investment, isLoading, error } = useInvestment(id ?? '');
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !investment) return <ErrorPage message="Investment not found" />;
-
-  return <InvestmentDetails />;
-};
-
-const App: React.FC = () => {
+function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="container mx-auto p-4">
         <Routes>
           <Route path="/" element={<PortfolioDashboard />} />
-          <Route path="/investment/:id" element={<InvestmentRoute />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/investment/:id" element={<InvestmentDetails />} />
+          <Route path="/add-investment" element={<AddInvestment />} />
+          <Route path="/edit-investment/:id" element={<EditInvestment />} />
         </Routes>
       </div>
     </Router>
   );
-};
+}
 
 export default App;

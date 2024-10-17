@@ -41,20 +41,22 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
               <TableCell>${(transaction.quantity * transaction.price).toFixed(2)}</TableCell>
               <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
               <TableCell>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => onEditTransaction(transaction)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setDeletingTransactionId(transaction.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onEditTransaction(transaction)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setDeletingTransactionId(transaction.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

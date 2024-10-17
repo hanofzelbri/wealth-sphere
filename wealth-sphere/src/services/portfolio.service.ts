@@ -6,6 +6,7 @@ class PortfolioService {
     {
       id: "1",
       name: "Bitcoin",
+      symbol: "BTC",
       currentPrice: 35000,
       transactions: [
         {
@@ -27,6 +28,7 @@ class PortfolioService {
     {
       id: "2",
       name: "Ethereum",
+      symbol: "ETH",
       currentPrice: 2200,
       transactions: [
         {
@@ -48,6 +50,7 @@ class PortfolioService {
     {
       id: "3",
       name: "Cardano",
+      symbol: "ADA",
       currentPrice: 1.5,
       transactions: [
         {
@@ -136,6 +139,35 @@ class PortfolioService {
     const investment = this.investments.find((inv) => inv.id === id);
     return Promise.resolve(investment || null);
   }
+
+  getInvestmentCount(): number {
+    return this.investments.length;
+  }
+
+  getBestPerformer(): Investment | null {
+    if (this.investments.length === 0) return null;
+    return this.investments.reduce((best, current) => {
+      const bestPerformance = this.calculatePerformance(best);
+      const currentPerformance = this.calculatePerformance(current);
+      return currentPerformance > bestPerformance ? current : best;
+    });
+  }
+
+  getWorstPerformer(): Investment | null {
+    if (this.investments.length === 0) return null;
+    return this.investments.reduce((worst, current) => {
+      const worstPerformance = this.calculatePerformance(worst);
+      const currentPerformance = this.calculatePerformance(current);
+      return currentPerformance < worstPerformance ? current : worst;
+    });
+  }
+
+  private calculatePerformance(investment: Investment): number {
+    const totalQuantity = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
+    const currentValue = totalQuantity * investment.currentPrice;
+    const costBasis = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
+    return (currentValue - costBasis) / costBasis;
+  }
 }
 
 export const portfolioService = new PortfolioService();
@@ -186,4 +218,16 @@ export const getInvestmentById = async (
   id: string
 ): Promise<Investment | null> => {
   return portfolioService.getInvestmentById(id);
+};
+
+export const getInvestmentCount = (): number => {
+  return portfolioService.getInvestmentCount();
+};
+
+export const getBestPerformer = (): Investment | null => {
+  return portfolioService.getBestPerformer();
+};
+
+export const getWorstPerformer = (): Investment | null => {
+  return portfolioService.getWorstPerformer();
 };
