@@ -5,7 +5,7 @@ interface PerformanceChartProps {
   data: Array<{ date: string; value: number }>;
 }
 
-const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
+const PerformanceChart: React.FC<PerformanceChartProps> = React.memo(({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data}>
@@ -17,6 +17,8 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ data }) => {
       </LineChart>
     </ResponsiveContainer>
   );
-};
+});
+
+PerformanceChart.displayName = 'PerformanceChart';
 
 export default PerformanceChart;

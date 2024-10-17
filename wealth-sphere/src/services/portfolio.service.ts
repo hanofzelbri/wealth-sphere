@@ -1,67 +1,128 @@
-import { InvestmentSummary } from '../components/PortfolioDashboard';
+import { Investment, Transaction } from "@/types";
 
-const mockPortfolioSummary: InvestmentSummary[] = [
-  { symbol: 'BTC', name: 'Bitcoin', totalQuantity: 1.5, averagePurchasePrice: 30000, currentPrice: 35000 },
-  { symbol: 'ETH', name: 'Ethereum', totalQuantity: 10, averagePurchasePrice: 2000, currentPrice: 2200 },
-  { symbol: 'ADA', name: 'Cardano', totalQuantity: 1000, averagePurchasePrice: 1, currentPrice: 1.2 },
-];
+class PortfolioService {
+  private investments: Investment[] = [
+    {
+      id: "1",
+      name: "Bitcoin",
+      currentPrice: 35000,
+      transactions: [
+        {
+          id: "1",
+          quantity: 1,
+          price: 29000,
+          date: "2023-01-15",
+          type: "buy",
+        },
+        {
+          id: "2",
+          quantity: 0.5,
+          price: 32000,
+          date: "2023-03-20",
+          type: "buy",
+        },
+      ],
+    },
+    {
+      id: "2",
+      name: "Ethereum",
+      currentPrice: 2200,
+      transactions: [
+        {
+          id: "3",
+          quantity: 5,
+          price: 1800,
+          date: "2023-02-10",
+          type: "buy",
+        },
+        {
+          id: "4",
+          quantity: 5,
+          price: 2200,
+          date: "2023-04-05",
+          type: "buy",
+        },
+      ],
+    },
+    {
+      id: "3",
+      name: "Cardano",
+      currentPrice: 1.5,
+      transactions: [
+        {
+          id: "5",
+          quantity: 1000,
+          price: 1.2,
+          date: "2023-03-01",
+          type: "buy",
+        },
+      ],
+    },
+  ];
 
-const mockPerformanceData = [
-  { date: '2023-01-01', value: 50000 },
-  { date: '2023-02-01', value: 55000 },
-  { date: '2023-03-01', value: 52000 },
-  { date: '2023-04-01', value: 58000 },
-  { date: '2023-05-01', value: 60000 },
-];
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-export const fetchPortfolioSummary = async (): Promise<InvestmentSummary[]> => {
-  await delay(500); // Simulate network delay
-  return mockPortfolioSummary;
-};
-
-export const fetchInvestmentDetails = async (symbol: string) => {
-  await delay(500);
-  const investment = mockPortfolioSummary.find(inv => inv.symbol === symbol);
-  if (!investment) {
-    throw new Error('Investment not found');
+  async getInvestments(): Promise<Investment[]> {
+    return Promise.resolve(this.investments);
   }
-  return {
-    ...investment,
-    transactions: [
-      { id: '1', date: '2023-01-15', quantity: investment.totalQuantity / 2, price: investment.averagePurchasePrice * 0.9, type: 'buy' },
-      { id: '2', date: '2023-03-20', quantity: investment.totalQuantity / 2, price: investment.averagePurchasePrice * 1.1, type: 'buy' },
-    ],
-  };
-};
 
-export const addInvestment = async (investment: Omit<InvestmentSummary, 'totalQuantity' | 'averagePurchasePrice'> & { quantity: number, purchasePrice: number }) => {
-  await delay(500);
-  const newInvestment: InvestmentSummary = {
-    ...investment,
-    totalQuantity: investment.quantity,
-    averagePurchasePrice: investment.purchasePrice,
-  };
-  mockPortfolioSummary.push(newInvestment);
-  return newInvestment;
-};
-
-export const sellInvestment = async (sale: { symbol: string, quantity: number, sellPrice: number }) => {
-  await delay(500);
-  const investment = mockPortfolioSummary.find(inv => inv.symbol === sale.symbol);
-  if (!investment) {
-    throw new Error('Investment not found');
+  async addInvestment(newInvestment: Omit<Investment, 'id'>): Promise<Investment> {
+    const investment: Investment = {
+      ...newInvestment,
+      id: (this.investments.length + 1).toString(),
+    };
+    this.investments.push(investment);
+    return Promise.resolve(investment);
   }
-  investment.totalQuantity -= sale.quantity;
-  if (investment.totalQuantity <= 0) {
-    const index = mockPortfolioSummary.findIndex(inv => inv.symbol === sale.symbol);
-    mockPortfolioSummary.splice(index, 1);
+
+  async updateInvestment(updatedInvestment: Investment): Promise<Investment> {
+    const index = this.investments.findIndex(i => i.id === updatedInvestment.id);
+    if (index !== -1) {
+      this.investments[index] = updatedInvestment;
+      return Promise.resolve(updatedInvestment);
+    }
+    throw new Error("Investment not found");
   }
-  return investment;
+
+  async deleteInvestment(id: string): Promise<void> {
+    const index = this.investments.findIndex(i => i.id === id);
+    if (index !== -1) {
+      this.investments.splice(index, 1);
+      return Promise.resolve();
+    }
+    throw new Error("Investment not found");
+  }
+
+  async addTransaction(investmentId: string, newTransaction: Omit<Transaction, 'id'>): Promise<Transaction> {
+    const investment = this.investments.find(i => i.id === investmentId);
+    if (investment) {
+      const transaction: Transaction = {
+        ...newTransaction,
+        id: (investment.transactions.length + 1).toString(),
+      };
+      investment.transactions.push(transaction);
+      return Promise.resolve(transaction);
+    }
+    throw new Error("Investment not found");
+  }
+}
+
+export const portfolioService = new PortfolioService();
+
+export const getInvestments = (): Promise<Investment[]> => {
+  return portfolioService.getInvestments();
 };
 
-export const fetchPerformanceData = async () => {
-  await delay(500);
-  return mockPerformanceData;
+export const addInvestment = (investment: Omit<Investment, 'id'>): Promise<Investment> => {
+  return portfolioService.addInvestment(investment);
+};
+
+export const updateInvestment = (investment: Investment): Promise<Investment> => {
+  return portfolioService.updateInvestment(investment);
+};
+
+export const deleteInvestment = (id: string): Promise<void> => {
+  return portfolioService.deleteInvestment(id);
+};
+
+export const addTransaction = (investmentId: string, transaction: Omit<Transaction, 'id'>): Promise<Transaction> => {
+  return portfolioService.addTransaction(investmentId, transaction);
 };

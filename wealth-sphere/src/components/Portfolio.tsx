@@ -1,49 +1,72 @@
-import React from 'react';
-import { InvestmentSummary } from './PortfolioDashboard';
+import React, { useState, useEffect } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { getInvestments } from '@/services/portfolio.service';
+import { Investment } from '@/types';
 
 interface PortfolioProps {
-  investments: InvestmentSummary[];
-  renderInvestmentLink: (symbol: string) => React.ReactNode;
+    renderInvestmentLink: (symbol: string) => React.ReactNode;
 }
 
-const Portfolio: React.FC<PortfolioProps> = ({ investments, renderInvestmentLink }) => {
-  return (
-    <div className="bg-white shadow-lg rounded-xl p-6">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Your Portfolio</h3>
-      <table className="min-w-full">
-        <thead>
-          <tr>
-            <th className="text-left">Symbol</th>
-            <th className="text-left">Name</th>
-            <th className="text-right">Quantity</th>
-            <th className="text-right">Avg. Price</th>
-            <th className="text-right">Current Price</th>
-            <th className="text-right">Total Value</th>
-            <th className="text-right">Profit/Loss</th>
-            <th className="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {investments.map((investment) => (
-            <tr key={investment.symbol}>
-              <td>{investment.symbol}</td>
-              <td>{investment.name}</td>
-              <td className="text-right">{investment.totalQuantity}</td>
-              <td className="text-right">${investment.averagePurchasePrice.toFixed(2)}</td>
-              <td className="text-right">${investment.currentPrice.toFixed(2)}</td>
-              <td className="text-right">${(investment.totalQuantity * investment.currentPrice).toFixed(2)}</td>
-              <td className="text-right">
-                ${((investment.currentPrice - investment.averagePurchasePrice) * investment.totalQuantity).toFixed(2)}
-              </td>
-              <td className="text-center">
-                {renderInvestmentLink(investment.symbol)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+const Portfolio: React.FC<PortfolioProps> = ({ renderInvestmentLink }) => {
+    const [investments, setInvestments] = useState<Investment[]>([]);
+
+    useEffect(() => {
+        const fetchInvestments = async () => {
+            const fetchedInvestments = await getInvestments();
+            setInvestments(fetchedInvestments);
+        };
+        fetchInvestments();
+    }, []);
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Your Portfolio</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Symbol</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead className="text-right">Quantity</TableHead>
+                            <TableHead className="text-right">Avg. Price</TableHead>
+                            <TableHead className="text-right">Current Price</TableHead>
+                            <TableHead className="text-right">Total Value</TableHead>
+                            <TableHead className="text-right">Profit/Loss</TableHead>
+                            <TableHead className="text-center">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {investments.map((investment) => (
+                            <TableRow key={investment.id}>
+                                <TableCell>{investment.name}</TableCell>
+                                <TableCell>{investment.name}</TableCell>
+                                <TableCell className="text-right">{investment.transactions.reduce((total, t) => total + (t.type === 'buy' ? t.quantity : -t.quantity), 0)}</TableCell>
+                                <TableCell className="text-right">${(investment.transactions.reduce((total, t) => total + t.price * t.quantity, 0) / investment.transactions.reduce((total, t) => total + t.quantity, 0)).toFixed(2)}</TableCell>
+                                <TableCell className="text-right">${investment.currentPrice.toFixed(2)}</TableCell>
+                                <TableCell className="text-right">${(investment.transactions.reduce((total, t) => total + (t.type === 'buy' ? t.quantity : -t.quantity), 0) * investment.currentPrice).toFixed(2)}</TableCell>
+                                <TableCell className="text-right">
+                                    ${((investment.currentPrice - (investment.transactions.reduce((total, t) => total + t.price * t.quantity, 0) / investment.transactions.reduce((total, t) => total + t.quantity, 0))) * investment.transactions.reduce((total, t) => total + (t.type === 'buy' ? t.quantity : -t.quantity), 0)).toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    {renderInvestmentLink(investment.name)}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
 };
 
 export default Portfolio;
