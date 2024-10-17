@@ -44,3 +44,14 @@ export function calculateProfitLoss(
 
   return { profitLoss, profitLossPercentage };
 }
+
+export const calculateTotalHolding = (transactions: Transaction[]): number => {
+  return transactions.reduce((total, transaction) => {
+    if (transaction.type === 'buy') {
+      return total + transaction.quantity;
+    } else if (transaction.type === 'sell') {
+      return total - transaction.quantity;
+    }
+    return total;
+  }, 0);
+};

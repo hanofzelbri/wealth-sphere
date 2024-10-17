@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Investment } from '../types';
 import { getInvestments, addInvestment, deleteInvestment } from '../services/portfolio.service';
-import { AddEditInvestment } from './AddEditInvestment';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -63,7 +62,6 @@ export const PortfolioDashboard: React.FC = () => {
                 </CardContent>
             </Card>
 
-            <AddEditInvestment onSave={handleAddInvestment} />
         </div>
     );
 };

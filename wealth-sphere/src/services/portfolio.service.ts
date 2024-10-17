@@ -1,4 +1,5 @@
 import { Investment, Transaction } from "@/types";
+import { BehaviorSubject, Observable } from "rxjs";
 
 class PortfolioService {
   private investments: Investment[] = [
@@ -60,77 +61,122 @@ class PortfolioService {
     },
   ];
 
-  async getInvestments(): Promise<Investment[]> {
-    return Promise.resolve(this.investments);
+  private investmentsSubject = new BehaviorSubject<Investment[]>(
+    this.investments
+  );
+  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
+    null
+  );
+
+  getInvestments(): Observable<Investment[]> {
+    return this.investmentsSubject.asObservable();
   }
 
-  async addInvestment(newInvestment: Omit<Investment, 'id'>): Promise<Investment> {
+  getCurrentInvestment(): Observable<Investment | null> {
+    return this.currentInvestmentSubject.asObservable();
+  }
+
+  async fetchInvestmentById(id: string): Promise<void> {
+    const investment = this.investments.find((inv) => inv.id === id);
+    this.currentInvestmentSubject.next(investment || null);
+  }
+
+  async addTransaction(
+    investmentId: string,
+    newTransaction: Omit<Transaction, "id">
+  ): Promise<void> {
+    const investment = this.investments.find((inv) => inv.id === investmentId);
+    if (investment) {
+      const transaction: Transaction = {
+        ...newTransaction,
+        id: Date.now().toString(),
+      };
+      investment.transactions.push(transaction);
+      this.investmentsSubject.next([...this.investments]);
+      this.currentInvestmentSubject.next({ ...investment });
+    } else {
+      throw new Error("Investment not found");
+    }
+  }
+
+  async updateInvestment(updatedInvestment: Investment): Promise<void> {
+    const index = this.investments.findIndex(
+      (inv) => inv.id === updatedInvestment.id
+    );
+    if (index !== -1) {
+      this.investments[index] = updatedInvestment;
+      this.investmentsSubject.next([...this.investments]);
+      this.currentInvestmentSubject.next({ ...updatedInvestment });
+    }
+  }
+
+  async addInvestment(
+    newInvestment: Omit<Investment, "id">
+  ): Promise<Investment> {
     const investment: Investment = {
       ...newInvestment,
       id: Date.now().toString(),
-      transactions: []
+      transactions: [],
     };
     this.investments.push(investment);
+    this.investmentsSubject.next([...this.investments]);
     return Promise.resolve(investment);
   }
 
-  async updateInvestment(updatedInvestment: Investment): Promise<Investment> {
-    const index = this.investments.findIndex(inv => inv.id === updatedInvestment.id);
-    if (index !== -1) {
-      this.investments[index] = updatedInvestment;
-    }
-    return Promise.resolve(updatedInvestment);
-  }
-
   async deleteInvestment(id: string): Promise<void> {
-    const index = this.investments.findIndex(inv => inv.id === id);
+    const index = this.investments.findIndex((inv) => inv.id === id);
     if (index !== -1) {
       this.investments.splice(index, 1);
+      this.investmentsSubject.next([...this.investments]);
     }
     return Promise.resolve();
   }
 
-  async addTransaction(investmentId: string, newTransaction: Omit<Transaction, 'id'>): Promise<Transaction> {
-    const investment = this.investments.find(inv => inv.id === investmentId);
-    if (investment) {
-      const transaction: Transaction = {
-        ...newTransaction,
-        id: Date.now().toString()
-      };
-      investment.transactions.push(transaction);
-      return Promise.resolve(transaction);
-    }
-    throw new Error("Investment not found");
-  }
-
   async getInvestmentById(id: string): Promise<Investment | null> {
-    const investment = this.investments.find(inv => inv.id === id);
+    const investment = this.investments.find((inv) => inv.id === id);
     return Promise.resolve(investment || null);
   }
 }
 
 export const portfolioService = new PortfolioService();
 
-export const getInvestments = async (): Promise<Investment[]> => {
+export const getInvestments = (): Observable<Investment[]> => {
   return portfolioService.getInvestments();
 };
 
-export const getInvestmentById = async (id: string): Promise<Investment | null> => {
-  return portfolioService.getInvestmentById(id);
+export const getCurrentInvestment = (): Observable<Investment | null> => {
+  return portfolioService.getCurrentInvestment();
 };
 
-export const addInvestment = async (newInvestment: Omit<Investment, 'id'>): Promise<Investment> => {
-  return portfolioService.addInvestment(newInvestment);
+export const fetchInvestmentById = async (id: string): Promise<void> => {
+  return portfolioService.fetchInvestmentById(id);
 };
 
-export const updateInvestment = async (updatedInvestment: Investment): Promise<Investment> => {
+export const addTransaction = async (
+  investmentId: string,
+  newTransaction: Omit<Transaction, "id">
+): Promise<void> => {
+  return portfolioService.addTransaction(investmentId, newTransaction);
+};
+
+export const updateInvestment = async (
+  updatedInvestment: Investment
+): Promise<void> => {
   return portfolioService.updateInvestment(updatedInvestment);
+};
+
+export const addInvestment = async (
+  newInvestment: Omit<Investment, "id">
+): Promise<Investment> => {
+  return portfolioService.addInvestment(newInvestment);
 };
 
 export const deleteInvestment = async (id: string): Promise<void> => {
   return portfolioService.deleteInvestment(id);
 };
 
-export const addTransaction = async (investmentId: string, newTransaction: Omit<Transaction, 'id'>): Promise<Transaction> => {
-  return portfolioService.addTransaction(investmentId, newTransaction);
+export const getInvestmentById = async (
+  id: string
+): Promise<Investment | null> => {
+  return portfolioService.getInvestmentById(id);
 };
