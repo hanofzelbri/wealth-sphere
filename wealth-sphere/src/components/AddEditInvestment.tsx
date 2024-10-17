@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Investment } from '../types';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface AddEditInvestmentProps {
   investment?: Investment;
@@ -16,26 +19,35 @@ export const AddEditInvestment: React.FC<AddEditInvestmentProps> = ({ investment
       name,
       currentPrice: parseFloat(currentPrice),
     });
+    setName('');
+    setCurrentPrice('');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Investment Name"
-        required
-      />
-      <input
-        type="number"
-        value={currentPrice}
-        onChange={(e) => setCurrentPrice(e.target.value)}
-        placeholder="Current Price"
-        step="0.01"
-        required
-      />
-      <button type="submit">{investment ? 'Update' : 'Add'} Investment</button>
-    </form>
+    <Card>
+      <CardHeader>
+        <CardTitle>{investment ? 'Edit Investment' : 'Add New Investment'}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Investment Name"
+            required
+          />
+          <Input
+            type="number"
+            value={currentPrice}
+            onChange={(e) => setCurrentPrice(e.target.value)}
+            placeholder="Current Price"
+            step="0.01"
+            required
+          />
+          <Button type="submit">{investment ? 'Update' : 'Add'} Investment</Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Investment, Transaction } from '../types';
-import { getInvestments, addInvestment, updateInvestment, deleteInvestment, addTransaction } from '../services/portfolio.service';
-import { InvestmentDetails } from './InvestmentDetails';
+import { Link } from 'react-router-dom';
+import { Investment } from '../types';
+import { getInvestments, addInvestment, deleteInvestment } from '../services/portfolio.service';
 import { AddEditInvestment } from './AddEditInvestment';
-import { AddTransactionForm } from './AddTransactionForm';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const PortfolioDashboard: React.FC = () => {
     const [investments, setInvestments] = useState<Investment[]>([]);
-    const [selectedInvestment, setSelectedInvestment] = useState<Investment | null>(null);
 
     useEffect(() => {
         fetchInvestments();
@@ -18,58 +19,51 @@ export const PortfolioDashboard: React.FC = () => {
         setInvestments(fetchedInvestments);
     };
 
-    const handleAddInvestment = async (newInvestment: Omit<Investment, 'id'>) => {
+    const handleAddInvestment = async (newInvestment: Omit<Investment, 'id' | 'transactions'>) => {
         const added = await addInvestment(newInvestment);
         setInvestments([...investments, added]);
-    };
-
-    const handleUpdateInvestment = async (updatedInvestment: Investment) => {
-        const updated = await updateInvestment(updatedInvestment);
-        setInvestments(investments.map(inv => inv.id === updated.id ? updated : inv));
-        setSelectedInvestment(null);
     };
 
     const handleDeleteInvestment = async (id: string) => {
         await deleteInvestment(id);
         setInvestments(investments.filter(inv => inv.id !== id));
-        setSelectedInvestment(null);
-    };
-
-    const handleAddTransaction = async (investmentId: string, newTransaction: Omit<Transaction, 'id'>) => {
-        const added = await addTransaction(investmentId, newTransaction);
-        setInvestments(investments.map(inv => 
-            inv.id === investmentId 
-                ? { ...inv, transactions: [...inv.transactions, added] }
-                : inv
-        ));
     };
 
     return (
-        <div>
-            <h1>Portfolio Dashboard</h1>
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Portfolio Dashboard</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Current Price</TableHead>
+                                <TableHead>Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {investments.map(investment => (
+                                <TableRow key={investment.id}>
+                                    <TableCell>
+                                        <Link to={`/investment/${investment.id}`} className="text-blue-600 hover:underline">
+                                            {investment.name}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell>${investment.currentPrice.toFixed(2)}</TableCell>
+                                    <TableCell>
+                                        <Button variant="destructive" onClick={() => handleDeleteInvestment(investment.id)}>Delete</Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
             <AddEditInvestment onSave={handleAddInvestment} />
-            <ul>
-                {investments.map(investment => (
-                    <li key={investment.id}>
-                        <button onClick={() => setSelectedInvestment(investment)}>
-                            {investment.name} - ${investment.currentPrice.toFixed(2)}
-                        </button>
-                        <button onClick={() => handleDeleteInvestment(investment.id)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
-            {selectedInvestment && (
-                <div>
-                    <InvestmentDetails investment={selectedInvestment} />
-                    <AddEditInvestment 
-                        investment={selectedInvestment} 
-                        onSave={(updated) => handleUpdateInvestment({ ...selectedInvestment, ...updated })} 
-                    />
-                    <AddTransactionForm 
-                        onAddTransaction={(transaction) => handleAddTransaction(selectedInvestment.id, transaction)} 
-                    />
-                </div>
-            )}
         </div>
     );
 };
