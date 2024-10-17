@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Investment } from '../types';
-import { portfolioService, getInvestmentCount, getBestPerformer, getWorstPerformer, deleteInvestment, updateInvestment } from '../services/portfolio.service';
+import { portfolioService, getBestPerformer, getWorstPerformer, deleteInvestment, updateInvestment } from '../services/portfolio.service';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowUpIcon, ArrowDownIcon, Eye, Pencil, Trash2, PlusIcon, X } from 'lucide-react';
 import { PerformerCard } from './PerformerCard';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { EditInvestmentForm } from './EditInvestmentForm';
 
 export const PortfolioDashboard: React.FC = () => {

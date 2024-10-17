@@ -6,17 +6,21 @@ import { AddTransactionForm } from './AddTransactionForm';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ArrowUpIcon, ArrowDownIcon, Pencil, Trash2 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { InvestmentSummary } from './InvestmentSummary';
-import { TransactionTable } from './TransactionTable';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EditPriceDialog } from './EditPriceDialog';
+import { DeleteTransactionDialog } from './DeleteTransactionDialog';
+import { EditTransactionForm } from './EditTransactionForm';
 
 export const InvestmentDetails: React.FC = () => {
   const [investment, setInvestment] = useState<Investment | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
@@ -56,8 +60,35 @@ export const InvestmentDetails: React.FC = () => {
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-    setIsAddTransactionOpen(true);
+    setEditingTransactionId(transaction.id);
+  };
+
+  const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
+    if (investment) {
+      const updatedTransactions = investment.transactions.map(t =>
+        t.id === updatedTransaction.id ? updatedTransaction : t
+      );
+      await updateInvestment({
+        ...investment,
+        transactions: updatedTransactions
+      });
+      setEditingTransactionId(null);
+    }
+  };
+
+  const handleDeleteTransaction = (transaction: Transaction) => {
+    setTransactionToDelete(transaction);
+  };
+
+  const onConfirmDelete = async () => {
+    if (investment && transactionToDelete) {
+      const updatedTransactions = investment.transactions.filter(t => t.id !== transactionToDelete.id);
+      await updateInvestment({
+        ...investment,
+        transactions: updatedTransactions
+      });
+      setTransactionToDelete(null);
+    }
   };
 
   const handleUpdateInvestment = (updatedInvestment: Investment) => {
@@ -103,11 +134,65 @@ export const InvestmentDetails: React.FC = () => {
 
         <InvestmentSummary investment={investment} />
 
-        <TransactionTable
-          investment={investment}
-          onEditTransaction={handleEditTransaction}
-          onUpdateInvestment={handleUpdateInvestment}
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Total</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {investment.transactions.map((transaction) => (
+              <React.Fragment key={transaction.id}>
+                <TableRow>
+                  <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{transaction.type}</TableCell>
+                  <TableCell>{transaction.quantity}</TableCell>
+                  <TableCell>${transaction.price.toFixed(2)}</TableCell>
+                  <TableCell>${transaction.price * transaction.quantity.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleEditTransaction(transaction)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDeleteTransaction(transaction)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <Collapsible
+                      open={editingTransactionId === transaction.id}
+                      onOpenChange={(open) => !open && setEditingTransactionId(null)}
+                    >
+                      <CollapsibleContent>
+                        <EditTransactionForm
+                          transaction={transaction}
+                          onSubmit={handleUpdateTransaction}
+                          onCancel={() => setEditingTransactionId(null)}
+                        />
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </TableCell>
+                </TableRow>
+              </React.Fragment>
+            ))}
+          </TableBody>
+        </Table>
 
         <Collapsible
           open={isAddTransactionOpen}
@@ -141,6 +226,12 @@ export const InvestmentDetails: React.FC = () => {
           </CollapsibleContent>
         </Collapsible>
       </CardContent>
+      <DeleteTransactionDialog
+        investment={investment}
+        transactionId={transactionToDelete?.id || null}
+        onClose={() => setTransactionToDelete(null)}
+        onUpdateInvestment={onConfirmDelete}
+      />
     </Card>
   );
 };

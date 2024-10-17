@@ -4,6 +4,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from 'lucide-react';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { EditTransactionForm } from './EditTransactionForm';
 
 interface TransactionTableProps {
   investment: Investment;
@@ -17,6 +19,18 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
   onUpdateInvestment,
 }) => {
   const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+
+  const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
+    const updatedTransactions = investment.transactions.map(t =>
+      t.id === updatedTransaction.id ? updatedTransaction : t
+    );
+    await onUpdateInvestment({
+      ...investment,
+      transactions: updatedTransactions
+    });
+    setEditingTransactionId(null);
+  };
 
   return (
     <>
@@ -34,31 +48,49 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
         </TableHeader>
         <TableBody>
           {investment.transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{transaction.type}</TableCell>
-              <TableCell>{transaction.quantity}</TableCell>
-              <TableCell>${transaction.price.toFixed(2)}</TableCell>
-              <TableCell>${(transaction.quantity * transaction.price).toFixed(2)}</TableCell>
-              <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => onEditTransaction(transaction)}
+            <React.Fragment key={transaction.id}>
+              <TableRow>
+                <TableCell>{transaction.type}</TableCell>
+                <TableCell>{transaction.quantity}</TableCell>
+                <TableCell>${transaction.price.toFixed(2)}</TableCell>
+                <TableCell>${(transaction.quantity * transaction.price).toFixed(2)}</TableCell>
+                <TableCell>{new Date(transaction.date).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setEditingTransactionId(transaction.id)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setDeletingTransactionId(transaction.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <Collapsible
+                    open={editingTransactionId === transaction.id}
+                    onOpenChange={(open) => !open && setEditingTransactionId(null)}
                   >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setDeletingTransactionId(transaction.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+                    <CollapsibleContent>
+                      <EditTransactionForm
+                        transaction={transaction}
+                        onSubmit={handleUpdateTransaction}
+                        onCancel={() => setEditingTransactionId(null)}
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
+                </TableCell>
+              </TableRow>
+            </React.Fragment>
           ))}
         </TableBody>
       </Table>
