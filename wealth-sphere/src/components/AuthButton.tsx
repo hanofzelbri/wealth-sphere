@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -9,26 +9,44 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/lib/supabaseClient';
+import { userService } from '@/services/user.service';
 
 export const AuthButton: FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [user, setUser] = useState(userService.currentUserValue);
+
+    useEffect(() => {
+        const subscription = userService.currentUser.subscribe(currentUser => {
+            setUser(currentUser);
+        });
+        return () => subscription.unsubscribe();
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-            if (error) throw error;
+            await userService.login(email, password);
             setIsOpen(false);
         } catch (error) {
             console.error('Error logging in:', error);
         }
     };
+
+    const handleLogout = async () => {
+        try {
+            await userService.logout();
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+    };
+
+    if (user) {
+        return (
+            <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        );
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

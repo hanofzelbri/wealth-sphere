@@ -10,37 +10,42 @@ type InvestmentWithTransactions = Investment & { transactions: Transaction[] };
 export class InvestmentsService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllInvestments(): Promise<InvestmentWithTransactions[]> {
+  async getAllInvestments(userId: string): Promise<InvestmentWithTransactions[]> {
     return this.prisma.investment.findMany({
+      where: { userId },
       include: { transactions: true },
     });
   }
 
   async getInvestmentById(
     id: string,
+    userId: string,
   ): Promise<InvestmentWithTransactions | null> {
     return this.prisma.investment.findUnique({
-      where: { id },
+      where: { id, userId },
       include: { transactions: true },
     });
   }
 
   async getInvestmentBySymbol(
     symbol: string,
+    userId: string,
   ): Promise<InvestmentWithTransactions | null> {
     return this.prisma.investment.findFirst({
-      where: { symbol },
+      where: { symbol, userId },
       include: { transactions: true },
     });
   }
 
   async createInvestment(
     data: Prisma.InvestmentCreateInput,
+    userId: string,
   ): Promise<InvestmentWithTransactions> {
     const { transactions, ...investmentData } = data;
     return this.prisma.investment.create({
       data: {
         ...investmentData,
+        userId,
         transactions: transactions
           ? {
               create:
@@ -55,27 +60,30 @@ export class InvestmentsService {
   async updateInvestment(
     id: string,
     data: Prisma.InvestmentUpdateInput,
+    userId: string,
   ): Promise<InvestmentWithTransactions> {
     return this.prisma.investment.update({
-      where: { id },
+      where: { id, userId },
       data,
       include: { transactions: true },
     });
   }
 
-  async deleteInvestment(id: string): Promise<InvestmentWithTransactions> {
+  async deleteInvestment(id: string, userId: string): Promise<InvestmentWithTransactions> {
     return this.prisma.investment.delete({
-      where: { id },
+      where: { id, userId },
       include: { transactions: true },
     });
   }
 
-  async getInvestmentCount(): Promise<number> {
-    return this.prisma.investment.count();
+  async getInvestmentCount(userId: string): Promise<number> {
+    return this.prisma.investment.count({
+      where: { userId },
+    });
   }
 
-  async getBestPerformer(): Promise<InvestmentWithTransactions | null> {
-    const investments = await this.getAllInvestments();
+  async getBestPerformer(userId: string): Promise<InvestmentWithTransactions | null> {
+    const investments = await this.getAllInvestments(userId);
     return investments.reduce((best, current) => {
       const bestPerformance = this.calculatePerformance(best);
       const currentPerformance = this.calculatePerformance(current);
@@ -83,8 +91,8 @@ export class InvestmentsService {
     });
   }
 
-  async getWorstPerformer(): Promise<InvestmentWithTransactions | null> {
-    const investments = await this.getAllInvestments();
+  async getWorstPerformer(userId: string): Promise<InvestmentWithTransactions | null> {
+    const investments = await this.getAllInvestments(userId);
     return investments.reduce((worst, current) => {
       const worstPerformance = this.calculatePerformance(worst);
       const currentPerformance = this.calculatePerformance(current);
@@ -108,14 +116,15 @@ export class InvestmentsService {
   async createTransaction(
     investmentId: string,
     data: Omit<Prisma.TransactionCreateInput, 'investment'>,
+    userId: string,
   ): Promise<Transaction> {
     const investment = await this.prisma.investment.findUnique({
-      where: { id: investmentId },
+      where: { id: investmentId, userId },
     });
 
     if (!investment) {
       throw new NotFoundException(
-        `Investment with ID ${investmentId} not found`,
+        `Investment with ID ${investmentId} not found for this user`,
       );
     }
 
@@ -129,12 +138,12 @@ export class InvestmentsService {
     });
   }
 
-  async addTransaction(id: string, createTransactionDto: CreateTransactionDto) {
+  async addTransaction(id: string, createTransactionDto: CreateTransactionDto, userId: string) {
     const investment = await this.prisma.investment.findUnique({
-      where: { id },
+      where: { id, userId },
     });
     if (!investment) {
-      throw new NotFoundException(`Investment with ID ${id} not found`);
+      throw new NotFoundException(`Investment with ID ${id} not found for this user`);
     }
 
     return this.prisma.transaction.create({
@@ -149,30 +158,31 @@ export class InvestmentsService {
     id: string,
     transactionId: string,
     updateTransactionDto: UpdateTransactionDto,
+    userId: string,
   ) {
     const investment = await this.prisma.investment.findUnique({
-      where: { id },
+      where: { id, userId },
     });
     if (!investment) {
-      throw new NotFoundException(`Investment with ID ${id} not found`);
+      throw new NotFoundException(`Investment with ID ${id} not found for this user`);
     }
 
     return this.prisma.transaction.update({
-      where: { id: transactionId },
+      where: { id: transactionId, investment: { userId } },
       data: updateTransactionDto,
     });
   }
 
-  async deleteTransaction(id: string, transactionId: string) {
+  async deleteTransaction(id: string, transactionId: string, userId: string) {
     const investment = await this.prisma.investment.findUnique({
-      where: { id },
+      where: { id, userId },
     });
     if (!investment) {
-      throw new NotFoundException(`Investment with ID ${id} not found`);
+      throw new NotFoundException(`Investment with ID ${id} not found for this user`);
     }
 
     return this.prisma.transaction.delete({
-      where: { id: transactionId },
+      where: { id: transactionId, investment: { userId } },
     });
   }
 }

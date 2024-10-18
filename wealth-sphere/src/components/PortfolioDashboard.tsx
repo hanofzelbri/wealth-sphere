@@ -46,7 +46,10 @@ export const PortfolioDashboard: React.FC = () => {
             await fetchInvestments();
         } catch (error) {
             console.error('Error adding investment:', error);
+            return false;
         }
+
+        return true;
     };
 
     const handleDeleteInvestment = (investment: Investment) => {
