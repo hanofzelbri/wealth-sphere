@@ -9,14 +9,18 @@ interface PortfolioSummaryProps {
     investments: Investment[];
 }
 
+interface Performer {
+    investment: Investment;
+    profitLoss: number;
+    profitLossPercentage: number;
+}
+
 export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({ investments }) => {
     const { totalValue, totalGainLoss, bestPerformer, worstPerformer } = useMemo(() => {
         let value = 0;
         let gainLoss = 0;
-        let best = null;
-        let worst = null;
-        let bestPerformance = -Infinity;
-        let worstPerformance = Infinity;
+        let best: Performer | null = null;
+        let worst: Performer | null = null;
 
         investments.forEach(inv => {
             const totalQuantity = inv.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
@@ -26,21 +30,34 @@ export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({ investments 
             gainLoss += investmentValue - costBasis;
 
             const { profitLoss, profitLossPercentage } = calculateProfitLoss(inv.transactions, inv.currentPrice);
-            if (profitLossPercentage > bestPerformance) {
-                bestPerformance = profitLossPercentage;
-                best = { investment: inv, profitLoss, profitLossPercentage };
+            const performer: Performer = { investment: inv, profitLoss, profitLossPercentage };
+
+            if (!best || profitLossPercentage > best.profitLossPercentage) {
+                best = performer;
             }
-            if (profitLossPercentage < worstPerformance) {
-                worstPerformance = profitLossPercentage;
-                worst = { investment: inv, profitLoss, profitLossPercentage };
+            if (!worst || profitLossPercentage < worst.profitLossPercentage) {
+                worst = performer;
             }
         });
 
         return { totalValue: value, totalGainLoss: gainLoss, bestPerformer: best, worstPerformer: worst };
     }, [investments]);
 
+    const renderPerformanceCard = (performer: Performer | null, title: string) => {
+        if (!performer) return null;
+        return (
+            <PerformerCard
+                title={title}
+                symbol={performer.investment.symbol}
+                name={performer.investment.name}
+                value={performer.profitLoss}
+                percentage={performer.profitLossPercentage}
+            />
+        );
+    };
+
     return (
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Card>
                 <CardContent className="pt-6">
                     <h3 className="text-sm font-medium text-gray-500 mb-2">All-time profit</h3>
@@ -61,24 +78,8 @@ export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({ investments 
                     </div>
                 </CardContent>
             </Card>
-            {bestPerformer && (
-                <PerformerCard
-                    title="Best Performer"
-                    symbol={bestPerformer.investment.symbol}
-                    name={bestPerformer.investment.name}
-                    value={bestPerformer.profitLoss}
-                    percentage={bestPerformer.profitLossPercentage}
-                />
-            )}
-            {worstPerformer && (
-                <PerformerCard
-                    title="Worst Performer"
-                    symbol={worstPerformer.investment.symbol}
-                    name={worstPerformer.investment.name}
-                    value={worstPerformer.profitLoss}
-                    percentage={worstPerformer.profitLossPercentage}
-                />
-            )}
+            {renderPerformanceCard(bestPerformer, "Best Performer")}
+            {renderPerformanceCard(worstPerformer, "Worst Performer")}
         </div>
     );
 };
