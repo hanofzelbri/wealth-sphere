@@ -1,75 +1,12 @@
 import { Investment, Transaction } from "@/types";
 import { BehaviorSubject, Observable } from "rxjs";
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3000/investments';
 
 class PortfolioService {
-  private investments: Investment[] = [
-    {
-      id: "1",
-      name: "Bitcoin",
-      symbol: "BTC",
-      currentPrice: 35000,
-      transactions: [
-        {
-          id: "1",
-          quantity: 1,
-          price: 29000,
-          date: "2023-01-15",
-          type: "buy",
-        },
-        {
-          id: "2",
-          quantity: 0.5,
-          price: 32000,
-          date: "2023-03-20",
-          type: "buy",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Ethereum",
-      symbol: "ETH",
-      currentPrice: 2200,
-      transactions: [
-        {
-          id: "3",
-          quantity: 5,
-          price: 1800,
-          date: "2023-02-10",
-          type: "buy",
-        },
-        {
-          id: "4",
-          quantity: 5,
-          price: 2200,
-          date: "2023-04-05",
-          type: "buy",
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Cardano",
-      symbol: "ADA",
-      currentPrice: 1.5,
-      transactions: [
-        {
-          id: "5",
-          quantity: 1000,
-          price: 1.2,
-          date: "2023-03-01",
-          type: "buy",
-        },
-      ],
-    },
-  ];
-
-  private investmentsSubject = new BehaviorSubject<Investment[]>(
-    this.investments
-  );
-  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
-    null
-  );
+  private investmentsSubject = new BehaviorSubject<Investment[]>([]);
+  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(null);
 
   getInvestments(): Observable<Investment[]> {
     return this.investmentsSubject.asObservable();
@@ -79,112 +16,73 @@ class PortfolioService {
     return this.currentInvestmentSubject.asObservable();
   }
 
+  async fetchInvestments(): Promise<void> {
+    const response = await axios.get<Investment[]>(API_URL);
+    this.investmentsSubject.next(response.data);
+  }
+
   async fetchInvestmentById(id: string): Promise<void> {
-    const investment = this.investments.find((inv) => inv.id === id);
-    this.currentInvestmentSubject.next(investment || null);
+    const response = await axios.get<Investment>(`${API_URL}/${id}`);
+    this.currentInvestmentSubject.next(response.data);
   }
 
   async fetchInvestmentBySymbol(symbol: string): Promise<void> {
-    const investment = this.investments.find((inv) => inv.symbol === symbol);
-    this.currentInvestmentSubject.next(investment || null);
+    const response = await axios.get<Investment>(`${API_URL}/symbol/${symbol}`);
+    this.currentInvestmentSubject.next(response.data);
   }
 
   async addTransaction(
     investmentId: string,
     newTransaction: Omit<Transaction, "id">
   ): Promise<void> {
-    const investment = this.investments.find((inv) => inv.id === investmentId);
-    if (investment) {
-      const transaction: Transaction = {
-        ...newTransaction,
-        id: Date.now().toString(),
-      };
-      investment.transactions.push(transaction);
-      this.investmentsSubject.next([...this.investments]);
-      this.currentInvestmentSubject.next({ ...investment });
-    } else {
-      throw new Error("Investment not found");
-    }
+    await axios.post(`${API_URL}/${investmentId}/transactions`, newTransaction);
+    await this.fetchInvestments();
+    await this.fetchInvestmentById(investmentId);
   }
 
   async updateInvestment(updatedInvestment: Investment): Promise<void> {
-    const index = this.investments.findIndex(
-      (inv) => inv.id === updatedInvestment.id
-    );
-    if (index !== -1) {
-      this.investments[index] = updatedInvestment;
-      this.investmentsSubject.next([...this.investments]);
-      this.currentInvestmentSubject.next({ ...updatedInvestment });
-    }
+    await axios.put(`${API_URL}/${updatedInvestment.id}`, updatedInvestment);
+    await this.fetchInvestments();
+    this.currentInvestmentSubject.next(updatedInvestment);
   }
 
-  async addInvestment(
-    newInvestment: Omit<Investment, "id">
-  ): Promise<Investment> {
-    const investment: Investment = {
-      ...newInvestment,
-      id: Date.now().toString(),
-      transactions: [],
-    };
-    this.investments.push(investment);
-    this.investmentsSubject.next([...this.investments]);
-    return Promise.resolve(investment);
+  async addInvestment(newInvestment: Omit<Investment, "id">): Promise<Investment> {
+    const response = await axios.post<Investment>(API_URL, newInvestment);
+    await this.fetchInvestments();
+    return response.data;
   }
 
   async deleteInvestment(id: string): Promise<void> {
-    const index = this.investments.findIndex((inv) => inv.id === id);
-    if (index !== -1) {
-      this.investments.splice(index, 1);
-      this.investmentsSubject.next([...this.investments]);
-    }
-    return Promise.resolve();
+    await axios.delete(`${API_URL}/${id}`);
+    await this.fetchInvestments();
   }
 
   async getInvestmentById(id: string): Promise<Investment | null> {
-    const investment = this.investments.find((inv) => inv.id === id);
-    return Promise.resolve(investment || null);
+    const response = await axios.get<Investment>(`${API_URL}/${id}`);
+    return response.data;
   }
 
-  getInvestmentCount(): number {
-    return this.investments.length;
+  async getInvestmentCount(): Promise<number> {
+    const response = await axios.get<number>(`${API_URL}/count`);
+    return response.data;
   }
 
-  getBestPerformer(): Investment | null {
-    if (this.investments.length === 0) return null;
-    return this.investments.reduce((best, current) => {
-      const bestPerformance = this.calculatePerformance(best);
-      const currentPerformance = this.calculatePerformance(current);
-      return currentPerformance > bestPerformance ? current : best;
-    });
+  async getBestPerformer(): Promise<Investment | null> {
+    const response = await axios.get<Investment>(`${API_URL}/best-performer`);
+    return response.data;
   }
 
-  getWorstPerformer(): Investment | null {
-    if (this.investments.length === 0) return null;
-    return this.investments.reduce((worst, current) => {
-      const worstPerformance = this.calculatePerformance(worst);
-      const currentPerformance = this.calculatePerformance(current);
-      return currentPerformance < worstPerformance ? current : worst;
-    });
-  }
-
-  private calculatePerformance(investment: Investment): number {
-    const totalQuantity = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
-    const currentValue = totalQuantity * investment.currentPrice;
-    const costBasis = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
-    return (currentValue - costBasis) / costBasis;
+  async getWorstPerformer(): Promise<Investment | null> {
+    const response = await axios.get<Investment>(`${API_URL}/worst-performer`);
+    return response.data;
   }
 }
 
 export const portfolioService = new PortfolioService();
 
 export const getInvestments = async (): Promise<{ investments: Investment[] }> => {
-  try {
-    const investments = await portfolioService.getInvestments().toPromise();
-    return { investments: investments || [] };
-  } catch (error) {
-    console.error('Error fetching investments:', error);
-    throw error;
-  }
+  await portfolioService.fetchInvestments();
+  return { investments: await portfolioService.getInvestments().toPromise() || [] };
 };
 
 export const getCurrentInvestment = (): Observable<Investment | null> => {
@@ -228,14 +126,14 @@ export const getInvestmentById = async (
   return portfolioService.getInvestmentById(id);
 };
 
-export const getInvestmentCount = (): number => {
+export const getInvestmentCount = async (): Promise<number> => {
   return portfolioService.getInvestmentCount();
 };
 
-export const getBestPerformer = (): Investment | null => {
+export const getBestPerformer = async (): Promise<Investment | null> => {
   return portfolioService.getBestPerformer();
 };
 
-export const getWorstPerformer = (): Investment | null => {
+export const getWorstPerformer = async (): Promise<Investment | null> => {
   return portfolioService.getWorstPerformer();
 };

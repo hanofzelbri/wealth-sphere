@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Investment } from '../types';
+import { toast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
     symbol: z.string().min(1, { message: "Symbol is required" }),
@@ -14,7 +15,7 @@ const formSchema = z.object({
 });
 
 type AddInvestmentFormProps = {
-    onAddInvestment: (investment: Investment) => void;
+    onAddInvestment: (investment: Investment) => Promise<boolean>;
 };
 
 export const AddInvestmentForm: React.FC<AddInvestmentFormProps> = ({ onAddInvestment }) => {
@@ -27,14 +28,35 @@ export const AddInvestmentForm: React.FC<AddInvestmentFormProps> = ({ onAddInves
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         const newInvestment: Investment = {
             ...values,
-            id: Date.now().toString(), // Generate a temporary ID
+            id: Date.now().toString(),
             transactions: [],
         };
-        onAddInvestment(newInvestment);
-        form.reset();
+
+        try {
+            const success = await onAddInvestment(newInvestment);
+            if (success) {
+                form.reset();
+                toast({
+                    title: "Investment added",
+                    description: "Your new investment has been successfully added.",
+                });
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Failed to add investment. Please try again.",
+                    variant: "destructive",
+                });
+            }
+        } catch {
+            toast({
+                title: "Error",
+                description: "An unexpected error occurred. Please try again.",
+                variant: "destructive",
+            });
+        }
     }
 
     return (
