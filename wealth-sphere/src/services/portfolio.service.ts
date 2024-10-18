@@ -1,12 +1,14 @@
 import { Investment, Transaction } from "@/types";
 import { BehaviorSubject, Observable, firstValueFrom } from "rxjs";
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:3000/investments';
+const API_URL = "http://localhost:3000/investments";
 
 class PortfolioService {
   private investmentsSubject = new BehaviorSubject<Investment[]>([]);
-  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(null);
+  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
+    null
+  );
 
   getInvestments(): Observable<Investment[]> {
     return this.investmentsSubject.asObservable();
@@ -21,7 +23,7 @@ class PortfolioService {
       const response = await axios.get<Investment[]>(API_URL);
       this.investmentsSubject.next(response.data);
     } catch (error) {
-      console.error('Error fetching investments:', error);
+      console.error("Error fetching investments:", error);
       throw error;
     }
   }
@@ -38,7 +40,9 @@ class PortfolioService {
 
   async fetchInvestmentBySymbol(symbol: string): Promise<void> {
     try {
-      const response = await axios.get<Investment>(`${API_URL}/symbol/${symbol}`);
+      const response = await axios.get<Investment>(
+        `${API_URL}/symbol/${symbol}`
+      );
       this.currentInvestmentSubject.next(response.data);
     } catch (error) {
       console.error(`Error fetching investment with symbol ${symbol}:`, error);
@@ -51,11 +55,14 @@ class PortfolioService {
     newTransaction: Omit<Transaction, "id">
   ): Promise<void> {
     try {
-      await axios.post(`${API_URL}/${investmentId}/transactions`, newTransaction);
+      await axios.post(
+        `${API_URL}/${investmentId}/transactions`,
+        newTransaction
+      );
       await this.fetchInvestments();
       await this.fetchInvestmentById(investmentId);
     } catch (error) {
-      console.error('Error adding transaction:', error);
+      console.error("Error adding transaction:", error);
       throw error;
     }
   }
@@ -66,18 +73,20 @@ class PortfolioService {
       await this.fetchInvestments();
       this.currentInvestmentSubject.next(updatedInvestment);
     } catch (error) {
-      console.error('Error updating investment:', error);
+      console.error("Error updating investment:", error);
       throw error;
     }
   }
 
-  async addInvestment(newInvestment: Omit<Investment, "id">): Promise<Investment> {
+  async addInvestment(
+    newInvestment: Omit<Investment, "id">
+  ): Promise<Investment> {
     try {
       const response = await axios.post<Investment>(API_URL, newInvestment);
       await this.fetchInvestments();
       return response.data;
     } catch (error) {
-      console.error('Error adding investment:', error);
+      console.error("Error adding investment:", error);
       throw error;
     }
   }
@@ -107,7 +116,7 @@ class PortfolioService {
       const response = await axios.get<number>(`${API_URL}/count`);
       return response.data;
     } catch (error) {
-      console.error('Error getting investment count:', error);
+      console.error("Error getting investment count:", error);
       throw error;
     }
   }
@@ -117,27 +126,34 @@ class PortfolioService {
       const response = await axios.get<Investment>(`${API_URL}/best-performer`);
       return response.data;
     } catch (error) {
-      console.error('Error getting best performer:', error);
+      console.error("Error getting best performer:", error);
       throw error;
     }
   }
 
   async getWorstPerformer(): Promise<Investment | null> {
     try {
-      const response = await axios.get<Investment>(`${API_URL}/worst-performer`);
+      const response = await axios.get<Investment>(
+        `${API_URL}/worst-performer`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error getting worst performer:', error);
+      console.error("Error getting worst performer:", error);
       throw error;
     }
   }
 
-  async deleteTransaction(investmentId: string, transactionId: string): Promise<void> {
+  async deleteTransaction(
+    investmentId: string,
+    transactionId: string
+  ): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/${investmentId}/transactions/${transactionId}`);
+      await axios.delete(
+        `${API_URL}/${investmentId}/transactions/${transactionId}`
+      );
       await this.fetchInvestmentById(investmentId);
     } catch (error) {
-      console.error('Error deleting transaction:', error);
+      console.error("Error deleting transaction:", error);
       throw error;
     }
   }
@@ -148,10 +164,13 @@ class PortfolioService {
     updatedTransaction: Omit<Transaction, "id">
   ): Promise<void> {
     try {
-      await axios.put(`${API_URL}/${investmentId}/transactions/${transactionId}`, updatedTransaction);
+      await axios.put(
+        `${API_URL}/${investmentId}/transactions/${transactionId}`,
+        updatedTransaction
+      );
       await this.fetchInvestmentById(investmentId);
     } catch (error) {
-      console.error('Error updating transaction:', error);
+      console.error("Error updating transaction:", error);
       throw error;
     }
   }
@@ -159,7 +178,9 @@ class PortfolioService {
 
 export const portfolioService = new PortfolioService();
 
-export const getInvestments = async (): Promise<{ investments: Investment[] }> => {
+export const getInvestments = async (): Promise<{
+  investments: Investment[];
+}> => {
   await portfolioService.fetchInvestments();
   const investments = await firstValueFrom(portfolioService.getInvestments());
   return { investments };
@@ -173,7 +194,9 @@ export const fetchInvestmentById = async (id: string): Promise<void> => {
   return portfolioService.fetchInvestmentById(id);
 };
 
-export const fetchInvestmentBySymbol = async (symbol: string): Promise<void> => {
+export const fetchInvestmentBySymbol = async (
+  symbol: string
+): Promise<void> => {
   return portfolioService.fetchInvestmentBySymbol(symbol);
 };
 
@@ -230,5 +253,9 @@ export const updateTransaction = async (
   transactionId: string,
   updatedTransaction: Omit<Transaction, "id">
 ): Promise<void> => {
-  return portfolioService.updateTransaction(investmentId, transactionId, updatedTransaction);
+  return portfolioService.updateTransaction(
+    investmentId,
+    transactionId,
+    updatedTransaction
+  );
 };

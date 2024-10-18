@@ -9,33 +9,41 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  email        String        @unique
-  name         String?
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid 
+  name String
+
   investments  Investment[]
   transactions Transaction[]
+
+  @@map("users")
 }
 
 model Investment {
-  id           String        @id @default(uuid())
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String?       @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
   name         String
   symbol       String
   currentPrice Float
   transactions Transaction[]
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int           @default(dbgenerated("(current_setting('app.current_user_id'::text))::integer"))
+
+  User User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("investments")
 }
 
 model Transaction {
-  id           String          @id @default(uuid())
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String          @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String          @db.Uuid
   quantity     Float
   price        Float
   date         DateTime
   type         TransactionType
-  investment   Investment      @relation(fields: [investmentId], references: [id])
-  investmentId String
-  user         User            @relation(fields: [userId], references: [id])
-  userId       Int             @default(dbgenerated("(current_setting('app.current_user_id'::text))::integer"))
+
+  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
 }
 
 enum TransactionType {
