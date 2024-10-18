@@ -11,8 +11,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { InvestmentSummary } from './InvestmentSummary';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EditPriceDialog } from './EditPriceDialog';
-import { DeleteTransactionDialog } from './DeleteTransactionDialog';
 import { EditTransactionForm } from './EditTransactionForm';
+import { DeleteDialog } from './DeleteDialog';
 
 export const InvestmentDetails: React.FC = () => {
   const [investment, setInvestment] = useState<Investment | null>(null);
@@ -70,11 +70,7 @@ export const InvestmentDetails: React.FC = () => {
     }
   };
 
-  const handleDeleteTransaction = (transaction: Transaction) => {
-    setTransactionToDelete(transaction);
-  };
-
-  const onConfirmDelete = async () => {
+  const handleDeleteTransaction = async () => {
     if (investment && transactionToDelete) {
       try {
         await deleteTransaction(investment.id, transactionToDelete.id);
@@ -216,13 +212,14 @@ export const InvestmentDetails: React.FC = () => {
             />
           </CollapsibleContent>
         </Collapsible>
+        <DeleteDialog
+          isOpen={!!transactionToDelete}
+          onClose={() => setTransactionToDelete(null)}
+          onConfirm={handleDeleteTransaction}
+          title="Confirm Transaction Deletion"
+          description="Are you sure you want to delete this transaction? This action cannot be undone."
+        />
       </CardContent>
-      <DeleteTransactionDialog
-        investment={investment}
-        transactionId={transactionToDelete?.id || null}
-        onClose={() => setTransactionToDelete(null)}
-        onUpdateInvestment={onConfirmDelete}
-      />
     </Card>
   );
 };

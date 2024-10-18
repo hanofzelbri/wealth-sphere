@@ -42,7 +42,7 @@ export class InvestmentsService {
   async createInvestment(
     data: Prisma.InvestmentCreateInput,
     userId: string,
-  ): Promise<Investment> {
+  ): Promise<InvestmentWithTransactions> {
     const { transactions, ...investmentData } = data;
     return this.prisma.investment.create({
       data: {
@@ -64,9 +64,18 @@ export class InvestmentsService {
     data: Prisma.InvestmentUpdateInput,
     userId: string,
   ): Promise<InvestmentWithTransactions> {
+    const { transactions, ...investmentData } = data;
     return this.prisma.investment.update({
       where: { id, userId },
-      data,
+      data: {
+        ...investmentData,
+        transactions: transactions
+          ? {
+              create:
+                transactions as Prisma.TransactionCreateWithoutInvestmentInput[],
+            }
+          : undefined,
+      },
       include: { transactions: true },
     });
   }
@@ -75,6 +84,7 @@ export class InvestmentsService {
     id: string,
     userId: string,
   ): Promise<InvestmentWithTransactions> {
+    console.log('Deleting investment with ID:', id, userId);
     return this.prisma.investment.delete({
       where: { id, userId },
       include: { transactions: true },

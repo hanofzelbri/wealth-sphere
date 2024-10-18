@@ -3,7 +3,7 @@ import { Investment, Transaction } from '../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from 'lucide-react';
-import { DeleteTransactionDialog } from './DeleteTransactionDialog';
+import { DeleteTransactionDialog } from './DeleteDialog';
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { EditTransactionForm } from './EditTransactionForm';
 

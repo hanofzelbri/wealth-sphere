@@ -5,10 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { PlusIcon, X } from 'lucide-react';
-import { DeleteTransactionDialog } from './DeleteTransactionDialog';
 import { AddInvestmentForm } from './AddInvestmentForm';
 import { PortfolioSummary } from './PortfolioSummary';
 import { InvestmentsTable } from './InvestmentsTable';
+import { DeleteDialog } from './DeleteDialog';
 
 export const PortfolioDashboard: React.FC = () => {
     const [investments, setInvestments] = useState<Investment[]>([]);
@@ -56,7 +56,7 @@ export const PortfolioDashboard: React.FC = () => {
         setInvestmentToDelete(investment);
     };
 
-    const onConfirmDelete = async () => {
+    const confirmDeleteInvestment = async () => {
         if (investmentToDelete) {
             try {
                 await deleteInvestment(investmentToDelete.id);
@@ -118,11 +118,12 @@ export const PortfolioDashboard: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
-            <DeleteTransactionDialog
-                investment={investmentToDelete as Investment}
-                transactionId={investmentToDelete?.id || null}
+            <DeleteDialog
+                isOpen={!!investmentToDelete}
                 onClose={() => setInvestmentToDelete(null)}
-                onUpdateInvestment={onConfirmDelete}
+                onConfirm={confirmDeleteInvestment}
+                title="Confirm Investment Deletion"
+                description="Are you sure you want to delete this investment? This action cannot be undone and will remove all associated transactions."
             />
         </div>
     );
