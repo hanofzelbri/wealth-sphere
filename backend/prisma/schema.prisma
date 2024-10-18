@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Investment {
+  id           String        @id @default(uuid())
+  name         String
+  symbol       String
+  currentPrice Float
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           String          @id @default(uuid())
+  quantity     Float
+  price        Float
+  date         DateTime
+  type         TransactionType
+  investment   Investment      @relation(fields: [investmentId], references: [id])
+  investmentId String
+}
+
+enum TransactionType {
+  buy
+  sell
+}

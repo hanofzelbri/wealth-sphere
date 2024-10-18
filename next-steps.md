@@ -4,7 +4,3 @@
 - Add Staking information for all investments, staked yes or no and where it is staked and how much, multiple staking options and only part of it could be staked
 - Live data fetched via api and displayed on the dashboard
 - Graph plotting for investment performance for different time frames, 1d, 1w, 3m, 1y, all time, custom time frame
-
-
-
-nCNECDwJbATrfzaw
