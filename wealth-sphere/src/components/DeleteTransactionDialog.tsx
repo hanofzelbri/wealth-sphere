@@ -2,7 +2,7 @@ import React from 'react';
 import { Investment } from '../types';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { updateInvestment } from '../services/portfolio.service';
+import { deleteTransaction } from '../services/portfolio.service';
 
 interface DeleteTransactionDialogProps {
   investment: Investment;
@@ -24,7 +24,7 @@ export const DeleteTransactionDialog: React.FC<DeleteTransactionDialogProps> = (
           ...investment,
           transactions: investment.transactions.filter(t => t.id !== transactionId)
         };
-        await updateInvestment(updatedInvestment);
+        await deleteTransaction(investment.id, transactionId);
         onUpdateInvestment(updatedInvestment);
         onClose();
       } catch (error) {

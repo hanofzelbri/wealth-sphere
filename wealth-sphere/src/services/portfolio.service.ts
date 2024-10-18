@@ -131,6 +131,30 @@ class PortfolioService {
       throw error;
     }
   }
+
+  async deleteTransaction(investmentId: string, transactionId: string): Promise<void> {
+    try {
+      await axios.delete(`${API_URL}/${investmentId}/transactions/${transactionId}`);
+      await this.fetchInvestmentById(investmentId);
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      throw error;
+    }
+  }
+
+  async updateTransaction(
+    investmentId: string,
+    transactionId: string,
+    updatedTransaction: Omit<Transaction, "id">
+  ): Promise<void> {
+    try {
+      await axios.put(`${API_URL}/${investmentId}/transactions/${transactionId}`, updatedTransaction);
+      await this.fetchInvestmentById(investmentId);
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      throw error;
+    }
+  }
 }
 
 export const portfolioService = new PortfolioService();
@@ -192,4 +216,19 @@ export const getBestPerformer = async (): Promise<Investment | null> => {
 
 export const getWorstPerformer = async (): Promise<Investment | null> => {
   return portfolioService.getWorstPerformer();
+};
+
+export const deleteTransaction = async (
+  investmentId: string,
+  transactionId: string
+): Promise<void> => {
+  return portfolioService.deleteTransaction(investmentId, transactionId);
+};
+
+export const updateTransaction = async (
+  investmentId: string,
+  transactionId: string,
+  updatedTransaction: Omit<Transaction, "id">
+): Promise<void> => {
+  return portfolioService.updateTransaction(investmentId, transactionId, updatedTransaction);
 };

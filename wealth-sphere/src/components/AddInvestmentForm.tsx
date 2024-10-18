@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Investment } from '../types';
-import { toast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
     symbol: z.string().min(1, { message: "Symbol is required" }),
@@ -39,23 +38,9 @@ export const AddInvestmentForm: React.FC<AddInvestmentFormProps> = ({ onAddInves
             const success = await onAddInvestment(newInvestment);
             if (success) {
                 form.reset();
-                toast({
-                    title: "Investment added",
-                    description: "Your new investment has been successfully added.",
-                });
-            } else {
-                toast({
-                    title: "Error",
-                    description: "Failed to add investment. Please try again.",
-                    variant: "destructive",
-                });
             }
-        } catch {
-            toast({
-                title: "Error",
-                description: "An unexpected error occurred. Please try again.",
-                variant: "destructive",
-            });
+        } catch (error) {
+            console.error("An unexpected error occurred:", error);
         }
     }
 

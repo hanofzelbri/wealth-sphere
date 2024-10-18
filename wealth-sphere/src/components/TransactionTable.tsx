@@ -15,7 +15,6 @@ interface TransactionTableProps {
 
 export const TransactionTable: React.FC<TransactionTableProps> = ({
   investment,
-  onEditTransaction,
   onUpdateInvestment,
 }) => {
   const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Investment, Transaction } from '../types';
-import { getCurrentInvestment, addTransaction, updateInvestment, fetchInvestmentBySymbol } from '../services/portfolio.service';
+import { getCurrentInvestment, addTransaction, updateInvestment, fetchInvestmentBySymbol, deleteTransaction, updateTransaction } from '../services/portfolio.service';
 import { AddTransactionForm } from './AddTransactionForm';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,7 @@ export const InvestmentDetails: React.FC = () => {
             transactions: updatedTransactions
           });
         } else {
-          await addTransaction(symbol, transaction);
+          await addTransaction(investment.id, transaction);
         }
         setIsAddTransactionOpen(false);
         setEditingTransaction(null);
@@ -64,14 +64,8 @@ export const InvestmentDetails: React.FC = () => {
   };
 
   const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
-    if (investment) {
-      const updatedTransactions = investment.transactions.map(t =>
-        t.id === updatedTransaction.id ? updatedTransaction : t
-      );
-      await updateInvestment({
-        ...investment,
-        transactions: updatedTransactions
-      });
+    if (investment && investment.id) {
+      await updateTransaction(investment.id, updatedTransaction.id, updatedTransaction);
       setEditingTransactionId(null);
     }
   };
@@ -82,12 +76,13 @@ export const InvestmentDetails: React.FC = () => {
 
   const onConfirmDelete = async () => {
     if (investment && transactionToDelete) {
-      const updatedTransactions = investment.transactions.filter(t => t.id !== transactionToDelete.id);
-      await updateInvestment({
-        ...investment,
-        transactions: updatedTransactions
-      });
-      setTransactionToDelete(null);
+      try {
+        await deleteTransaction(investment.id, transactionToDelete.id);
+        await fetchInvestmentBySymbol(investment.symbol);
+        setTransactionToDelete(null);
+      } catch (error) {
+        console.error("Error deleting transaction:", error);
+      }
     }
   };
 

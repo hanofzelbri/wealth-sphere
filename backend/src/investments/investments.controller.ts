@@ -9,10 +9,12 @@ import {
 } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
 import { Investment, Transaction, Prisma } from '@prisma/client';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Controller('investments')
 export class InvestmentsController {
-  constructor(private investmentsService: InvestmentsService) {}
+  constructor(private readonly investmentsService: InvestmentsService) {}
 
   @Get()
   async getAllInvestments(): Promise<Investment[]> {
@@ -54,9 +56,9 @@ export class InvestmentsController {
   @Post(':id/transactions')
   async addTransaction(
     @Param('id') id: string,
-    @Body() data: Prisma.TransactionCreateInput,
+    @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<Transaction> {
-    return this.investmentsService.addTransaction(id, data);
+    return this.investmentsService.addTransaction(id, createTransactionDto);
   }
 
   @Get('count')
@@ -72,5 +74,26 @@ export class InvestmentsController {
   @Get('worst-performer')
   async getWorstPerformer(): Promise<Investment | null> {
     return this.investmentsService.getWorstPerformer();
+  }
+
+  @Put(':id/transactions/:transactionId')
+  async updateTransaction(
+    @Param('id') id: string,
+    @Param('transactionId') transactionId: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+  ) {
+    return this.investmentsService.updateTransaction(
+      id,
+      transactionId,
+      updateTransactionDto,
+    );
+  }
+
+  @Delete(':id/transactions/:transactionId')
+  async deleteTransaction(
+    @Param('id') id: string,
+    @Param('transactionId') transactionId: string,
+  ) {
+    return this.investmentsService.deleteTransaction(id, transactionId);
   }
 }

@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Investment, Transaction, Prisma } from '@prisma/client';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 type InvestmentWithTransactions = Investment & { transactions: Transaction[] };
 
@@ -68,18 +70,6 @@ export class InvestmentsService {
     });
   }
 
-  async addTransaction(
-    investmentId: string,
-    data: Prisma.TransactionCreateInput,
-  ): Promise<Transaction> {
-    return this.prisma.transaction.create({
-      data: {
-        ...data,
-        investment: { connect: { id: investmentId } },
-      },
-    });
-  }
-
   async getInvestmentCount(): Promise<number> {
     return this.prisma.investment.count();
   }
@@ -113,5 +103,76 @@ export class InvestmentsService {
       0,
     );
     return (currentValue - costBasis) / costBasis;
+  }
+
+  async createTransaction(
+    investmentId: string,
+    data: Omit<Prisma.TransactionCreateInput, 'investment'>,
+  ): Promise<Transaction> {
+    const investment = await this.prisma.investment.findUnique({
+      where: { id: investmentId },
+    });
+
+    if (!investment) {
+      throw new NotFoundException(
+        `Investment with ID ${investmentId} not found`,
+      );
+    }
+
+    return this.prisma.transaction.create({
+      data: {
+        ...data,
+        investment: {
+          connect: { id: investmentId },
+        },
+      },
+    });
+  }
+
+  async addTransaction(id: string, createTransactionDto: CreateTransactionDto) {
+    const investment = await this.prisma.investment.findUnique({
+      where: { id },
+    });
+    if (!investment) {
+      throw new NotFoundException(`Investment with ID ${id} not found`);
+    }
+
+    return this.prisma.transaction.create({
+      data: {
+        ...createTransactionDto,
+        investmentId: id,
+      },
+    });
+  }
+
+  async updateTransaction(
+    id: string,
+    transactionId: string,
+    updateTransactionDto: UpdateTransactionDto,
+  ) {
+    const investment = await this.prisma.investment.findUnique({
+      where: { id },
+    });
+    if (!investment) {
+      throw new NotFoundException(`Investment with ID ${id} not found`);
+    }
+
+    return this.prisma.transaction.update({
+      where: { id: transactionId },
+      data: updateTransactionDto,
+    });
+  }
+
+  async deleteTransaction(id: string, transactionId: string) {
+    const investment = await this.prisma.investment.findUnique({
+      where: { id },
+    });
+    if (!investment) {
+      throw new NotFoundException(`Investment with ID ${id} not found`);
+    }
+
+    return this.prisma.transaction.delete({
+      where: { id: transactionId },
+    });
   }
 }
