@@ -14,7 +14,7 @@ const formSchema = z.object({
 });
 
 type AddInvestmentFormProps = {
-    onAddInvestment: (investment: Investment) => Promise<boolean>;
+    onAddInvestment: (investment: Omit<Investment, "id">) => Promise<boolean>;
 };
 
 export const AddInvestmentForm: React.FC<AddInvestmentFormProps> = ({ onAddInvestment }) => {
@@ -28,9 +28,8 @@ export const AddInvestmentForm: React.FC<AddInvestmentFormProps> = ({ onAddInves
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        const newInvestment: Investment = {
+        const newInvestment: Omit<Investment, "id"> = {
             ...values,
-            id: Date.now().toString(),
             transactions: [],
         };
 

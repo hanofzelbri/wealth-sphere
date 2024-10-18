@@ -9,5 +9,22 @@
           "webRoot":"${workspaceFolder}/wealth-sphere/src",
           "runtimeExecutable": "/usr/bin/brave-browser"
        }
+    ,
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug NestJS Backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "start:debug"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "restart": true,
+      "protocol": "inspector"
+    }
     ]
  }

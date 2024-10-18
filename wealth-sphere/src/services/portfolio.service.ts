@@ -1,6 +1,7 @@
 import { Investment, Transaction } from "@/types";
 import { BehaviorSubject, Observable, firstValueFrom } from "rxjs";
 import axios from "axios";
+import { userService } from "./user.service";
 
 const API_URL = "http://localhost:3000/investments";
 
@@ -9,6 +10,20 @@ class PortfolioService {
   private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
     null
   );
+
+  private async getUserId(): Promise<string | null> {
+    const currentUser = userService.currentUserValue;
+    return currentUser ? currentUser.id : null;
+  }
+
+  private async getHeaders(): Promise<{ headers: { Authorization: string } }> {
+    const userId = await this.getUserId();
+    return {
+      headers: {
+        Authorization: `Bearer ${userId}`,
+      },
+    };
+  }
 
   getInvestments(): Observable<Investment[]> {
     return this.investmentsSubject.asObservable();
@@ -20,7 +35,8 @@ class PortfolioService {
 
   async fetchInvestments(): Promise<void> {
     try {
-      const response = await axios.get<Investment[]>(API_URL);
+      const headers = await this.getHeaders();
+      const response = await axios.get<Investment[]>(API_URL, headers);
       this.investmentsSubject.next(response.data);
     } catch (error) {
       console.error("Error fetching investments:", error);
@@ -30,7 +46,8 @@ class PortfolioService {
 
   async fetchInvestmentById(id: string): Promise<void> {
     try {
-      const response = await axios.get<Investment>(`${API_URL}/${id}`);
+      const headers = await this.getHeaders();
+      const response = await axios.get<Investment>(`${API_URL}/${id}`, headers);
       this.currentInvestmentSubject.next(response.data);
     } catch (error) {
       console.error(`Error fetching investment with id ${id}:`, error);
@@ -40,8 +57,10 @@ class PortfolioService {
 
   async fetchInvestmentBySymbol(symbol: string): Promise<void> {
     try {
+      const headers = await this.getHeaders();
       const response = await axios.get<Investment>(
-        `${API_URL}/symbol/${symbol}`
+        `${API_URL}/symbol/${symbol}`,
+        headers
       );
       this.currentInvestmentSubject.next(response.data);
     } catch (error) {
@@ -55,9 +74,11 @@ class PortfolioService {
     newTransaction: Omit<Transaction, "id">
   ): Promise<void> {
     try {
+      const headers = await this.getHeaders();
       await axios.post(
         `${API_URL}/${investmentId}/transactions`,
-        newTransaction
+        newTransaction,
+        headers
       );
       await this.fetchInvestments();
       await this.fetchInvestmentById(investmentId);
@@ -69,7 +90,12 @@ class PortfolioService {
 
   async updateInvestment(updatedInvestment: Investment): Promise<void> {
     try {
-      await axios.put(`${API_URL}/${updatedInvestment.id}`, updatedInvestment);
+      const headers = await this.getHeaders();
+      await axios.put(
+        `${API_URL}/${updatedInvestment.id}`,
+        updatedInvestment,
+        headers
+      );
       await this.fetchInvestments();
       this.currentInvestmentSubject.next(updatedInvestment);
     } catch (error) {
@@ -79,10 +105,11 @@ class PortfolioService {
   }
 
   async addInvestment(
-    newInvestment: Omit<Investment, "id">
+    newInvestment: Investment
   ): Promise<Investment> {
     try {
-      const response = await axios.post<Investment>(API_URL, newInvestment);
+      const headers = await this.getHeaders();
+      const response = await axios.post<Investment>(API_URL, newInvestment, headers);
       await this.fetchInvestments();
       return response.data;
     } catch (error) {
@@ -93,7 +120,8 @@ class PortfolioService {
 
   async deleteInvestment(id: string): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      const headers = await this.getHeaders();
+      await axios.delete(`${API_URL}/${id}`, headers);
       await this.fetchInvestments();
     } catch (error) {
       console.error(`Error deleting investment with id ${id}:`, error);
@@ -103,7 +131,8 @@ class PortfolioService {
 
   async getInvestmentById(id: string): Promise<Investment | null> {
     try {
-      const response = await axios.get<Investment>(`${API_URL}/${id}`);
+      const headers = await this.getHeaders();
+      const response = await axios.get<Investment>(`${API_URL}/${id}`, headers);
       return response.data;
     } catch (error) {
       console.error(`Error getting investment with id ${id}:`, error);
@@ -113,7 +142,8 @@ class PortfolioService {
 
   async getInvestmentCount(): Promise<number> {
     try {
-      const response = await axios.get<number>(`${API_URL}/count`);
+      const headers = await this.getHeaders();
+      const response = await axios.get<number>(`${API_URL}/count`, headers);
       return response.data;
     } catch (error) {
       console.error("Error getting investment count:", error);
@@ -123,7 +153,8 @@ class PortfolioService {
 
   async getBestPerformer(): Promise<Investment | null> {
     try {
-      const response = await axios.get<Investment>(`${API_URL}/best-performer`);
+      const headers = await this.getHeaders();
+      const response = await axios.get<Investment>(`${API_URL}/best-performer`, headers);
       return response.data;
     } catch (error) {
       console.error("Error getting best performer:", error);
@@ -133,8 +164,10 @@ class PortfolioService {
 
   async getWorstPerformer(): Promise<Investment | null> {
     try {
+      const headers = await this.getHeaders();
       const response = await axios.get<Investment>(
-        `${API_URL}/worst-performer`
+        `${API_URL}/worst-performer`,
+        headers
       );
       return response.data;
     } catch (error) {
@@ -148,8 +181,10 @@ class PortfolioService {
     transactionId: string
   ): Promise<void> {
     try {
+      const headers = await this.getHeaders();
       await axios.delete(
-        `${API_URL}/${investmentId}/transactions/${transactionId}`
+        `${API_URL}/${investmentId}/transactions/${transactionId}`,
+        headers
       );
       await this.fetchInvestmentById(investmentId);
     } catch (error) {
@@ -164,9 +199,11 @@ class PortfolioService {
     updatedTransaction: Omit<Transaction, "id">
   ): Promise<void> {
     try {
+      const headers = await this.getHeaders();
       await axios.put(
         `${API_URL}/${investmentId}/transactions/${transactionId}`,
-        updatedTransaction
+        updatedTransaction,
+        headers
       );
       await this.fetchInvestmentById(investmentId);
     } catch (error) {
@@ -214,7 +251,7 @@ export const updateInvestment = async (
 };
 
 export const addInvestment = async (
-  newInvestment: Omit<Investment, "id">
+  newInvestment: Investment
 ): Promise<Investment> => {
   return portfolioService.addInvestment(newInvestment);
 };

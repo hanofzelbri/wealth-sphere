@@ -10,7 +10,9 @@ type InvestmentWithTransactions = Investment & { transactions: Transaction[] };
 export class InvestmentsService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllInvestments(userId: string): Promise<InvestmentWithTransactions[]> {
+  async getAllInvestments(
+    userId: string,
+  ): Promise<InvestmentWithTransactions[]> {
     return this.prisma.investment.findMany({
       where: { userId },
       include: { transactions: true },
@@ -40,12 +42,12 @@ export class InvestmentsService {
   async createInvestment(
     data: Prisma.InvestmentCreateInput,
     userId: string,
-  ): Promise<InvestmentWithTransactions> {
+  ): Promise<Investment> {
     const { transactions, ...investmentData } = data;
     return this.prisma.investment.create({
       data: {
         ...investmentData,
-        userId,
+        User: { connect: { id: userId } },
         transactions: transactions
           ? {
               create:
@@ -69,7 +71,10 @@ export class InvestmentsService {
     });
   }
 
-  async deleteInvestment(id: string, userId: string): Promise<InvestmentWithTransactions> {
+  async deleteInvestment(
+    id: string,
+    userId: string,
+  ): Promise<InvestmentWithTransactions> {
     return this.prisma.investment.delete({
       where: { id, userId },
       include: { transactions: true },
@@ -82,7 +87,9 @@ export class InvestmentsService {
     });
   }
 
-  async getBestPerformer(userId: string): Promise<InvestmentWithTransactions | null> {
+  async getBestPerformer(
+    userId: string,
+  ): Promise<InvestmentWithTransactions | null> {
     const investments = await this.getAllInvestments(userId);
     return investments.reduce((best, current) => {
       const bestPerformance = this.calculatePerformance(best);
@@ -91,7 +98,9 @@ export class InvestmentsService {
     });
   }
 
-  async getWorstPerformer(userId: string): Promise<InvestmentWithTransactions | null> {
+  async getWorstPerformer(
+    userId: string,
+  ): Promise<InvestmentWithTransactions | null> {
     const investments = await this.getAllInvestments(userId);
     return investments.reduce((worst, current) => {
       const worstPerformance = this.calculatePerformance(worst);
@@ -113,43 +122,25 @@ export class InvestmentsService {
     return (currentValue - costBasis) / costBasis;
   }
 
-  async createTransaction(
-    investmentId: string,
-    data: Omit<Prisma.TransactionCreateInput, 'investment'>,
+  async addTransaction(
+    id: string,
+    createTransactionDto: CreateTransactionDto,
     userId: string,
   ): Promise<Transaction> {
     const investment = await this.prisma.investment.findUnique({
-      where: { id: investmentId, userId },
+      where: { id, userId },
     });
 
     if (!investment) {
       throw new NotFoundException(
-        `Investment with ID ${investmentId} not found for this user`,
+        `Investment with ID ${id} not found for this user`,
       );
     }
 
     return this.prisma.transaction.create({
       data: {
-        ...data,
-        investment: {
-          connect: { id: investmentId },
-        },
-      },
-    });
-  }
-
-  async addTransaction(id: string, createTransactionDto: CreateTransactionDto, userId: string) {
-    const investment = await this.prisma.investment.findUnique({
-      where: { id, userId },
-    });
-    if (!investment) {
-      throw new NotFoundException(`Investment with ID ${id} not found for this user`);
-    }
-
-    return this.prisma.transaction.create({
-      data: {
         ...createTransactionDto,
-        investmentId: id,
+        investment: { connect: { id, userId } },
       },
     });
   }
@@ -164,7 +155,9 @@ export class InvestmentsService {
       where: { id, userId },
     });
     if (!investment) {
-      throw new NotFoundException(`Investment with ID ${id} not found for this user`);
+      throw new NotFoundException(
+        `Investment with ID ${id} not found for this user`,
+      );
     }
 
     return this.prisma.transaction.update({
@@ -178,7 +171,9 @@ export class InvestmentsService {
       where: { id, userId },
     });
     if (!investment) {
-      throw new NotFoundException(`Investment with ID ${id} not found for this user`);
+      throw new NotFoundException(
+        `Investment with ID ${id} not found for this user`,
+      );
     }
 
     return this.prisma.transaction.delete({
