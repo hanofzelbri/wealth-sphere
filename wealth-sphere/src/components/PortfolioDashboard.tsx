@@ -39,7 +39,7 @@ export const PortfolioDashboard: React.FC = () => {
         }
     };
 
-    const handleAddInvestment = async (newInvestment: Investment) => {
+    const handleAddInvestment = async (newInvestment: Omit<Investment, "id">) => {
         try {
             await addInvestment(newInvestment);
             setIsAddInvestmentOpen(false);

@@ -105,7 +105,7 @@ class PortfolioService {
   }
 
   async addInvestment(
-    newInvestment: Investment
+    newInvestment: Omit<Investment, "id">
   ): Promise<Investment> {
     try {
       const headers = await this.getHeaders();
@@ -251,7 +251,7 @@ export const updateInvestment = async (
 };
 
 export const addInvestment = async (
-  newInvestment: Investment
+  newInvestment: Omit<Investment, "id">
 ): Promise<Investment> => {
   return portfolioService.addInvestment(newInvestment);
 };
