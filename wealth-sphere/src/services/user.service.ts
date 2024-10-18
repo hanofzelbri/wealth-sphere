@@ -39,16 +39,9 @@ export class UserService {
     });
     if (error) throw error;
     if (data.user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("name")
-        .eq("id", data.user.id)
-        .single();
-
       const user: User = {
         id: data.user.id,
-        email: data.user.email!,
-        name: profile?.name || "User",
+        name: data.user.email || "User",
       };
       this.currentUserSubject.next(user);
       return user;
