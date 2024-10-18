@@ -25,6 +25,18 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
     const sortedInvestments = useMemo(() => {
         return [...investments].sort((a, b) => {
             let aValue, bValue;
+
+            const calculateValue = (investment: Investment) => {
+                const totalQuantity = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
+                return totalQuantity * investment.currentPrice;
+            };
+
+            const calculateGainLoss = (investment: Investment) => {
+                const value = calculateValue(investment);
+                const costBasis = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
+                return value - costBasis;
+            };
+
             switch (sortField) {
                 case 'symbol':
                 case 'name':
@@ -40,21 +52,18 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
                     bValue = b.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
                     break;
                 case 'value':
-                    aValue = a.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0) * a.currentPrice;
-                    bValue = b.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0) * b.currentPrice;
+                    aValue = calculateValue(a);
+                    bValue = calculateValue(b);
                     break;
                 case 'gainLoss':
-                    const aValue1 = a.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0) * a.currentPrice;
-                    const aCostBasis = a.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
-                    aValue = aValue1 - aCostBasis;
-                    const bValue1 = b.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0) * b.currentPrice;
-                    const bCostBasis = b.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
-                    bValue = bValue1 - bCostBasis;
+                    aValue = calculateGainLoss(a);
+                    bValue = calculateGainLoss(b);
                     break;
                 default:
                     aValue = a[sortField];
                     bValue = b[sortField];
             }
+
             if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
             if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
             return 0;

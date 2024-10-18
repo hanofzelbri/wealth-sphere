@@ -14,20 +14,39 @@ export const PortfolioDashboard: React.FC = () => {
     const [investments, setInvestments] = useState<Investment[]>([]);
     const [investmentToDelete, setInvestmentToDelete] = useState<Investment | null>(null);
     const [isAddInvestmentOpen, setIsAddInvestmentOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        fetchInvestments();
+
         const subscription = portfolioService.getInvestments().subscribe(
             (fetchedInvestments) => {
                 setInvestments(fetchedInvestments);
+                setIsLoading(false);
             }
         );
 
         return () => subscription.unsubscribe();
     }, []);
 
+    const fetchInvestments = async () => {
+        try {
+            setIsLoading(true);
+            await portfolioService.fetchInvestments();
+        } catch (error) {
+            console.error('Error fetching investments:', error);
+            setIsLoading(false);
+        }
+    };
+
     const handleAddInvestment = async (newInvestment: Investment) => {
-        await addInvestment(newInvestment);
-        setIsAddInvestmentOpen(false);
+        try {
+            await addInvestment(newInvestment);
+            setIsAddInvestmentOpen(false);
+            await fetchInvestments();
+        } catch (error) {
+            console.error('Error adding investment:', error);
+        }
     };
 
     const handleDeleteInvestment = (investment: Investment) => {
@@ -36,13 +55,23 @@ export const PortfolioDashboard: React.FC = () => {
 
     const onConfirmDelete = async () => {
         if (investmentToDelete) {
-            await deleteInvestment(investmentToDelete.id);
-            setInvestmentToDelete(null);
+            try {
+                await deleteInvestment(investmentToDelete.id);
+                setInvestmentToDelete(null);
+                await fetchInvestments();
+            } catch (error) {
+                console.error('Error deleting investment:', error);
+            }
         }
     };
 
     const handleUpdateInvestment = async (updatedInvestment: Investment) => {
-        await updateInvestment(updatedInvestment);
+        try {
+            await updateInvestment(updatedInvestment);
+            await fetchInvestments();
+        } catch (error) {
+            console.error('Error updating investment:', error);
+        }
     };
 
     return (
@@ -75,11 +104,15 @@ export const PortfolioDashboard: React.FC = () => {
                             <AddInvestmentForm onAddInvestment={handleAddInvestment} />
                         </CollapsibleContent>
                     </Collapsible>
-                    <InvestmentsTable
-                        investments={investments}
-                        onDeleteInvestment={handleDeleteInvestment}
-                        onUpdateInvestment={handleUpdateInvestment}
-                    />
+                    {isLoading ? (
+                        <div>Loading investments...</div>
+                    ) : (
+                        <InvestmentsTable
+                            investments={investments}
+                            onDeleteInvestment={handleDeleteInvestment}
+                            onUpdateInvestment={handleUpdateInvestment}
+                        />
+                    )}
                 </CardContent>
             </Card>
             <DeleteTransactionDialog
