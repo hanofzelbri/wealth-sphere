@@ -1,9 +1,11 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { supabase } from "@/lib/supabaseClient";
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
   name: string;
+  accessToken: string;
 }
 
 export class UserService {
@@ -21,10 +23,11 @@ export class UserService {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-      this.currentUserSubject.next({
-        id: user.id,
-        name: user.email || "User",
-      });
+      const session = await supabase.auth.getSession();
+      const accessToken = session.data.session?.access_token;
+      if (accessToken) {
+        this.setCurrentUser(user, accessToken);
+      }
     }
   }
 
@@ -38,20 +41,27 @@ export class UserService {
       password,
     });
     if (error) throw error;
-    if (data.user) {
-      const user: User = {
-        id: data.user.id,
-        name: data.user.email || "User",
-      };
-      this.currentUserSubject.next(user);
-      return user;
+    if (data.user && data.session) {
+      this.setCurrentUser(data.user, data.session.access_token);
+      await supabase.auth.startAutoRefresh();
+      return this.currentUserValue;
     }
     return null;
   }
 
   async logout() {
     await supabase.auth.signOut();
+    await supabase.auth.stopAutoRefresh();
     this.currentUserSubject.next(null);
+  }
+
+  private setCurrentUser(user: SupabaseUser, accessToken: string) {
+    const currentUser: User = {
+      id: user.id,
+      name: user.email || "User",
+      accessToken: accessToken,
+    };
+    this.currentUserSubject.next(currentUser);
   }
 }
 

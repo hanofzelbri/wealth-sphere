@@ -11,16 +11,11 @@ class PortfolioService {
     null
   );
 
-  private async getUserId(): Promise<string | null> {
+  private getHeaders(): { headers: { Authorization: string } } {
     const currentUser = userService.currentUserValue;
-    return currentUser ? currentUser.id : null;
-  }
-
-  private async getHeaders(): Promise<{ headers: { Authorization: string } }> {
-    const userId = await this.getUserId();
     return {
       headers: {
-        Authorization: `Bearer ${userId}`,
+        Authorization: `Bearer ${currentUser?.accessToken}`,
       },
     };
   }
@@ -35,7 +30,7 @@ class PortfolioService {
 
   async fetchInvestments(): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       const response = await axios.get<Investment[]>(API_URL, headers);
       this.investmentsSubject.next(response.data);
     } catch (error) {
@@ -46,25 +41,11 @@ class PortfolioService {
 
   async fetchInvestmentById(id: string): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       const response = await axios.get<Investment>(`${API_URL}/${id}`, headers);
       this.currentInvestmentSubject.next(response.data);
     } catch (error) {
       console.error(`Error fetching investment with id ${id}:`, error);
-      throw error;
-    }
-  }
-
-  async fetchInvestmentBySymbol(symbol: string): Promise<void> {
-    try {
-      const headers = await this.getHeaders();
-      const response = await axios.get<Investment>(
-        `${API_URL}/symbol/${symbol}`,
-        headers
-      );
-      this.currentInvestmentSubject.next(response.data);
-    } catch (error) {
-      console.error(`Error fetching investment with symbol ${symbol}:`, error);
       throw error;
     }
   }
@@ -74,7 +55,7 @@ class PortfolioService {
     newTransaction: Omit<Transaction, "id">
   ): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       await axios.post(
         `${API_URL}/${investmentId}/transactions`,
         newTransaction,
@@ -90,7 +71,7 @@ class PortfolioService {
 
   async updateInvestment(updatedInvestment: Investment): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       await axios.put(
         `${API_URL}/${updatedInvestment.id}`,
         updatedInvestment,
@@ -105,11 +86,18 @@ class PortfolioService {
   }
 
   async addInvestment(
-    newInvestment: Omit<Investment, "id">
+    newInvestment: Omit<
+      Investment,
+      "id" | "transactions" | "storages" | "stakings"
+    >
   ): Promise<Investment> {
     try {
-      const headers = await this.getHeaders();
-      const response = await axios.post<Investment>(API_URL, newInvestment, headers);
+      const headers = this.getHeaders();
+      const response = await axios.post<Investment>(
+        API_URL,
+        newInvestment,
+        headers
+      );
       await this.fetchInvestments();
       return response.data;
     } catch (error) {
@@ -120,7 +108,7 @@ class PortfolioService {
 
   async deleteInvestment(id: string): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       await axios.delete(`${API_URL}/${id}`, headers);
       await this.fetchInvestments();
     } catch (error) {
@@ -131,7 +119,7 @@ class PortfolioService {
 
   async getInvestmentById(id: string): Promise<Investment | null> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       const response = await axios.get<Investment>(`${API_URL}/${id}`, headers);
       return response.data;
     } catch (error) {
@@ -142,7 +130,7 @@ class PortfolioService {
 
   async getInvestmentCount(): Promise<number> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       const response = await axios.get<number>(`${API_URL}/count`, headers);
       return response.data;
     } catch (error) {
@@ -153,8 +141,11 @@ class PortfolioService {
 
   async getBestPerformer(): Promise<Investment | null> {
     try {
-      const headers = await this.getHeaders();
-      const response = await axios.get<Investment>(`${API_URL}/best-performer`, headers);
+      const headers = this.getHeaders();
+      const response = await axios.get<Investment>(
+        `${API_URL}/best-performer`,
+        headers
+      );
       return response.data;
     } catch (error) {
       console.error("Error getting best performer:", error);
@@ -164,7 +155,7 @@ class PortfolioService {
 
   async getWorstPerformer(): Promise<Investment | null> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       const response = await axios.get<Investment>(
         `${API_URL}/worst-performer`,
         headers
@@ -181,7 +172,7 @@ class PortfolioService {
     transactionId: string
   ): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       await axios.delete(
         `${API_URL}/${investmentId}/transactions/${transactionId}`,
         headers
@@ -199,7 +190,7 @@ class PortfolioService {
     updatedTransaction: Omit<Transaction, "id">
   ): Promise<void> {
     try {
-      const headers = await this.getHeaders();
+      const headers = this.getHeaders();
       await axios.put(
         `${API_URL}/${investmentId}/transactions/${transactionId}`,
         updatedTransaction,
@@ -233,8 +224,22 @@ export const fetchInvestmentById = async (id: string): Promise<void> => {
 
 export const fetchInvestmentBySymbol = async (
   symbol: string
-): Promise<void> => {
-  return portfolioService.fetchInvestmentBySymbol(symbol);
+): Promise<Investment | null> => {
+  try {
+    const investments = await firstValueFrom(portfolioService.getInvestments());
+    const foundInvestment = investments.find(
+      (investment) => investment.symbol.toLowerCase() === symbol.toLowerCase()
+    );
+
+    if (foundInvestment) {
+      return foundInvestment;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching investment by symbol:", error);
+    throw error;
+  }
 };
 
 export const addTransaction = async (
@@ -251,7 +256,10 @@ export const updateInvestment = async (
 };
 
 export const addInvestment = async (
-  newInvestment: Omit<Investment, "id">
+  newInvestment: Omit<
+    Investment,
+    "id" | "transactions" | "storages" | "stakings"
+  >
 ): Promise<Investment> => {
   return portfolioService.addInvestment(newInvestment);
 };

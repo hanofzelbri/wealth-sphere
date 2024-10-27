@@ -21,7 +21,7 @@ export const PortfolioDashboard: React.FC = () => {
 
         const subscription = portfolioService.getInvestments().subscribe(
             (fetchedInvestments) => {
-                setInvestments(fetchedInvestments);
+                setInvestments(fetchedInvestments || []);
                 setIsLoading(false);
             }
         );
@@ -39,7 +39,7 @@ export const PortfolioDashboard: React.FC = () => {
         }
     };
 
-    const handleAddInvestment = async (newInvestment: Omit<Investment, "id">) => {
+    const handleAddInvestment = async (newInvestment: Omit<Investment, "id" | "transactions" | "storages" | "stakings">) => {
         try {
             await addInvestment(newInvestment);
             setIsAddInvestmentOpen(false);
@@ -123,7 +123,7 @@ export const PortfolioDashboard: React.FC = () => {
                 onClose={() => setInvestmentToDelete(null)}
                 onConfirm={confirmDeleteInvestment}
                 title="Confirm Investment Deletion"
-                description="Are you sure you want to delete this investment? This action cannot be undone and will remove all associated transactions."
+                description="Are you sure you want to delete this investment? This action cannot be undone and will remove all associated transactions, storage, and staking information."
             />
         </div>
     );

@@ -1,4 +1,3 @@
-- Authentication and authorization so that only myself can access the app, check how to do and nestjs (middleware)
 - Add information where investment is stored, maybe multiple storage locations
 - Add Staking information for all investments, staked yes or no and where it is staked and how much, multiple staking options and only part of it could be staked
 - Live data fetched via api and displayed on the dashboard
