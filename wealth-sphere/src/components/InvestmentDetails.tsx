@@ -70,7 +70,11 @@ export const InvestmentDetails: React.FC = () => {
     }
   };
 
-  const handleDeleteTransaction = async () => {
+  const handleDeleteTransaction = (transaction: Transaction) => {
+    setTransactionToDelete(transaction);
+  };
+
+  const confirmDeleteTransaction = async () => {
     if (investment && transactionToDelete) {
       try {
         await deleteTransaction(investment.id, transactionToDelete.id);
@@ -215,7 +219,7 @@ export const InvestmentDetails: React.FC = () => {
         <DeleteDialog
           isOpen={!!transactionToDelete}
           onClose={() => setTransactionToDelete(null)}
-          onConfirm={handleDeleteTransaction}
+          onConfirm={confirmDeleteTransaction}
           title="Confirm Transaction Deletion"
           description="Are you sure you want to delete this transaction? This action cannot be undone."
         />
