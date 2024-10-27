@@ -16,6 +16,8 @@ import { DeleteDialog } from './DeleteDialog';
 
 export const InvestmentDetails: React.FC = () => {
   const [investment, setInvestment] = useState<Investment | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -24,13 +26,34 @@ export const InvestmentDetails: React.FC = () => {
   const { symbol } = useParams<{ symbol: string }>();
 
   useEffect(() => {
-    if (symbol) {
-      fetchInvestmentBySymbol(symbol);
-    }
+    const fetchInvestment = async () => {
+      if (symbol) {
+        setLoading(true);
+        setError(null);
+        try {
+          const fetchedInvestment = await fetchInvestmentBySymbol(symbol);
+          console.log(fetchedInvestment)
+          if (fetchedInvestment) {
+            setInvestment(fetchedInvestment);
+          } else {
+            setError('Investment not found');
+          }
+        } catch (error) {
+          console.error("Error fetching investment:", error);
+          setError('Failed to fetch investment data');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchInvestment();
 
     const subscription = getCurrentInvestment().subscribe(
       (currentInvestment) => {
-        setInvestment(currentInvestment);
+        if (currentInvestment) {
+          setInvestment(currentInvestment);
+        }
       }
     );
 
@@ -53,6 +76,8 @@ export const InvestmentDetails: React.FC = () => {
         }
         setIsAddTransactionOpen(false);
         setEditingTransaction(null);
+        const updatedInvestment = await fetchInvestmentBySymbol(symbol);
+        setInvestment(updatedInvestment);
       } catch (error) {
         console.error("Error submitting transaction:", error);
       }
@@ -65,8 +90,14 @@ export const InvestmentDetails: React.FC = () => {
 
   const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
     if (investment && investment.id) {
-      await updateTransaction(investment.id, updatedTransaction.id, updatedTransaction);
-      setEditingTransactionId(null);
+      try {
+        await updateTransaction(investment.id, updatedTransaction.id, updatedTransaction);
+        setEditingTransactionId(null);
+        const updatedInvestment = await fetchInvestmentBySymbol(symbol!);
+        setInvestment(updatedInvestment);
+      } catch (error) {
+        console.error("Error updating transaction:", error);
+      }
     }
   };
 
@@ -78,7 +109,8 @@ export const InvestmentDetails: React.FC = () => {
     if (investment && transactionToDelete) {
       try {
         await deleteTransaction(investment.id, transactionToDelete.id);
-        await fetchInvestmentBySymbol(investment.symbol);
+        const updatedInvestment = await fetchInvestmentBySymbol(symbol!);
+        setInvestment(updatedInvestment);
         setTransactionToDelete(null);
       } catch (error) {
         console.error("Error deleting transaction:", error);
@@ -86,7 +118,7 @@ export const InvestmentDetails: React.FC = () => {
     }
   };
 
-  if (!investment) {
+  if (loading) {
     return (
       <Card className="w-full max-w-3xl mx-auto mt-8">
         <CardHeader>
@@ -96,6 +128,22 @@ export const InvestmentDetails: React.FC = () => {
           <Skeleton className="h-4 w-1/2 mb-4" />
           <Skeleton className="h-32 w-full mb-4" />
           <Skeleton className="h-48 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error || !investment) {
+    return (
+      <Card className="w-full max-w-3xl mx-auto mt-8">
+        <CardHeader>
+          <CardTitle>Error</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{error || 'Investment data not available'}</p>
+          <Button asChild className="mt-4">
+            <Link to="/">Back to Dashboard</Link>
+          </Button>
         </CardContent>
       </Card>
     );

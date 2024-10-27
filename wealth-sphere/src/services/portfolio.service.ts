@@ -50,6 +50,28 @@ class PortfolioService {
     }
   }
 
+  async fetchInvestmentBySymbol(symbol: string): Promise<Investment | null> {
+    try {
+      const headers = this.getHeaders();
+      const response = await axios.get<Investment>(
+        `${API_URL}/symbol/${symbol}`,
+        headers
+      );
+
+      console.log(response);
+
+      if (response.data) {
+        const foundInvestment = response.data;
+        this.currentInvestmentSubject.next(foundInvestment);
+        return foundInvestment;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching investment by symbol:", error);
+      throw error;
+    }
+  }
+
   async addTransaction(
     investmentId: string,
     newTransaction: Omit<Transaction, "id">
@@ -225,21 +247,7 @@ export const fetchInvestmentById = async (id: string): Promise<void> => {
 export const fetchInvestmentBySymbol = async (
   symbol: string
 ): Promise<Investment | null> => {
-  try {
-    const investments = await firstValueFrom(portfolioService.getInvestments());
-    const foundInvestment = investments.find(
-      (investment) => investment.symbol.toLowerCase() === symbol.toLowerCase()
-    );
-
-    if (foundInvestment) {
-      return foundInvestment;
-    }
-
-    return null;
-  } catch (error) {
-    console.error("Error fetching investment by symbol:", error);
-    throw error;
-  }
+  return portfolioService.fetchInvestmentBySymbol(symbol);
 };
 
 export const addTransaction = async (

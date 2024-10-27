@@ -1,11 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Investment, Transaction, Prisma } from '@prisma/client';
+import {
+  Investment,
+  Transaction,
+  Prisma,
+  Staking,
+  Storage,
+} from '@prisma/client';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 type InvestmentWithTransactions = Investment & {
   transactions: Transaction[];
+};
+
+type InvestmentWithDetails = Investment & {
+  transactions: Transaction[];
+  stakings: Staking[];
+  storages: Storage[];
 };
 
 @Injectable()
@@ -44,12 +56,14 @@ export class InvestmentsService {
   async getInvestmentBySymbol(
     symbol: string,
     userId: string,
-  ): Promise<InvestmentWithTransactions | null> {
+  ): Promise<InvestmentWithDetails | null> {
     try {
-      return await this.prisma.getPrismaClient(userId).investment.findFirst({
-        where: { symbol, userId },
-        include: { transactions: true },
-      });
+      return await this.prisma
+        .getPrismaClient(userId)
+        .investment.findFirstOrThrow({
+          where: { symbol, userId },
+          include: { transactions: true, stakings: true, storages: true },
+        });
     } catch (error) {
       console.error('Error fetching investment by symbol:', error);
       throw error;
