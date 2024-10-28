@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Transaction } from '../types';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,46 +6,27 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AddTransactionFormProps {
-  onSubmit: (transaction: Omit<Transaction, 'id'> & { id?: string }) => Promise<void>;
+  onSubmit: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
   onCancel: () => void;
-  editingTransaction: Transaction | null;
 }
 
 export const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
   onSubmit,
   onCancel,
-  editingTransaction
 }) => {
   const [type, setType] = useState<'buy' | 'sell'>('buy');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
   const [date, setDate] = useState('');
 
-  useEffect(() => {
-    if (editingTransaction) {
-      setType(editingTransaction.type);
-      setQuantity(editingTransaction.quantity.toString());
-      setPrice(editingTransaction.price.toString());
-      setDate(new Date(editingTransaction.date).toISOString().split('T')[0]);
-    } else {
-      setType('buy');
-      setQuantity('');
-      setPrice('');
-      setDate('');
-    }
-  }, [editingTransaction]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const transaction: Omit<Transaction, 'id'> & { id?: string } = {
+    const transaction: Omit<Transaction, 'id'> = {
       type,
       quantity: parseFloat(quantity),
       price: parseFloat(price),
       date: new Date(date).toISOString(),
     };
-    if (editingTransaction) {
-      transaction.id = editingTransaction.id;
-    }
     await onSubmit(transaction);
   };
 
@@ -98,7 +79,7 @@ export const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
           Cancel
         </Button>
         <Button type="submit">
-          {editingTransaction ? 'Update' : 'Add'} Transaction
+          Add Transaction
         </Button>
       </div>
     </form>

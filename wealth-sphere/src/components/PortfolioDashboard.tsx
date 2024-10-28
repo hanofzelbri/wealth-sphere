@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Investment } from '../types';
-import { portfolioService, deleteInvestment, updateInvestment, addInvestment } from '../services/portfolio.service';
+import { investmentService } from '../services/investment.service';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,7 +19,7 @@ export const PortfolioDashboard: React.FC = () => {
     useEffect(() => {
         fetchInvestments();
 
-        const subscription = portfolioService.getInvestments().subscribe(
+        const subscription = investmentService.getInvestments().subscribe(
             (fetchedInvestments) => {
                 setInvestments(fetchedInvestments || []);
                 setIsLoading(false);
@@ -32,7 +32,7 @@ export const PortfolioDashboard: React.FC = () => {
     const fetchInvestments = async () => {
         try {
             setIsLoading(true);
-            await portfolioService.fetchInvestments();
+            await investmentService.fetchInvestments();
         } catch (error) {
             console.error('Error fetching investments:', error);
             setIsLoading(false);
@@ -41,15 +41,14 @@ export const PortfolioDashboard: React.FC = () => {
 
     const handleAddInvestment = async (newInvestment: Omit<Investment, "id" | "transactions" | "storages" | "stakings">) => {
         try {
-            await addInvestment(newInvestment);
+            await investmentService.addInvestment(newInvestment);
             setIsAddInvestmentOpen(false);
             await fetchInvestments();
+            return true;
         } catch (error) {
             console.error('Error adding investment:', error);
             return false;
         }
-
-        return true;
     };
 
     const handleDeleteInvestment = (investment: Investment) => {
@@ -59,7 +58,7 @@ export const PortfolioDashboard: React.FC = () => {
     const confirmDeleteInvestment = async () => {
         if (investmentToDelete) {
             try {
-                await deleteInvestment(investmentToDelete.id);
+                await investmentService.deleteInvestment(investmentToDelete.id);
                 setInvestmentToDelete(null);
                 await fetchInvestments();
             } catch (error) {
@@ -70,7 +69,7 @@ export const PortfolioDashboard: React.FC = () => {
 
     const handleUpdateInvestment = async (updatedInvestment: Investment) => {
         try {
-            await updateInvestment(updatedInvestment);
+            await investmentService.updateInvestment(updatedInvestment);
             await fetchInvestments();
         } catch (error) {
             console.error('Error updating investment:', error);

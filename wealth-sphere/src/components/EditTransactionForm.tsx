@@ -22,7 +22,7 @@ export const EditTransactionForm: React.FC<EditTransactionFormProps> = ({
   });
 
   const handleSubmit = (data: Transaction) => {
-    onSubmit({ ...transaction, ...data });
+    onSubmit({ ...transaction, ...data, date: new Date(data.date).toString() });
   };
 
   return (
@@ -85,7 +85,11 @@ export const EditTransactionForm: React.FC<EditTransactionFormProps> = ({
             <FormItem>
               <FormLabel>Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input
+                  type="date"
+                  {...field}
+                  value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

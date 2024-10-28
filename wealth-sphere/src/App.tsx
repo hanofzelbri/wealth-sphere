@@ -1,10 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PortfolioDashboard } from './components/PortfolioDashboard';
-import { InvestmentDetails } from './components/InvestmentDetails';
 import { Header } from './components/Header';
 import { userService } from './services/user.service';
 import { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button"
+import { InvestmentDetails } from './components/investment/InvestmentDetails';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);

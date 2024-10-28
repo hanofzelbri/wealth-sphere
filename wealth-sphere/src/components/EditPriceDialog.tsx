@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Pencil } from 'lucide-react';
-import { updateInvestment } from '../services/portfolio.service';
+import { investmentService } from '@/services/investment.service';
 
 interface EditPriceDialogProps {
   investment: Investment;
@@ -22,7 +22,7 @@ export const EditPriceDialog: React.FC<EditPriceDialogProps> = ({
 
   const handleSavePrice = async () => {
     if (editedPrice) {
-      await updateInvestment({
+      await investmentService.updateInvestment({
         ...investment,
         currentPrice: parseFloat(editedPrice)
       });

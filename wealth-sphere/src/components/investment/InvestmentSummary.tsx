@@ -1,5 +1,5 @@
 import React from 'react';
-import { Investment } from '../types';
+import { Investment } from '../../types';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { calculateAverageBuyingPrice, calculateProfitLoss, calculateTotalHolding } from '@/utils/investmentCalculations';
 

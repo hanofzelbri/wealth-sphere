@@ -243,7 +243,10 @@ export class InvestmentsService {
 
       return await this.prisma.getPrismaClient(userId).transaction.update({
         where: { id: transactionId, investment: { userId } },
-        data: updateTransactionDto,
+        data: {
+          ...updateTransactionDto,
+          date: new Date(updateTransactionDto.date).toISOString(),
+        },
       });
     } catch (error) {
       console.error('Error updating transaction:', error);
