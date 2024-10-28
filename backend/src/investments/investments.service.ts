@@ -7,8 +7,6 @@ import {
   Staking,
   Storage,
 } from '@prisma/client';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 type InvestmentWithTransactions = Investment & {
   transactions: Transaction[];
@@ -195,7 +193,7 @@ export class InvestmentsService {
 
   async addTransaction(
     id: string,
-    createTransactionDto: CreateTransactionDto,
+    transactionCreateInput: Prisma.TransactionCreateInput,
     userId: string,
   ): Promise<Transaction> {
     try {
@@ -213,7 +211,7 @@ export class InvestmentsService {
 
       return await this.prisma.getPrismaClient(userId).transaction.create({
         data: {
-          ...createTransactionDto,
+          ...transactionCreateInput,
           investment: { connect: { id, userId } },
         },
       });
@@ -226,7 +224,7 @@ export class InvestmentsService {
   async updateTransaction(
     id: string,
     transactionId: string,
-    updateTransactionDto: UpdateTransactionDto,
+    transactionUpdateInput: Prisma.TransactionUpdateInput,
     userId: string,
   ) {
     try {
@@ -244,8 +242,8 @@ export class InvestmentsService {
       return await this.prisma.getPrismaClient(userId).transaction.update({
         where: { id: transactionId, investment: { userId } },
         data: {
-          ...updateTransactionDto,
-          date: new Date(updateTransactionDto.date).toISOString(),
+          ...transactionUpdateInput,
+          date: new Date(transactionUpdateInput.date.toString()).toISOString(),
         },
       });
     } catch (error) {

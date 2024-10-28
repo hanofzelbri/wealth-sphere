@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
 import { Investment, Transaction, Prisma } from '@prisma/client';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../decorators/user.decorator';
 
@@ -69,12 +67,12 @@ export class InvestmentsController {
   @Post(':id/transactions')
   async addTransaction(
     @Param('id') id: string,
-    @Body() createTransactionDto: CreateTransactionDto,
+    @Body() transactionCreateInput: Prisma.TransactionCreateInput,
     @User() user: string,
   ): Promise<Transaction> {
     return this.investmentsService.addTransaction(
       id,
-      createTransactionDto,
+      transactionCreateInput,
       user,
     );
   }
@@ -98,13 +96,13 @@ export class InvestmentsController {
   async updateTransaction(
     @Param('id') id: string,
     @Param('transactionId') transactionId: string,
-    @Body() updateTransactionDto: UpdateTransactionDto,
+    @Body() transactionUpdateInput: Prisma.TransactionUpdateInput,
     @User() user: string,
   ) {
     return this.investmentsService.updateTransaction(
       id,
       transactionId,
-      updateTransactionDto,
+      transactionUpdateInput,
       user,
     );
   }
