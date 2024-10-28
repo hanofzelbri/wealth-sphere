@@ -101,19 +101,15 @@ export class InvestmentsService {
     userId: string,
   ): Promise<InvestmentWithTransactions> {
     try {
-      const { transactions, ...investmentData } = data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { transactions, stakings, storages, ...investmentData } = data;
+
       return await this.prisma.getPrismaClient(userId).investment.update({
         where: { id, userId },
         data: {
           ...investmentData,
-          transactions: transactions
-            ? {
-                create:
-                  transactions as Prisma.TransactionCreateWithoutInvestmentInput[],
-              }
-            : undefined,
         },
-        include: { transactions: true },
+        include: { transactions: true, stakings: true, storages: true },
       });
     } catch (error) {
       console.error('Error updating investment:', error);
