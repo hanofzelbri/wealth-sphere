@@ -17,6 +17,18 @@ export const InvestmentDetails = () => {
   const [error, setError] = useState<string | null>(null);
   const { symbol } = useParams<{ symbol: string }>();
 
+  const refreshInvestment = async () => {
+    if (!symbol) return;
+    
+    try {
+      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(symbol);
+      setInvestment(fetchedInvestment);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch investment data";
+      setError(errorMessage);
+    }
+  };
+
   useEffect(() => {
     const loadInvestment = async () => {
       if (!symbol) return;
@@ -25,15 +37,7 @@ export const InvestmentDetails = () => {
       setError(null);
 
       try {
-        const fetchedInvestment =
-          await investmentService.fetchInvestmentBySymbol(symbol);
-        setInvestment(fetchedInvestment);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : "Failed to fetch investment data";
-        setError(errorMessage);
+        await refreshInvestment();
       } finally {
         setLoading(false);
       }
@@ -48,7 +52,10 @@ export const InvestmentDetails = () => {
   return (
     <Card className="w-full max-w-3xl mx-auto mt-8">
       <CardHeader>
-        <InvestmentHeader investment={investment} />
+        <InvestmentHeader 
+          investment={investment} 
+          onRefresh={refreshInvestment}
+        />
       </CardHeader>
       <CardContent>
         <Button asChild className="mb-6">
@@ -58,13 +65,10 @@ export const InvestmentDetails = () => {
         <InvestmentSummary investment={investment} />
 
         <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Transactions</h3>
-          </div>
-
           <TransactionList
             transactions={investment.transactions}
             investmentId={investment.id}
+            onTransactionChange={refreshInvestment}
           />
         </div>
       </CardContent>

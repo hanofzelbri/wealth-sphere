@@ -13,10 +13,12 @@ import { useState } from "react";
 
 interface AddTransactionDialogProps {
   investmentId: string;
+  onTransactionAdd: () => Promise<void>;
 }
 
 export const AddTransactionDialog = ({
   investmentId,
+  onTransactionAdd,
 }: AddTransactionDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export const AddTransactionDialog = ({
         investmentId,
       });
       setIsOpen(false);
-      await transactionService.fetchTransactions();
+      await onTransactionAdd();
     } catch (error) {
       console.error("Error adding transaction:", error);
     }

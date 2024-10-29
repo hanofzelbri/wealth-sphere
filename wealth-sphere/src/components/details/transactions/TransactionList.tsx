@@ -19,11 +19,13 @@ import { AddTransactionDialog } from "./AddTransactionDialog";
 interface TransactionListProps {
   transactions: Transaction[];
   investmentId: string;
+  onTransactionChange: () => Promise<void>;
 }
 
 export const TransactionList = ({
   transactions,
   investmentId,
+  onTransactionChange,
 }: TransactionListProps) => {
   const [transactionToDelete, setTransactionToDelete] =
     useState<Transaction | null>(null);
@@ -36,7 +38,7 @@ export const TransactionList = ({
     try {
       await transactionService.deleteTransaction(transactionToDelete.id);
       setTransactionToDelete(null);
-      await transactionService.fetchTransactions();
+      await onTransactionChange();
     } catch (error) {
       console.error("Error deleting transaction:", error);
     }
@@ -46,7 +48,7 @@ export const TransactionList = ({
     try {
       await transactionService.updateTransaction(transaction.id, transaction);
       setTransactionToEdit(null);
-      await transactionService.fetchTransactions();
+      await onTransactionChange();
     } catch (error) {
       console.error("Error updating transaction:", error);
     }
@@ -56,7 +58,10 @@ export const TransactionList = ({
     <>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Transactions</h3>
-        <AddTransactionDialog investmentId={investmentId} />
+        <AddTransactionDialog 
+          investmentId={investmentId} 
+          onTransactionAdd={onTransactionChange}
+        />
       </div>
 
       <Table>

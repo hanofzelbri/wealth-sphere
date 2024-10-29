@@ -31,7 +31,6 @@ export class TransactionService extends ApiService {
   async addTransaction(newTransaction: CreateTransactionDto): Promise<void> {
     try {
       await axios.post(`${API_URL}`, newTransaction, this.getHeaders());
-      await this.fetchTransactions();
     } catch (error) {
       this.handleError(error, "Error adding transaction");
     }
@@ -47,7 +46,6 @@ export class TransactionService extends ApiService {
         updatedTransaction,
         this.getHeaders()
       );
-      await this.fetchTransactions();
     } catch (error) {
       this.handleError(error, "Error updating transaction");
     }
@@ -56,7 +54,6 @@ export class TransactionService extends ApiService {
   async deleteTransaction(transactionId: string): Promise<void> {
     try {
       await axios.delete(`${API_URL}/${transactionId}`, this.getHeaders());
-      await this.fetchTransactions();
     } catch (error) {
       this.handleError(error, "Error deleting transaction");
     }
