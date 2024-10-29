@@ -1,15 +1,12 @@
-import { BehaviorSubject, Observable } from "rxjs";
+import { api } from "@/lib/api";
 import { Investment } from "@/types/types";
-import { ApiService, API_BASE_URL } from "./api.service";
-import axios from "axios";
+import { BehaviorSubject, Observable } from "rxjs";
 
-const API_URL = `${API_BASE_URL}/investments`;
+const API_PATH = "/investments";
 
-export class InvestmentService extends ApiService {
+export class InvestmentService {
   private investmentsSubject = new BehaviorSubject<Investment[]>([]);
-  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
-    null
-  );
+  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(null);
 
   getInvestments(): Observable<Investment[]> {
     return this.investmentsSubject.asObservable();
@@ -21,77 +18,67 @@ export class InvestmentService extends ApiService {
 
   async fetchInvestments(): Promise<void> {
     try {
-      const response = await axios.get<Investment[]>(
-        API_URL,
-        this.getHeaders()
-      );
+      const response = await api.get<Investment[]>(API_PATH);
       this.investmentsSubject.next(response.data);
     } catch (error) {
-      this.handleError(error, "Error fetching investments");
+      console.error("Error fetching investments:", error);
+      throw error;
     }
   }
 
   async fetchInvestmentById(id: string): Promise<void> {
     try {
-      const response = await axios.get<Investment>(
-        `${API_URL}/${id}`,
-        this.getHeaders()
-      );
+      const response = await api.get<Investment>(`${API_PATH}/${id}`);
       this.currentInvestmentSubject.next(response.data);
     } catch (error) {
-      this.handleError(error, `Error fetching investment with id ${id}`);
+      console.error(`Error fetching investment with id ${id}:`, error);
+      throw error;
     }
   }
 
   async fetchInvestmentBySymbol(symbol: string): Promise<Investment | null> {
     try {
-      const response = await axios.get<Investment>(
-        `${API_URL}/symbol/${symbol}`,
-        this.getHeaders()
-      );
+      const response = await api.get<Investment>(`${API_PATH}/symbol/${symbol}`);
       if (response.data) {
         this.currentInvestmentSubject.next(response.data);
         return response.data;
       }
       return null;
     } catch (error) {
-      this.handleError(error, "Error fetching investment by symbol");
+      console.error("Error fetching investment by symbol:", error);
+      throw error;
     }
   }
 
   async addInvestment(
-    newInvestment: Omit<
-      Investment,
-      "id" | "transactions" | "storages" | "stakings"
-    >
+    newInvestment: Omit<Investment, "id" | "transactions" | "storages" | "stakings">
   ): Promise<void> {
     try {
-      await axios.post(API_URL, newInvestment, this.getHeaders());
+      await api.post(API_PATH, newInvestment);
       await this.fetchInvestments();
     } catch (error) {
-      this.handleError(error, "Error adding investment");
+      console.error("Error adding investment:", error);
+      throw error;
     }
   }
 
   async updateInvestment(investment: Investment): Promise<void> {
     try {
-      await axios.put(
-        `${API_URL}/${investment.id}`,
-        investment,
-        this.getHeaders()
-      );
+      await api.put(`${API_PATH}/${investment.id}`, investment);
       await this.fetchInvestments();
     } catch (error) {
-      this.handleError(error, "Error updating investment");
+      console.error("Error updating investment:", error);
+      throw error;
     }
   }
 
   async deleteInvestment(id: string): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/${id}`, this.getHeaders());
+      await api.delete(`${API_PATH}/${id}`);
       await this.fetchInvestments();
     } catch (error) {
-      this.handleError(error, "Error deleting investment");
+      console.error("Error deleting investment:", error);
+      throw error;
     }
   }
 }

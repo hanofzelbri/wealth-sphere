@@ -9,12 +9,16 @@ interface InvestmentHeaderProps {
 }
 
 export const InvestmentHeader = ({ investment, onRefresh }: InvestmentHeaderProps) => {
+  const currentPrice = investment.currentPrice ?? 0;
+  const priceChange = investment.priceChange ?? 0;
+  const priceChangePercentage = investment.priceChangePercentage ?? 0;
+
   return (
     <div className="flex justify-between items-center">
       <CardTitle className="text-2xl font-bold">{investment.name}</CardTitle>
       <div className="flex items-center gap-4">
         <span className="text-xl font-semibold">
-          ${investment.currentPrice.toFixed(2)}
+          ${currentPrice.toFixed(2)}
         </span>
         <Button 
           variant="ghost" 

@@ -1,16 +1,14 @@
-import { Transaction } from "../types/types";
+import { Transaction } from "@/types/transaction.types";
 
-export function calculateAverageBuyingPrice(
-  transactions: Transaction[]
-): number {
-  const buyTransactions = transactions.filter((t) => t.type === "buy");
-  const totalCost = buyTransactions.reduce(
-    (sum, t) => sum + t.price * t.quantity,
-    0
-  );
-  const totalQuantity = buyTransactions.reduce((sum, t) => sum + t.quantity, 0);
-  return totalQuantity > 0 ? totalCost / totalQuantity : 0;
-}
+export const calculateAverageBuyingPrice = (transactions: Transaction[] = []): number => {
+  const buyTransactions = transactions.filter(t => t.type === 'BUY');
+  if (!buyTransactions.length) return 0;
+
+  const totalCost = buyTransactions.reduce((sum, t) => sum + (t.price * t.amount), 0);
+  const totalAmount = buyTransactions.reduce((sum, t) => sum + t.amount, 0);
+  
+  return totalAmount ? totalCost / totalAmount : 0;
+};
 
 export function calculateProfitLoss(
   transactions: Transaction[],

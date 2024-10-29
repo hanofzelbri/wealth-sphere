@@ -86,7 +86,7 @@ export function AddStakingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Add New Staking</DialogTitle>
         </DialogHeader>

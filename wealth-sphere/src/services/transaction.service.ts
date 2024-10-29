@@ -1,5 +1,4 @@
-import { ApiService, API_BASE_URL } from "./api.service";
-import axios from "axios";
+import { api } from "@/lib/api";
 import {
   Transaction,
   CreateTransactionDto,
@@ -7,9 +6,9 @@ import {
 } from "@/types/transaction.types";
 import { BehaviorSubject, Observable } from "rxjs";
 
-const API_URL = `${API_BASE_URL}/transactions`;
+const API_PATH = "/transactions";
 
-export class TransactionService extends ApiService {
+export class TransactionService {
   private transactionsSubject = new BehaviorSubject<Transaction[]>([]);
 
   getTransactions(): Observable<Transaction[]> {
@@ -18,21 +17,21 @@ export class TransactionService extends ApiService {
 
   async fetchTransactions(): Promise<void> {
     try {
-      const response = await axios.get<Transaction[]>(
-        `${API_URL}`,
-        this.getHeaders()
-      );
+      const response = await api.get<Transaction[]>(API_PATH);
       this.transactionsSubject.next(response.data);
     } catch (error) {
-      this.handleError(error, "Error fetching transactions");
+      console.error("Error fetching transactions:", error);
+      throw error;
     }
   }
 
   async addTransaction(newTransaction: CreateTransactionDto): Promise<void> {
     try {
-      await axios.post(`${API_URL}`, newTransaction, this.getHeaders());
+      await api.post(API_PATH, newTransaction);
+      await this.fetchTransactions(); // Aktualisiere die Liste nach dem Hinzufügen
     } catch (error) {
-      this.handleError(error, "Error adding transaction");
+      console.error("Error adding transaction:", error);
+      throw error;
     }
   }
 
@@ -41,34 +40,22 @@ export class TransactionService extends ApiService {
     updatedTransaction: UpdateTransactionDto
   ): Promise<void> {
     try {
-      await axios.put(
-        `${API_URL}/${transactionId}`,
-        updatedTransaction,
-        this.getHeaders()
-      );
+      await api.put(`${API_PATH}/${transactionId}`, updatedTransaction);
+      await this.fetchTransactions(); // Aktualisiere die Liste nach dem Update
     } catch (error) {
-      this.handleError(error, "Error updating transaction");
+      console.error("Error updating transaction:", error);
+      throw error;
     }
   }
 
   async deleteTransaction(transactionId: string): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/${transactionId}`, this.getHeaders());
+      await api.delete(`${API_PATH}/${transactionId}`);
+      await this.fetchTransactions(); // Aktualisiere die Liste nach dem Löschen
     } catch (error) {
-      this.handleError(error, "Error deleting transaction");
+      console.error("Error deleting transaction:", error);
+      throw error;
     }
-  }
-
-  async fetchTransactionsByInvestmentId(
-    investmentId: string
-  ): Promise<Transaction[]> {
-    const response = await fetch(
-      `/api/investments/${investmentId}/transactions`
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch transactions");
-    }
-    return response.json();
   }
 }
 

@@ -5,6 +5,8 @@ export interface Investment {
   symbol: string;
   name: string;
   currentPrice: number;
+  priceChange: number;
+  priceChangePercentage: number;
   transactions: Transaction[];
   stakings: Staking[];
   stakingRewards?: number;

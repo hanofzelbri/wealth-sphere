@@ -17,44 +17,45 @@ export const InvestmentDetails = () => {
   const { symbol } = useParams<{ symbol: string }>();
 
   const refreshInvestment = async () => {
-    if (!symbol) return;
+    if (!symbol) {
+      setError("No symbol provided");
+      return;
+    }
 
     try {
-      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(
-        symbol
-      );
-      setInvestment(fetchedInvestment);
+      setLoading(true);
+      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(symbol);
+      
+      if (!fetchedInvestment) {
+        setError("Investment not found");
+        return;
+      }
+      
+      // Ensure transactions and stakings are always arrays
+      setInvestment({
+        ...fetchedInvestment,
+        transactions: fetchedInvestment.transactions || [],
+        stakings: fetchedInvestment.stakings || []
+      });
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch investment data";
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch investment data";
       setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const loadInvestment = async () => {
-      if (!symbol) return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        await refreshInvestment();
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInvestment();
+    refreshInvestment();
   }, [symbol]);
 
   if (loading) return <LoadingState />;
-  if (error || !investment) return <ErrorState error={error} />;
+  if (error || !investment) return <ErrorState error={error || "Investment not found"} />;
 
   return (
     <Card className="space-y-8">
       <CardHeader>
-        <InvestmentHeader
+        <InvestmentHeader 
           investment={investment}
           onRefresh={refreshInvestment}
         />
