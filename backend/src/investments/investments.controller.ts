@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
-import { Investment, Transaction, Prisma } from '@prisma/client';
+import { Investment, Prisma } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../decorators/user.decorator';
 
@@ -64,19 +64,6 @@ export class InvestmentsController {
     return this.investmentsService.deleteInvestment(id, user);
   }
 
-  @Post(':id/transactions')
-  async addTransaction(
-    @Param('id') id: string,
-    @Body() transactionCreateInput: Prisma.TransactionCreateInput,
-    @User() user: string,
-  ): Promise<Transaction> {
-    return this.investmentsService.addTransaction(
-      id,
-      transactionCreateInput,
-      user,
-    );
-  }
-
   @Get('count')
   async getInvestmentCount(@User() user: string): Promise<number> {
     return this.investmentsService.getInvestmentCount(user);
@@ -90,30 +77,6 @@ export class InvestmentsController {
   @Get('worst-performer')
   async getWorstPerformer(@User() user: string): Promise<Investment | null> {
     return this.investmentsService.getWorstPerformer(user);
-  }
-
-  @Put(':id/transactions/:transactionId')
-  async updateTransaction(
-    @Param('id') id: string,
-    @Param('transactionId') transactionId: string,
-    @Body() transactionUpdateInput: Prisma.TransactionUpdateInput,
-    @User() user: string,
-  ) {
-    return this.investmentsService.updateTransaction(
-      id,
-      transactionId,
-      transactionUpdateInput,
-      user,
-    );
-  }
-
-  @Delete(':id/transactions/:transactionId')
-  async deleteTransaction(
-    @Param('id') id: string,
-    @Param('transactionId') transactionId: string,
-    @User() user: string,
-  ) {
-    return this.investmentsService.deleteTransaction(id, transactionId, user);
   }
 
   @Post(':id/storage')

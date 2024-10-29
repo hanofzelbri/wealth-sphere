@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InvestmentsModule } from './investments/investments.module';
 import { UserIdMiddleware } from './middleware/user-id.middleware';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
-  imports: [InvestmentsModule],
+  imports: [InvestmentsModule, TransactionsModule],
   controllers: [AppController],
   providers: [AppService],
 })

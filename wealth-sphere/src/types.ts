@@ -26,8 +26,9 @@ export interface Investment {
 
 export interface Transaction {
   id: string;
+  investmentId: string;
   quantity: number;
   price: number;
-  date: string;
+  date: Date;
   type: "buy" | "sell";
 }
