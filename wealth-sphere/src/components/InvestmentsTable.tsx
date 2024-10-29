@@ -27,7 +27,7 @@ type SortField =
   | "currentPrice"
   | "value"
   | "gainLoss"
-  | "stakingRewards"
+  | "stakingPercentage"
   | "storageUsage";
 type SortDirection = "asc" | "desc";
 
@@ -43,26 +43,43 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
   );
   const navigate = useNavigate();
 
+  const calculateValue = (investment: Investment) => {
+    const totalQuantity = investment.transactions.reduce(
+      (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
+      0
+    );
+    return totalQuantity * investment.currentPrice;
+  };
+
+  const calculateGainLoss = (investment: Investment) => {
+    const value = calculateValue(investment);
+    const costBasis = investment.transactions.reduce(
+      (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
+      0
+    );
+    return value - costBasis;
+  };
+
+  const calculateTotalQuantity = (investment: Investment) => {
+    return investment.transactions.reduce(
+      (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
+      0
+    );
+  };
+
+  const calculateStakingPercentage = (investment: Investment) => {
+    if (!investment.stakings) return 0;
+
+    return (
+      (investment.stakings.reduce((sum, t) => sum + t.amount, 0) /
+        calculateTotalQuantity(investment)) *
+      100
+    );
+  };
+
   const sortedInvestments = useMemo(() => {
     return [...investments].sort((a, b) => {
       let aValue, bValue;
-
-      const calculateValue = (investment: Investment) => {
-        const totalQuantity = investment.transactions.reduce(
-          (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
-          0
-        );
-        return totalQuantity * investment.currentPrice;
-      };
-
-      const calculateGainLoss = (investment: Investment) => {
-        const value = calculateValue(investment);
-        const costBasis = investment.transactions.reduce(
-          (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
-          0
-        );
-        return value - costBasis;
-      };
 
       switch (sortField) {
         case "symbol":
@@ -75,14 +92,8 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
           bValue = b.currentPrice;
           break;
         case "quantity":
-          aValue = a.transactions.reduce(
-            (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
-            0
-          );
-          bValue = b.transactions.reduce(
-            (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
-            0
-          );
+          aValue = calculateTotalQuantity(a);
+          bValue = calculateTotalQuantity(b);
           break;
         case "value":
           aValue = calculateValue(a);
@@ -92,9 +103,9 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
           aValue = calculateGainLoss(a);
           bValue = calculateGainLoss(b);
           break;
-        case "stakingRewards":
-          aValue = a.stakingRewards || 0;
-          bValue = b.stakingRewards || 0;
+        case "stakingPercentage":
+          aValue = calculateStakingPercentage(a);
+          bValue = calculateStakingPercentage(b);
           break;
         case "storageUsage":
           aValue = a.storageUsage || 0;
@@ -180,10 +191,10 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
                 Gain/Loss {renderSortIcon("gainLoss")}
               </TableHead>
               <TableHead
-                onClick={() => handleSort("stakingRewards")}
+                onClick={() => handleSort("stakingPercentage")}
                 className="cursor-pointer"
               >
-                Staking Rewards {renderSortIcon("stakingRewards")}
+                Staked {renderSortIcon("stakingPercentage")}
               </TableHead>
               <TableHead
                 onClick={() => handleSort("storageUsage")}
@@ -196,16 +207,10 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
           </TableHeader>
           <TableBody>
             {sortedInvestments.map((investment) => {
-              const totalQuantity = investment.transactions.reduce(
-                (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
-                0
-              );
-              const value = totalQuantity * investment.currentPrice;
-              const costBasis = investment.transactions.reduce(
-                (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
-                0
-              );
-              const gainLoss = value - costBasis;
+              const totalQuantity = calculateTotalQuantity(investment);
+              const value = calculateValue(investment);
+              const gainLoss = calculateGainLoss(investment);
+              const stakingPercentage = calculateStakingPercentage(investment);
               return (
                 <React.Fragment key={investment.id}>
                   <TableRow>
@@ -227,7 +232,7 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      ${investment.stakingRewards?.toFixed(2) || "0.00"}
+                      {stakingPercentage?.toFixed(0) || "0"} %
                     </TableCell>
                     <TableCell>
                       {investment.storageUsage?.toFixed(2) || "0.00"} GB

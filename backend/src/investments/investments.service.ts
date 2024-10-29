@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   Investment,
@@ -7,10 +7,6 @@ import {
   Staking,
   Storage,
 } from '@prisma/client';
-
-type InvestmentWithTransactions = Investment & {
-  transactions: Transaction[];
-};
 
 type InvestmentWithDetails = Investment & {
   transactions: Transaction[];
@@ -22,13 +18,11 @@ type InvestmentWithDetails = Investment & {
 export class InvestmentsService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllInvestments(
-    userId: string,
-  ): Promise<InvestmentWithTransactions[]> {
+  async getAllInvestments(userId: string): Promise<InvestmentWithDetails[]> {
     try {
       return await this.prisma.getPrismaClient(userId).investment.findMany({
         where: { userId },
-        include: { transactions: true },
+        include: { transactions: true, stakings: true, storages: true },
       });
     } catch (error) {
       console.error('Error fetching all investments:', error);
@@ -39,11 +33,11 @@ export class InvestmentsService {
   async getInvestmentById(
     id: string,
     userId: string,
-  ): Promise<InvestmentWithTransactions | null> {
+  ): Promise<InvestmentWithDetails | null> {
     try {
       return await this.prisma.getPrismaClient(userId).investment.findUnique({
         where: { id, userId },
-        include: { transactions: true },
+        include: { transactions: true, stakings: true, storages: true },
       });
     } catch (error) {
       console.error('Error fetching investment by ID:', error);
@@ -71,7 +65,7 @@ export class InvestmentsService {
   async createInvestment(
     data: Prisma.InvestmentCreateInput,
     userId: string,
-  ): Promise<InvestmentWithTransactions> {
+  ): Promise<InvestmentWithDetails> {
     try {
       const { transactions, ...investmentData } = data;
       return await this.prisma.getPrismaClient(userId).investment.create({
@@ -85,7 +79,7 @@ export class InvestmentsService {
               }
             : undefined,
         },
-        include: { transactions: true },
+        include: { transactions: true, stakings: true, storages: true },
       });
     } catch (error) {
       console.error('Error creating investment:', error);
@@ -97,7 +91,7 @@ export class InvestmentsService {
     id: string,
     data: Prisma.InvestmentUpdateInput,
     userId: string,
-  ): Promise<InvestmentWithTransactions> {
+  ): Promise<InvestmentWithDetails> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { transactions, stakings, storages, ...investmentData } = data;
@@ -118,11 +112,11 @@ export class InvestmentsService {
   async deleteInvestment(
     id: string,
     userId: string,
-  ): Promise<InvestmentWithTransactions> {
+  ): Promise<InvestmentWithDetails> {
     try {
       return await this.prisma.getPrismaClient(userId).investment.delete({
         where: { id, userId },
-        include: { transactions: true },
+        include: { transactions: true, stakings: true, storages: true },
       });
     } catch (error) {
       console.error('Error deleting investment:', error);
@@ -143,7 +137,7 @@ export class InvestmentsService {
 
   async getBestPerformer(
     userId: string,
-  ): Promise<InvestmentWithTransactions | null> {
+  ): Promise<InvestmentWithDetails | null> {
     try {
       const investments = await this.getAllInvestments(userId);
       return investments.reduce((best, current) => {
@@ -159,7 +153,7 @@ export class InvestmentsService {
 
   async getWorstPerformer(
     userId: string,
-  ): Promise<InvestmentWithTransactions | null> {
+  ): Promise<InvestmentWithDetails | null> {
     try {
       const investments = await this.getAllInvestments(userId);
       return investments.reduce((worst, current) => {
@@ -173,7 +167,7 @@ export class InvestmentsService {
     }
   }
 
-  private calculatePerformance(investment: InvestmentWithTransactions): number {
+  private calculatePerformance(investment: InvestmentWithDetails): number {
     try {
       const totalQuantity = investment.transactions.reduce(
         (sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity),
@@ -187,89 +181,6 @@ export class InvestmentsService {
       return (currentValue - costBasis) / costBasis;
     } catch (error) {
       console.error('Error calculating performance:', error);
-      throw error;
-    }
-  }
-
-  async addTransaction(
-    id: string,
-    transactionCreateInput: Prisma.TransactionCreateInput,
-    userId: string,
-  ): Promise<Transaction> {
-    try {
-      const investment = await this.prisma
-        .getPrismaClient(userId)
-        .investment.findUnique({
-          where: { id, userId },
-        });
-
-      if (!investment) {
-        throw new NotFoundException(
-          `Investment with ID ${id} not found for this user`,
-        );
-      }
-
-      return await this.prisma.getPrismaClient(userId).transaction.create({
-        data: {
-          ...transactionCreateInput,
-          investment: { connect: { id, userId } },
-        },
-      });
-    } catch (error) {
-      console.error('Error adding transaction:', error);
-      throw error;
-    }
-  }
-
-  async updateTransaction(
-    id: string,
-    transactionId: string,
-    transactionUpdateInput: Prisma.TransactionUpdateInput,
-    userId: string,
-  ) {
-    try {
-      const investment = await this.prisma
-        .getPrismaClient(userId)
-        .investment.findUnique({
-          where: { id, userId },
-        });
-      if (!investment) {
-        throw new NotFoundException(
-          `Investment with ID ${id} not found for this user`,
-        );
-      }
-
-      return await this.prisma.getPrismaClient(userId).transaction.update({
-        where: { id: transactionId, investment: { userId } },
-        data: {
-          ...transactionUpdateInput,
-          date: new Date(transactionUpdateInput.date.toString()).toISOString(),
-        },
-      });
-    } catch (error) {
-      console.error('Error updating transaction:', error);
-      throw error;
-    }
-  }
-
-  async deleteTransaction(id: string, transactionId: string, userId: string) {
-    try {
-      const investment = await this.prisma
-        .getPrismaClient(userId)
-        .investment.findUnique({
-          where: { id, userId },
-        });
-      if (!investment) {
-        throw new NotFoundException(
-          `Investment with ID ${id} not found for this user`,
-        );
-      }
-
-      return await this.prisma.getPrismaClient(userId).transaction.delete({
-        where: { id: transactionId, investment: { userId } },
-      });
-    } catch (error) {
-      console.error('Error deleting transaction:', error);
       throw error;
     }
   }

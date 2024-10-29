@@ -9,6 +9,5 @@ export interface Investment {
   priceChangePercentage: number;
   transactions: Transaction[];
   stakings: Staking[];
-  stakingRewards?: number;
   storageUsage?: number;
 }

@@ -8,13 +8,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Transaction } from "@/types/transaction.types";
 
 interface DeleteDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (transaction: Transaction) => void;
-  transaction: Transaction;
+  onConfirm: () => void;
   title: string;
   description: string;
 }
@@ -23,7 +21,6 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  transaction,
   title,
   description,
 }) => {
@@ -38,7 +35,7 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={() => onConfirm(transaction)}>
+          <Button variant="destructive" onClick={onConfirm}>
             Delete
           </Button>
         </DialogFooter>
