@@ -51,7 +51,7 @@ export const InvestmentDetails = () => {
   if (error || !investment) return <ErrorState error={error} />;
 
   return (
-    <Card className="w-full max-w-5xl mx-auto mt-8">
+    <Card className="space-y-8">
       <CardHeader>
         <InvestmentHeader
           investment={investment}
