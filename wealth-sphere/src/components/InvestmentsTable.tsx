@@ -1,11 +1,18 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Investment } from '../types';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Investment } from "../types/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpIcon, ArrowDownIcon, Eye, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpIcon, ArrowDownIcon, Eye, Pencil, Trash2 } from "lucide-react";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
-import { EditInvestmentForm } from './EditInvestmentForm';
+import { EditInvestmentForm } from "./EditInvestmentForm";
 
 interface InvestmentsTableProps {
   investments: Investment[];
@@ -13,13 +20,27 @@ interface InvestmentsTableProps {
   onUpdateInvestment: (updatedInvestment: Investment) => void;
 }
 
-type SortField = 'symbol' | 'name' | 'quantity' | 'currentPrice' | 'value' | 'gainLoss' | 'stakingRewards' | 'storageUsage';
-type SortDirection = 'asc' | 'desc';
+type SortField =
+  | "symbol"
+  | "name"
+  | "quantity"
+  | "currentPrice"
+  | "value"
+  | "gainLoss"
+  | "stakingRewards"
+  | "storageUsage";
+type SortDirection = "asc" | "desc";
 
-export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments, onDeleteInvestment, onUpdateInvestment }) => {
-  const [sortField, setSortField] = useState<SortField>('value');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null);
+export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
+  investments,
+  onDeleteInvestment,
+  onUpdateInvestment,
+}) => {
+  const [sortField, setSortField] = useState<SortField>("value");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [editingInvestment, setEditingInvestment] = useState<Investment | null>(
+    null
+  );
   const navigate = useNavigate();
 
   const sortedInvestments = useMemo(() => {
@@ -27,43 +48,55 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
       let aValue, bValue;
 
       const calculateValue = (investment: Investment) => {
-        const totalQuantity = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
+        const totalQuantity = investment.transactions.reduce(
+          (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
+          0
+        );
         return totalQuantity * investment.currentPrice;
       };
 
       const calculateGainLoss = (investment: Investment) => {
         const value = calculateValue(investment);
-        const costBasis = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
+        const costBasis = investment.transactions.reduce(
+          (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
+          0
+        );
         return value - costBasis;
       };
 
       switch (sortField) {
-        case 'symbol':
-        case 'name':
+        case "symbol":
+        case "name":
           aValue = a[sortField].toLowerCase();
           bValue = b[sortField].toLowerCase();
           break;
-        case 'currentPrice':
+        case "currentPrice":
           aValue = a.currentPrice;
           bValue = b.currentPrice;
           break;
-        case 'quantity':
-          aValue = a.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
-          bValue = b.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
+        case "quantity":
+          aValue = a.transactions.reduce(
+            (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
+            0
+          );
+          bValue = b.transactions.reduce(
+            (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
+            0
+          );
           break;
-        case 'value':
+        case "value":
           aValue = calculateValue(a);
           bValue = calculateValue(b);
           break;
-        case 'gainLoss':
+        case "gainLoss":
           aValue = calculateGainLoss(a);
           bValue = calculateGainLoss(b);
           break;
-        case 'stakingRewards':
+        case "stakingRewards":
           aValue = a.stakingRewards || 0;
           bValue = b.stakingRewards || 0;
           break;
-        case 'storageUsage':
+        case "storageUsage":
           aValue = a.storageUsage || 0;
           bValue = b.storageUsage || 0;
           break;
@@ -72,24 +105,28 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
           bValue = b[sortField];
       }
 
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
   }, [investments, sortField, sortDirection]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   const renderSortIcon = (field: SortField) => {
     if (field !== sortField) return null;
-    return sortDirection === 'asc' ? <ArrowUpIcon className="inline ml-1 w-4 h-4" /> : <ArrowDownIcon className="inline ml-1 w-4 h-4" />;
+    return sortDirection === "asc" ? (
+      <ArrowUpIcon className="inline ml-1 w-4 h-4" />
+    ) : (
+      <ArrowDownIcon className="inline ml-1 w-4 h-4" />
+    );
   };
 
   const handleViewDetails = (symbol: string) => {
@@ -106,22 +143,68 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead onClick={() => handleSort('symbol')} className="cursor-pointer">Symbol {renderSortIcon('symbol')}</TableHead>
-              <TableHead onClick={() => handleSort('name')} className="cursor-pointer">Name {renderSortIcon('name')}</TableHead>
-              <TableHead onClick={() => handleSort('quantity')} className="cursor-pointer">Quantity {renderSortIcon('quantity')}</TableHead>
-              <TableHead onClick={() => handleSort('currentPrice')} className="cursor-pointer">Current Price {renderSortIcon('currentPrice')}</TableHead>
-              <TableHead onClick={() => handleSort('value')} className="cursor-pointer">Value {renderSortIcon('value')}</TableHead>
-              <TableHead onClick={() => handleSort('gainLoss')} className="cursor-pointer">Gain/Loss {renderSortIcon('gainLoss')}</TableHead>
-              <TableHead onClick={() => handleSort('stakingRewards')} className="cursor-pointer">Staking Rewards {renderSortIcon('stakingRewards')}</TableHead>
-              <TableHead onClick={() => handleSort('storageUsage')} className="cursor-pointer">Storage Usage {renderSortIcon('storageUsage')}</TableHead>
+              <TableHead
+                onClick={() => handleSort("symbol")}
+                className="cursor-pointer"
+              >
+                Symbol {renderSortIcon("symbol")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("name")}
+                className="cursor-pointer"
+              >
+                Name {renderSortIcon("name")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("quantity")}
+                className="cursor-pointer"
+              >
+                Quantity {renderSortIcon("quantity")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("currentPrice")}
+                className="cursor-pointer"
+              >
+                Current Price {renderSortIcon("currentPrice")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("value")}
+                className="cursor-pointer"
+              >
+                Value {renderSortIcon("value")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("gainLoss")}
+                className="cursor-pointer"
+              >
+                Gain/Loss {renderSortIcon("gainLoss")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("stakingRewards")}
+                className="cursor-pointer"
+              >
+                Staking Rewards {renderSortIcon("stakingRewards")}
+              </TableHead>
+              <TableHead
+                onClick={() => handleSort("storageUsage")}
+                className="cursor-pointer"
+              >
+                Storage Usage {renderSortIcon("storageUsage")}
+              </TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedInvestments.map(investment => {
-              const totalQuantity = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity), 0);
+            {sortedInvestments.map((investment) => {
+              const totalQuantity = investment.transactions.reduce(
+                (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
+                0
+              );
               const value = totalQuantity * investment.currentPrice;
-              const costBasis = investment.transactions.reduce((sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0), 0);
+              const costBasis = investment.transactions.reduce(
+                (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
+                0
+              );
               const gainLoss = value - costBasis;
               return (
                 <React.Fragment key={investment.id}>
@@ -131,12 +214,24 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
                     <TableCell>{totalQuantity}</TableCell>
                     <TableCell>${investment.currentPrice.toFixed(2)}</TableCell>
                     <TableCell>${value.toFixed(2)}</TableCell>
-                    <TableCell className={gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}>
+                    <TableCell
+                      className={
+                        gainLoss >= 0 ? "text-green-600" : "text-red-600"
+                      }
+                    >
                       ${Math.abs(gainLoss).toFixed(2)}
-                      {gainLoss >= 0 ? <ArrowUpIcon className="inline ml-1" /> : <ArrowDownIcon className="inline ml-1" />}
+                      {gainLoss >= 0 ? (
+                        <ArrowUpIcon className="inline ml-1" />
+                      ) : (
+                        <ArrowDownIcon className="inline ml-1" />
+                      )}
                     </TableCell>
-                    <TableCell>${investment.stakingRewards?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell>{investment.storageUsage?.toFixed(2) || '0.00'} GB</TableCell>
+                    <TableCell>
+                      ${investment.stakingRewards?.toFixed(2) || "0.00"}
+                    </TableCell>
+                    <TableCell>
+                      {investment.storageUsage?.toFixed(2) || "0.00"} GB
+                    </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button
@@ -167,7 +262,9 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({ investments,
                     <TableCell colSpan={9}>
                       <Collapsible
                         open={editingInvestment?.id === investment.id}
-                        onOpenChange={(open) => !open && setEditingInvestment(null)}
+                        onOpenChange={(open) =>
+                          !open && setEditingInvestment(null)
+                        }
                       >
                         <CollapsibleContent>
                           <EditInvestmentForm

@@ -1,17 +1,24 @@
-import { Staking } from "@/types";
+import { Staking } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const stakingSchema = z.object({
   amount: z.number().positive(),
   location: z.string().min(1),
   websiteLink: z.string().url(),
   coolDownPeriod: z.number().min(0),
-  startDate: z.string()
+  startDate: z.string(),
 });
 
 type StakingFormData = z.infer<typeof stakingSchema>;
@@ -22,7 +29,11 @@ interface EditStakingFormProps {
   onCancel: () => void;
 }
 
-export const EditStakingForm = ({ staking, onSubmit, onCancel }: EditStakingFormProps) => {
+export const EditStakingForm = ({
+  staking,
+  onSubmit,
+  onCancel,
+}: EditStakingFormProps) => {
   const form = useForm<StakingFormData>({
     resolver: zodResolver(stakingSchema),
     defaultValues: {
@@ -30,20 +41,23 @@ export const EditStakingForm = ({ staking, onSubmit, onCancel }: EditStakingForm
       location: staking.location,
       websiteLink: staking.websiteLink,
       coolDownPeriod: staking.coolDownPeriod,
-      startDate: staking.startDate
-    }
+      startDate: staking.startDate,
+    },
   });
 
   const handleSubmit = (data: StakingFormData) => {
     onSubmit({
       ...staking,
-      ...data
+      ...data,
     });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4 bg-secondary/10 rounded-md">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 p-4 bg-secondary/10 rounded-md"
+      >
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -52,7 +66,12 @@ export const EditStakingForm = ({ staking, onSubmit, onCancel }: EditStakingForm
               <FormItem>
                 <FormLabel>Amount</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -66,7 +85,11 @@ export const EditStakingForm = ({ staking, onSubmit, onCancel }: EditStakingForm
               <FormItem>
                 <FormLabel>Cool Down Period (days)</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                  <Input
+                    type="number"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,9 +143,7 @@ export const EditStakingForm = ({ staking, onSubmit, onCancel }: EditStakingForm
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            Save Changes
-          </Button>
+          <Button type="submit">Save Changes</Button>
         </div>
       </form>
     </Form>

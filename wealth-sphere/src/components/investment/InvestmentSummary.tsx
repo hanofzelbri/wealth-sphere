@@ -1,15 +1,26 @@
-import React from 'react';
-import { Investment } from '../../types';
+import React from "react";
+import { Investment } from "../../types/types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { calculateAverageBuyingPrice, calculateProfitLoss, calculateTotalHolding } from '@/utils/investmentCalculations';
+import {
+  calculateAverageBuyingPrice,
+  calculateProfitLoss,
+  calculateTotalHolding,
+} from "@/utils/investmentCalculations";
 
 interface InvestmentSummaryProps {
   investment: Investment;
 }
 
-export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({ investment }) => {
-  const averageBuyingPrice = calculateAverageBuyingPrice(investment.transactions);
-  const { profitLoss, profitLossPercentage } = calculateProfitLoss(investment.transactions, investment.currentPrice);
+export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
+  investment,
+}) => {
+  const averageBuyingPrice = calculateAverageBuyingPrice(
+    investment.transactions
+  );
+  const { profitLoss, profitLossPercentage } = calculateProfitLoss(
+    investment.transactions,
+    investment.currentPrice
+  );
   const totalHolding = calculateTotalHolding(investment.transactions);
   const currentValue = totalHolding * investment.currentPrice;
 
@@ -21,7 +32,9 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({ investment
             <CardTitle className="text-lg">Average Buying Price</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">${averageBuyingPrice.toFixed(2)}</p>
+            <p className="text-2xl font-semibold">
+              ${averageBuyingPrice.toFixed(2)}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -29,8 +42,13 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({ investment
             <CardTitle className="text-lg">Profit/Loss</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-2xl font-semibold ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${Math.abs(profitLoss).toFixed(2)} ({profitLossPercentage.toFixed(2)}%)
+            <p
+              className={`text-2xl font-semibold ${
+                profitLoss >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              ${Math.abs(profitLoss).toFixed(2)} (
+              {profitLossPercentage.toFixed(2)}%)
             </p>
           </CardContent>
         </Card>
@@ -42,8 +60,12 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({ investment
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center">
-            <p className="text-2xl font-semibold">{totalHolding.toFixed(2)} units</p>
-            <p className="text-2xl font-semibold">Current Value: ${currentValue.toFixed(2)}</p>
+            <p className="text-2xl font-semibold">
+              {totalHolding.toFixed(2)} units
+            </p>
+            <p className="text-2xl font-semibold">
+              Current Value: ${currentValue.toFixed(2)}
+            </p>
           </div>
         </CardContent>
       </Card>

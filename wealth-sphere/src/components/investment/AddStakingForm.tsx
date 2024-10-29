@@ -2,9 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Staking } from "@/types";
+import { Staking } from "@/types/types";
 import { useForm } from "react-hook-form";
 
 const stakingSchema = z.object({
@@ -12,7 +19,7 @@ const stakingSchema = z.object({
   location: z.string().min(1),
   websiteLink: z.string().url(),
   coolDownPeriod: z.number().min(0),
-  startDate: z.string()
+  startDate: z.string(),
 });
 
 interface AddStakingFormProps {
@@ -27,8 +34,8 @@ export const AddStakingForm = ({ onSubmit }: AddStakingFormProps) => {
       location: "",
       websiteLink: "",
       coolDownPeriod: 0,
-      startDate: new Date().toISOString().split('T')[0]
-    }
+      startDate: new Date().toISOString().split("T")[0],
+    },
   });
 
   return (
@@ -47,7 +54,14 @@ export const AddStakingForm = ({ onSubmit }: AddStakingFormProps) => {
                   <FormItem>
                     <FormLabel>Amount to Stake</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value))
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,7 +105,14 @@ export const AddStakingForm = ({ onSubmit }: AddStakingFormProps) => {
                   <FormItem>
                     <FormLabel>Cool Down Period (days)</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                      <Input
+                        type="number"
+                        min="0"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value))
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -114,9 +135,7 @@ export const AddStakingForm = ({ onSubmit }: AddStakingFormProps) => {
             />
 
             <div className="flex justify-end">
-              <Button type="submit">
-                Create Staking Position
-              </Button>
+              <Button type="submit">Create Staking Position</Button>
             </div>
           </form>
         </Form>

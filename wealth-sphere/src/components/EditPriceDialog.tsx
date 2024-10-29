@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
-import { Investment } from '../types';
+import React, { useState } from "react";
+import { Investment } from "../types/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Pencil } from 'lucide-react';
-import { investmentService } from '@/services/investment.service';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Pencil } from "lucide-react";
+import { investmentService } from "@/services/investment.service";
 
 interface EditPriceDialogProps {
   investment: Investment;
@@ -18,13 +25,15 @@ export const EditPriceDialog: React.FC<EditPriceDialogProps> = ({
   isOpen,
   onOpenChange,
 }) => {
-  const [editedPrice, setEditedPrice] = useState(investment.currentPrice.toFixed(2));
+  const [editedPrice, setEditedPrice] = useState(
+    investment.currentPrice.toFixed(2)
+  );
 
   const handleSavePrice = async () => {
     if (editedPrice) {
       await investmentService.updateInvestment({
         ...investment,
-        currentPrice: parseFloat(editedPrice)
+        currentPrice: parseFloat(editedPrice),
       });
       onOpenChange(false);
     }

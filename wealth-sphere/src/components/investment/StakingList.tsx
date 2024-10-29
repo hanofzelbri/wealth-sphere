@@ -1,5 +1,12 @@
-import { Staking } from "@/types";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Staking } from "@/types/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, ExternalLink } from "lucide-react";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -39,7 +46,9 @@ export const StakingList = ({
         {stakings.map((staking) => (
           <React.Fragment key={staking.id}>
             <TableRow>
-              <TableCell>{new Date(staking.startDate).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(staking.startDate).toLocaleDateString()}
+              </TableCell>
               <TableCell>${staking.amount.toFixed(2)}</TableCell>
               <TableCell>{staking.location}</TableCell>
               <TableCell>{staking.coolDownPeriod} days</TableCell>

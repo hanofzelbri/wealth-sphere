@@ -1,4 +1,4 @@
-import { Transaction } from "../types";
+import { Transaction } from "../types/types";
 
 export function calculateAverageBuyingPrice(
   transactions: Transaction[]
@@ -47,9 +47,9 @@ export function calculateProfitLoss(
 
 export const calculateTotalHolding = (transactions: Transaction[]): number => {
   return transactions.reduce((total, transaction) => {
-    if (transaction.type === 'buy') {
+    if (transaction.type === "buy") {
       return total + transaction.quantity;
-    } else if (transaction.type === 'sell') {
+    } else if (transaction.type === "sell") {
       return total - transaction.quantity;
     }
     return total;

@@ -1,4 +1,10 @@
-import { IsNumber, IsDate, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateTransactionDto {
   @IsUUID()
@@ -10,7 +16,7 @@ export class CreateTransactionDto {
   @IsNumber()
   price: number;
 
-  @IsDate()
+  @IsDateString()
   date: Date;
 
   @IsEnum(['buy', 'sell'])
@@ -27,7 +33,7 @@ export class UpdateTransactionDto {
   price: number;
 
   @IsOptional()
-  @IsDate()
+  @IsDateString()
   date?: Date;
 
   @IsOptional()

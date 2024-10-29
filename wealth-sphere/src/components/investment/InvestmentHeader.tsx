@@ -1,4 +1,4 @@
-import { Investment } from "@/types";
+import { Investment } from "@/types/types";
 import { CardTitle } from "@/components/ui/card";
 import { EditPriceDialog } from "../EditPriceDialog";
 

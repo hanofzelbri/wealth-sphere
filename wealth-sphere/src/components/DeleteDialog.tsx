@@ -8,7 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Transaction } from "@/types";
+import { Transaction } from "@/types/transaction.types";
 
 interface DeleteDialogProps {
   isOpen: boolean;

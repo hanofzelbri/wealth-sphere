@@ -1,3 +1,5 @@
+import { Transaction } from "./transaction.types";
+
 export interface Storage {
   id: string;
   amount: number;
@@ -22,13 +24,4 @@ export interface Investment {
   transactions: Transaction[];
   stakingRewards?: number;
   storageUsage?: number;
-}
-
-export interface Transaction {
-  id: string;
-  investmentId: string;
-  quantity: number;
-  price: number;
-  date: Date;
-  type: "buy" | "sell";
 }

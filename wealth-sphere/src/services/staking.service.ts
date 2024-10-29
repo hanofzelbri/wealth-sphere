@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable } from "rxjs";
-import { Staking } from "@/types";
+import { Staking } from "@/types/types";
 import { ApiService, API_BASE_URL } from "./api.service";
 import axios from "axios";
 
@@ -24,7 +24,10 @@ export class StakingService extends ApiService {
     }
   }
 
-  async addStaking(investmentId: string, staking: Omit<Staking, 'id'>): Promise<void> {
+  async addStaking(
+    investmentId: string,
+    staking: Omit<Staking, "id">
+  ): Promise<void> {
     try {
       await axios.post(
         `${API_URL}/${investmentId}/stakings`,
@@ -37,7 +40,11 @@ export class StakingService extends ApiService {
     }
   }
 
-  async updateStaking(investmentId: string, stakingId: string, staking: Staking): Promise<void> {
+  async updateStaking(
+    investmentId: string,
+    stakingId: string,
+    staking: Staking
+  ): Promise<void> {
     try {
       await axios.put(
         `${API_URL}/${investmentId}/stakings/${stakingId}`,

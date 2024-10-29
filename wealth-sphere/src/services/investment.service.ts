@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable } from "rxjs";
-import { Investment } from "@/types";
+import { Investment } from "@/types/types";
 import { ApiService, API_BASE_URL } from "./api.service";
 import axios from "axios";
 
@@ -7,7 +7,9 @@ const API_URL = `${API_BASE_URL}/investments`;
 
 export class InvestmentService extends ApiService {
   private investmentsSubject = new BehaviorSubject<Investment[]>([]);
-  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(null);
+  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
+    null
+  );
 
   getInvestments(): Observable<Investment[]> {
     return this.investmentsSubject.asObservable();
@@ -19,7 +21,10 @@ export class InvestmentService extends ApiService {
 
   async fetchInvestments(): Promise<void> {
     try {
-      const response = await axios.get<Investment[]>(API_URL, this.getHeaders());
+      const response = await axios.get<Investment[]>(
+        API_URL,
+        this.getHeaders()
+      );
       this.investmentsSubject.next(response.data);
     } catch (error) {
       this.handleError(error, "Error fetching investments");
@@ -54,7 +59,12 @@ export class InvestmentService extends ApiService {
     }
   }
 
-  async addInvestment(newInvestment: Omit<Investment, "id" | "transactions" | "storages" | "stakings">): Promise<void> {
+  async addInvestment(
+    newInvestment: Omit<
+      Investment,
+      "id" | "transactions" | "storages" | "stakings"
+    >
+  ): Promise<void> {
     try {
       await axios.post(API_URL, newInvestment, this.getHeaders());
       await this.fetchInvestments();
@@ -65,7 +75,11 @@ export class InvestmentService extends ApiService {
 
   async updateInvestment(investment: Investment): Promise<void> {
     try {
-      await axios.put(`${API_URL}/${investment.id}`, investment, this.getHeaders());
+      await axios.put(
+        `${API_URL}/${investment.id}`,
+        investment,
+        this.getHeaders()
+      );
       await this.fetchInvestments();
     } catch (error) {
       this.handleError(error, "Error updating investment");
