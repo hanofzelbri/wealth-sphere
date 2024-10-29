@@ -85,7 +85,7 @@ export function EditStakingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Edit Staking</DialogTitle>
         </DialogHeader>

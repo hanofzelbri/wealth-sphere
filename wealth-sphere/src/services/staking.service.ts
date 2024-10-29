@@ -43,7 +43,6 @@ export class StakingService {
   async addStaking(newStaking: CreateStakingInput): Promise<void> {
     try {
       await api.post(API_PATH, newStaking);
-      await this.fetchStakings();
     } catch (error) {
       console.error("Error adding staking:", error);
       throw error;
@@ -56,7 +55,6 @@ export class StakingService {
   ): Promise<void> {
     try {
       await api.put(`${API_PATH}/${stakingId}`, updatedStaking);
-      await this.fetchStakings();
     } catch (error) {
       console.error("Error updating staking:", error);
       throw error;
@@ -66,7 +64,6 @@ export class StakingService {
   async deleteStaking(id: string): Promise<void> {
     try {
       await api.delete(`${API_PATH}/${id}`);
-      await this.fetchStakings();
     } catch (error) {
       console.error("Error deleting staking:", error);
       throw error;

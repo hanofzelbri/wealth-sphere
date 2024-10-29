@@ -39,7 +39,7 @@ export function EditTransactionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogTitle>Edit Transaction</DialogTitle>
         <HandleTransactionForm
           transaction={transaction}
