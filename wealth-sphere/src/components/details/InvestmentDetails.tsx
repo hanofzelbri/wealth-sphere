@@ -7,8 +7,6 @@ import { InvestmentHeader } from "./InvestmentHeader";
 import { LoadingState } from "../LoadingState";
 import { ErrorState } from "../ErrorState";
 import { TransactionList } from "./transactions/TransactionList";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { InvestmentSummary } from "./InvestmentSummary";
 
 export const InvestmentDetails = () => {
@@ -19,12 +17,15 @@ export const InvestmentDetails = () => {
 
   const refreshInvestment = async () => {
     if (!symbol) return;
-    
+
     try {
-      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(symbol);
+      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(
+        symbol
+      );
       setInvestment(fetchedInvestment);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch investment data";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch investment data";
       setError(errorMessage);
     }
   };
@@ -50,20 +51,15 @@ export const InvestmentDetails = () => {
   if (error || !investment) return <ErrorState error={error} />;
 
   return (
-    <Card className="w-full max-w-3xl mx-auto mt-8">
+    <Card className="w-full max-w-5xl mx-auto mt-8">
       <CardHeader>
-        <InvestmentHeader 
-          investment={investment} 
+        <InvestmentHeader
+          investment={investment}
           onRefresh={refreshInvestment}
         />
       </CardHeader>
       <CardContent>
-        <Button asChild className="mb-6">
-          <Link to="/">Back to Dashboard</Link>
-        </Button>
-
         <InvestmentSummary investment={investment} />
-
         <div className="mt-8">
           <TransactionList
             transactions={investment.transactions}
