@@ -28,7 +28,7 @@ export function EditTransactionDialog({
         title: "Success",
         description: "Transaction updated successfully",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update transaction",

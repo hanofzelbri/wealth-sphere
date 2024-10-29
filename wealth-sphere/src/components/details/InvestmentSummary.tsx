@@ -5,6 +5,7 @@ import {
   calculateAverageBuyingPrice,
   calculateProfitLoss,
   calculateTotalHolding,
+  calculateTotalStaking as calculateStakedUnits,
 } from "@/utils/investmentCalculations";
 
 interface InvestmentSummaryProps {
@@ -24,23 +25,11 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
   const totalHolding = calculateTotalHolding(investment.transactions);
   const currentValue = totalHolding * investment.currentPrice;
 
+  const stakedUnits = calculateStakedUnits(investment.stakings);
+  const stakedValue = stakedUnits * investment.currentPrice;
+
   return (
     <div className="grid grid-cols-4 gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Profit/Loss</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p
-            className={`text-2xl font-semibold ${
-              profitLoss >= 0 ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            ${Math.abs(profitLoss).toFixed(2)} (
-            {profitLossPercentage.toFixed(2)}%)
-          </p>
-        </CardContent>
-      </Card>
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Holding Units</CardTitle>
@@ -65,6 +54,37 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <p className="text-2xl font-semibold">
             ${averageBuyingPrice.toFixed(2)}
           </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Profit/Loss</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p
+            className={`text-2xl font-semibold ${
+              profitLoss >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            ${Math.abs(profitLoss).toFixed(2)} (
+            {profitLossPercentage.toFixed(2)}%)
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Staked Units</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-2xl font-semibold">{stakedUnits.toFixed(2)}</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Staked Value</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-2xl font-semibold">${stakedValue.toFixed(2)}</p>
         </CardContent>
       </Card>
     </div>

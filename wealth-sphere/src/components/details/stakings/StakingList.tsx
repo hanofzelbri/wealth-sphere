@@ -15,6 +15,7 @@ import { AddStakingDialog } from "./AddStakingDialog";
 import { EditStakingDialog } from "./EditStakingDialog";
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface StakingListProps {
   investmentId: string;
@@ -65,7 +66,14 @@ export function StakingList({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Stakings</h2>
-        <Button onClick={() => setIsAddDialogOpen(true)}>Add Staking</Button>
+        <Button
+          onClick={() => setIsAddDialogOpen(true)}
+          size="sm"
+          className="gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Add Staking</span>
+        </Button>
       </div>
 
       <Table>
@@ -99,21 +107,25 @@ export function StakingList({
                 <TableCell>
                   {format(new Date(staking.startDate), "PP")}
                 </TableCell>
-                <TableCell className="space-x-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleEdit(staking)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteClick(staking.id)}
-                  >
-                    Delete
-                  </Button>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(staking)}
+                      className="h-8 w-8"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(staking.id)}
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

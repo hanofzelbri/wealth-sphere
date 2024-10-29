@@ -15,6 +15,7 @@ import { EditTransactionDialog } from "./EditTransactionDialog";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface TransactionListProps {
   investmentId: string;
@@ -67,11 +68,12 @@ export function TransactionList({
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Transactions</h2>
         <Button
-          variant="default"
-          className="bg-black text-white hover:bg-black/90"
           onClick={() => setIsAddDialogOpen(true)}
+          size="sm"
+          className="gap-2"
         >
-          Add Transaction
+          <Plus className="h-4 w-4" />
+          <span>Add Transaction</span>
         </Button>
       </div>
 
@@ -99,21 +101,25 @@ export function TransactionList({
                 <TableCell>
                   ${(transaction.price * transaction.quantity).toFixed(2)}
                 </TableCell>
-                <TableCell className="space-x-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleEdit(transaction)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteClick(transaction.id)}
-                  >
-                    Delete
-                  </Button>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(transaction)}
+                      className="h-8 w-8"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(transaction.id)}
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

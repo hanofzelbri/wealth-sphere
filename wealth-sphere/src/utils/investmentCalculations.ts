@@ -1,12 +1,18 @@
+import { Staking } from "@/types/staking.types";
 import { Transaction } from "@/types/transaction.types";
 
-export const calculateAverageBuyingPrice = (transactions: Transaction[] = []): number => {
-  const buyTransactions = transactions.filter(t => t.type === 'BUY');
+export const calculateAverageBuyingPrice = (
+  transactions: Transaction[] = []
+): number => {
+  const buyTransactions = transactions.filter((t) => t.type === "buy");
   if (!buyTransactions.length) return 0;
 
-  const totalCost = buyTransactions.reduce((sum, t) => sum + (t.price * t.amount), 0);
-  const totalAmount = buyTransactions.reduce((sum, t) => sum + t.amount, 0);
-  
+  const totalCost = buyTransactions.reduce(
+    (sum, t) => sum + t.price * t.quantity,
+    0
+  );
+  const totalAmount = buyTransactions.reduce((sum, t) => sum + t.quantity, 0);
+
   return totalAmount ? totalCost / totalAmount : 0;
 };
 
@@ -52,4 +58,8 @@ export const calculateTotalHolding = (transactions: Transaction[]): number => {
     }
     return total;
   }, 0);
+};
+
+export const calculateTotalStaking = (stakings: Staking[]): number => {
+  return stakings.reduce((total, staking) => total + staking.amount, 0);
 };
