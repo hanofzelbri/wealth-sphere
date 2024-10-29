@@ -1,15 +1,15 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { PortfolioDashboard } from './components/PortfolioDashboard';
-import { Header } from './components/Header';
-import { userService } from './services/user.service';
-import { useEffect, useState } from 'react';
-import { InvestmentDetails } from './components/investment/InvestmentDetails';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { PortfolioDashboard } from "./components/PortfolioDashboard";
+import { Header } from "./components/Header";
+import { userService } from "./services/user.service";
+import { useEffect, useState } from "react";
+import { InvestmentDetails } from "./components/details/InvestmentDetails";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    const subscription = userService.currentUser.subscribe(user => {
+    const subscription = userService.currentUser.subscribe((user) => {
       setIsLoggedIn(!!user);
     });
 
@@ -25,12 +25,17 @@ function App() {
             {isLoggedIn ? (
               <Routes>
                 <Route path="/" element={<PortfolioDashboard />} />
-                <Route path="/investment/:symbol" element={<InvestmentDetails />} />
+                <Route
+                  path="/investment/:symbol"
+                  element={<InvestmentDetails />}
+                />
               </Routes>
             ) : (
               <div className="flex flex-col items-center justify-center h-full">
                 <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-                <p className="mb-4">Please log in to access your portfolio dashboard.</p>
+                <p className="mb-4">
+                  Please log in to access your portfolio dashboard.
+                </p>
               </div>
             )}
           </div>
