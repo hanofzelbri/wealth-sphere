@@ -1,27 +1,12 @@
 import { Transaction } from "./transaction.types";
-
-export interface Storage {
-  id: string;
-  amount: number;
-  location: string;
-  date: string;
-}
-
-export interface Staking {
-  id: string;
-  amount: number;
-  location: string;
-  websiteLink: string;
-  coolDownPeriod: number;
-  startDate: string;
-}
-
+import { Staking } from "./staking.types";
 export interface Investment {
   id: string;
   symbol: string;
   name: string;
   currentPrice: number;
   transactions: Transaction[];
+  stakings: Staking[];
   stakingRewards?: number;
   storageUsage?: number;
 }

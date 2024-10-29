@@ -8,6 +8,7 @@ import { LoadingState } from "../LoadingState";
 import { ErrorState } from "../ErrorState";
 import { TransactionList } from "./transactions/TransactionList";
 import { InvestmentSummary } from "./InvestmentSummary";
+import { StakingList } from "./stakings/StakingList";
 
 export const InvestmentDetails = () => {
   const [investment, setInvestment] = useState<Investment | null>(null);
@@ -65,6 +66,13 @@ export const InvestmentDetails = () => {
             transactions={investment.transactions}
             investmentId={investment.id}
             onTransactionChange={refreshInvestment}
+          />
+        </div>
+        <div className="mt-8">
+          <StakingList
+            stakings={investment.stakings}
+            investmentId={investment.id}
+            onStakingChange={refreshInvestment}
           />
         </div>
       </CardContent>

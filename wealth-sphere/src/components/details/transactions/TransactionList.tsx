@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,61 +8,71 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { DeleteDialog } from "../../DeleteDialog";
-import { transactionService } from "@/services/transaction.service";
 import { Transaction } from "@/types/transaction.types";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { HandleTransactionForm } from "./HandleTransactionForm";
+import { transactionService } from "@/services/transaction.service";
 import { AddTransactionDialog } from "./AddTransactionDialog";
+import { EditTransactionDialog } from "./EditTransactionDialog";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface TransactionListProps {
-  transactions: Transaction[];
   investmentId: string;
+  transactions: Transaction[];
   onTransactionChange: () => Promise<void>;
 }
 
-export const TransactionList = ({
-  transactions,
+export function TransactionList({
   investmentId,
+  transactions,
   onTransactionChange,
-}: TransactionListProps) => {
-  const [transactionToDelete, setTransactionToDelete] =
+}: TransactionListProps) {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
-  const [transactionToEdit, setTransactionToEdit] =
-    useState<Transaction | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const handleDeleteTransaction = async () => {
-    if (!transactionToDelete) return;
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
 
     try {
-      await transactionService.deleteTransaction(transactionToDelete.id);
-      setTransactionToDelete(null);
+      await transactionService.deleteTransaction(deleteId);
       await onTransactionChange();
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
+      toast({
+        title: "Success",
+        description: "Transaction deleted successfully",
+      });
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to delete transaction",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteId(null);
     }
   };
 
-  const handleEditTransaction = async (transaction: Transaction) => {
-    try {
-      await transactionService.updateTransaction(transaction.id, transaction);
-      setTransactionToEdit(null);
-      await onTransactionChange();
-    } catch (error) {
-      console.error("Error updating transaction:", error);
-    }
+  const handleEdit = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
   };
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Transactions</h3>
-        <AddTransactionDialog 
-          investmentId={investmentId} 
-          onTransactionAdd={onTransactionChange}
-        />
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Transactions</h2>
+        <Button
+          variant="default"
+          className="bg-black text-white hover:bg-black/90"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
+          Add Transaction
+        </Button>
       </div>
 
       <Table>
@@ -76,65 +87,69 @@ export const TransactionList = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>
-                {new Date(transaction.date).toLocaleDateString()}
-              </TableCell>
-              <TableCell>{transaction.type}</TableCell>
-              <TableCell>{transaction.quantity}</TableCell>
-              <TableCell>${transaction.price.toFixed(2)}</TableCell>
-              <TableCell>
-                ${(transaction.price * transaction.quantity).toFixed(2)}
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
+          {Array.isArray(transactions) && transactions.length > 0 ? (
+            transactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>
+                  {format(new Date(transaction.date), "PP")}
+                </TableCell>
+                <TableCell>{transaction.type}</TableCell>
+                <TableCell>{transaction.quantity}</TableCell>
+                <TableCell>${transaction.price.toFixed(2)}</TableCell>
+                <TableCell>
+                  ${(transaction.price * transaction.quantity).toFixed(2)}
+                </TableCell>
+                <TableCell className="space-x-2">
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setTransactionToEdit(transaction)}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleEdit(transaction)}
                   >
-                    <Pencil className="h-4 w-4" />
+                    Edit
                   </Button>
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setTransactionToDelete(transaction)}
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeleteClick(transaction.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Delete
                   </Button>
-                </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-4">
+                No transactions found
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
 
-      <Dialog
-        open={!!transactionToEdit}
-        onOpenChange={() => setTransactionToEdit(null)}
-      >
-        <DialogContent aria-describedby={undefined}>
-          <DialogTitle>Edit Transaction</DialogTitle>
-          {transactionToEdit && (
-            <HandleTransactionForm
-              submitButtonText="Edit Transaction"
-              transaction={transactionToEdit}
-              onSubmit={handleEditTransaction}
-              onCancel={() => setTransactionToEdit(null)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <DeleteDialog
-        isOpen={!!transactionToDelete}
-        onClose={() => setTransactionToDelete(null)}
-        onConfirm={handleDeleteTransaction}
-        title="Confirm Transaction Deletion"
-        description="Are you sure you want to delete this transaction? This action cannot be undone."
-        transaction={transactionToDelete!}
+      <AddTransactionDialog
+        investmentId={investmentId}
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onTransactionAdd={onTransactionChange}
       />
-    </>
+
+      {selectedTransaction && (
+        <EditTransactionDialog
+          transaction={selectedTransaction}
+          open={!!selectedTransaction}
+          onOpenChange={(open) => !open && setSelectedTransaction(null)}
+          onSuccess={onTransactionChange}
+        />
+      )}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Transaction"
+        description="Are you sure you want to delete this transaction? This action cannot be undone."
+      />
+    </div>
   );
-};
+}

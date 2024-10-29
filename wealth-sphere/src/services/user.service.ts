@@ -52,6 +52,7 @@ export class UserService {
   async logout() {
     await supabase.auth.signOut();
     await supabase.auth.stopAutoRefresh();
+    localStorage.removeItem('token');
     this.currentUserSubject.next(null);
   }
 
@@ -61,6 +62,7 @@ export class UserService {
       name: user.email || "User",
       accessToken: accessToken,
     };
+    localStorage.setItem('token', accessToken);
     this.currentUserSubject.next(currentUser);
   }
 }

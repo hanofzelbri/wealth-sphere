@@ -58,6 +58,18 @@ export class TransactionService extends ApiService {
       this.handleError(error, "Error deleting transaction");
     }
   }
+
+  async fetchTransactionsByInvestmentId(
+    investmentId: string
+  ): Promise<Transaction[]> {
+    const response = await fetch(
+      `/api/investments/${investmentId}/transactions`
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch transactions");
+    }
+    return response.json();
+  }
 }
 
 export const transactionService = new TransactionService();

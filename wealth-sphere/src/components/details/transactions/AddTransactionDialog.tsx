@@ -1,26 +1,27 @@
 import { Transaction } from "@/types/transaction.types";
 import { transactionService } from "@/services/transaction.service";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { HandleTransactionForm } from "./HandleTransactionForm";
-import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddTransactionDialogProps {
   investmentId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onTransactionAdd: () => Promise<void>;
 }
 
 export const AddTransactionDialog = ({
   investmentId,
+  open,
+  onOpenChange,
   onTransactionAdd,
 }: AddTransactionDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleAddTransaction = async (transaction: Transaction) => {
     try {
@@ -29,27 +30,30 @@ export const AddTransactionDialog = ({
         date: new Date(transaction.date),
         investmentId,
       });
-      setIsOpen(false);
+      toast({
+        title: "Success",
+        description: "Transaction added successfully",
+      });
+      onOpenChange(false);
       await onTransactionAdd();
     } catch (error) {
       console.error("Error adding transaction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add transaction",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          New Transaction
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Add Transaction</DialogTitle>
         <HandleTransactionForm
           submitButtonText="Add transaction"
           onSubmit={handleAddTransaction}
-          onCancel={() => setIsOpen(false)}
+          onCancel={() => onOpenChange(false)}
         />
       </DialogContent>
     </Dialog>
