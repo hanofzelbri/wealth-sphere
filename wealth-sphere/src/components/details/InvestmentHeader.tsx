@@ -10,8 +10,6 @@ interface InvestmentHeaderProps {
 
 export const InvestmentHeader = ({ investment, onRefresh }: InvestmentHeaderProps) => {
   const currentPrice = investment.currentPrice ?? 0;
-  const priceChange = investment.priceChange ?? 0;
-  const priceChangePercentage = investment.priceChangePercentage ?? 0;
 
   return (
     <div className="flex justify-between items-center">
