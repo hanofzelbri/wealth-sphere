@@ -5,9 +5,21 @@ import { InvestmentsModule } from './investments/investments.module';
 import { UserIdMiddleware } from './middleware/user-id.middleware';
 import { TransactionsModule } from './transactions/transactions.module';
 import { StakingsModule } from './stakings/stakings.module';
+import { CoingeckoModule } from './coingecko/coingecko.module';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig } from './config/configuration';
 
 @Module({
-  imports: [InvestmentsModule, TransactionsModule, StakingsModule],
+  imports: [
+    ConfigModule.forRoot({
+      load: [appConfig],
+      isGlobal: true,
+    }),
+    InvestmentsModule,
+    TransactionsModule,
+    StakingsModule,
+    CoingeckoModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
