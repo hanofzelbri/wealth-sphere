@@ -2,24 +2,27 @@ import React, { useState, useEffect } from "react";
 import { Investment } from "../types/types";
 import { investmentService } from "../services/investment.service";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { PlusIcon, X } from "lucide-react";
-import { AddInvestmentForm } from "./AddInvestmentForm";
 import { PortfolioSummary } from "./PortfolioSummary";
 import { InvestmentsTable } from "./InvestmentsTable";
 import { DeleteDialog } from "./DeleteDialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { RefreshCw, Plus } from "lucide-react";
 
 export const PortfolioDashboard: React.FC = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [investmentToDelete, setInvestmentToDelete] =
     useState<Investment | null>(null);
-  const [isAddInvestmentOpen, setIsAddInvestmentOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showNewInvestmentDialog, setShowNewInvestmentDialog] = useState(false);
+  const [newInvestmentId, setNewInvestmentId] = useState("");
 
   useEffect(() => {
     fetchInvestments();
@@ -41,23 +44,6 @@ export const PortfolioDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error fetching investments:", error);
       setIsLoading(false);
-    }
-  };
-
-  const handleAddInvestment = async (
-    newInvestment: Omit<
-      Investment,
-      "id" | "transactions" | "storages" | "stakings"
-    >
-  ) => {
-    try {
-      await investmentService.addInvestment(newInvestment);
-      setIsAddInvestmentOpen(false);
-      await fetchInvestments();
-      return true;
-    } catch (error) {
-      console.error("Error adding investment:", error);
-      return false;
     }
   };
 
@@ -86,36 +72,40 @@ export const PortfolioDashboard: React.FC = () => {
     }
   };
 
+  const handleAddInvestment = async () => {
+    try {
+      await investmentService.addInvestment(newInvestmentId);
+      setShowNewInvestmentDialog(false);
+      setNewInvestmentId("");
+      await fetchInvestments();
+    } catch (error) {
+      console.error("Error adding investment:", error);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Portfolio Summary</CardTitle>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowNewInvestmentDialog(true)}>
+              <Plus className="h-4 w-4" />
+              <span>Add Investment</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={fetchInvestments}
+              disabled={isLoading}
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <PortfolioSummary investments={investments} />
-          <Collapsible
-            open={isAddInvestmentOpen}
-            onOpenChange={setIsAddInvestmentOpen}
-            className="mb-4"
-          >
-            <CollapsibleTrigger asChild>
-              <Button>
-                {isAddInvestmentOpen ? (
-                  <>
-                    <X className="w-4 h-4 mr-2" /> Cancel
-                  </>
-                ) : (
-                  <>
-                    <PlusIcon className="w-4 h-4 mr-2" /> Add Investment
-                  </>
-                )}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-4">
-              <AddInvestmentForm onAddInvestment={handleAddInvestment} />
-            </CollapsibleContent>
-          </Collapsible>
+
           {isLoading ? (
             <div>Loading investments...</div>
           ) : (
@@ -127,6 +117,39 @@ export const PortfolioDashboard: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={showNewInvestmentDialog}
+        onOpenChange={setShowNewInvestmentDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Investment</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              placeholder="Enter investment ID"
+              value={newInvestmentId}
+              onChange={(e) => setNewInvestmentId(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowNewInvestmentDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddInvestment}
+              disabled={!newInvestmentId.trim()}
+            >
+              Add Investment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <DeleteDialog
         isOpen={!!investmentToDelete}
         onClose={() => setInvestmentToDelete(null)}

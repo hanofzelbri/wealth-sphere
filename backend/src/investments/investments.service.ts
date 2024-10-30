@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  Investment,
-  Transaction,
-  Prisma,
-  Staking,
-  Storage,
-} from '@prisma/client';
+import { Investment, Transaction, Staking, Storage } from '@prisma/client';
+import { CreateInvestmentDto } from './dto/investment.dto';
+import { CoingeckoService } from 'src/coingecko/coingecko.service';
 
 type InvestmentWithDetails = Investment & {
   transactions: Transaction[];
@@ -16,7 +12,10 @@ type InvestmentWithDetails = Investment & {
 
 @Injectable()
 export class InvestmentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private coingeckoService: CoingeckoService,
+  ) {}
 
   async getAllInvestments(userId: string): Promise<InvestmentWithDetails[]> {
     try {
@@ -63,48 +62,24 @@ export class InvestmentsService {
   }
 
   async createInvestment(
-    data: Prisma.InvestmentCreateInput,
+    data: CreateInvestmentDto,
     userId: string,
   ): Promise<InvestmentWithDetails> {
     try {
-      const { transactions, ...investmentData } = data;
+      const coinPrices = await this.coingeckoService.getCoinPrices([data.id]);
+      const coinInfo = coinPrices[0];
       return await this.prisma.getPrismaClient(userId).investment.create({
         data: {
-          ...investmentData,
-          User: { connect: { id: userId } },
-          transactions: transactions
-            ? {
-                create:
-                  transactions as Prisma.TransactionCreateWithoutInvestmentInput[],
-              }
-            : undefined,
+          coinId: data.id,
+          name: coinInfo.name,
+          symbol: coinInfo.symbol,
+          currentPrice: coinInfo.current_price,
+          userId,
         },
         include: { transactions: true, stakings: true, storages: true },
       });
     } catch (error) {
       console.error('Error creating investment:', error);
-      throw error;
-    }
-  }
-
-  async updateInvestment(
-    id: string,
-    data: Prisma.InvestmentUpdateInput,
-    userId: string,
-  ): Promise<InvestmentWithDetails> {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { transactions, stakings, storages, ...investmentData } = data;
-
-      return await this.prisma.getPrismaClient(userId).investment.update({
-        where: { id, userId },
-        data: {
-          ...investmentData,
-        },
-        include: { transactions: true, stakings: true, storages: true },
-      });
-    } catch (error) {
-      console.error('Error updating investment:', error);
       throw error;
     }
   }
@@ -181,86 +156,6 @@ export class InvestmentsService {
       return (currentValue - costBasis) / costBasis;
     } catch (error) {
       console.error('Error calculating performance:', error);
-      throw error;
-    }
-  }
-
-  async addStorage(userId: string, investmentId: string, storageData: any) {
-    try {
-      const prisma = this.prisma.getPrismaClient(userId);
-      return await prisma.storage.create({
-        data: {
-          ...storageData,
-          investmentId,
-        },
-      });
-    } catch (error) {
-      console.error('Error adding storage:', error);
-      throw error;
-    }
-  }
-
-  async addStaking(userId: string, investmentId: string, stakingData: any) {
-    try {
-      const prisma = this.prisma.getPrismaClient(userId);
-      return await prisma.staking.create({
-        data: {
-          ...stakingData,
-          investmentId,
-        },
-      });
-    } catch (error) {
-      console.error('Error adding staking:', error);
-      throw error;
-    }
-  }
-
-  async updateStorage(userId: string, storageId: string, storageData: any) {
-    try {
-      const prisma = this.prisma.getPrismaClient(userId);
-      return await prisma.storage.update({
-        where: { id: storageId },
-        data: storageData,
-      });
-    } catch (error) {
-      console.error('Error updating storage:', error);
-      throw error;
-    }
-  }
-
-  async updateStaking(userId: string, stakingId: string, stakingData: any) {
-    try {
-      const prisma = this.prisma.getPrismaClient(userId);
-      return await prisma.staking.update({
-        where: { id: stakingId },
-        data: stakingData,
-      });
-    } catch (error) {
-      console.error('Error updating staking:', error);
-      throw error;
-    }
-  }
-
-  async deleteStorage(userId: string, storageId: string) {
-    try {
-      const prisma = this.prisma.getPrismaClient(userId);
-      return await prisma.storage.delete({
-        where: { id: storageId },
-      });
-    } catch (error) {
-      console.error('Error deleting storage:', error);
-      throw error;
-    }
-  }
-
-  async deleteStaking(userId: string, stakingId: string) {
-    try {
-      const prisma = this.prisma.getPrismaClient(userId);
-      return await prisma.staking.delete({
-        where: { id: stakingId },
-      });
-    } catch (error) {
-      console.error('Error deleting staking:', error);
       throw error;
     }
   }

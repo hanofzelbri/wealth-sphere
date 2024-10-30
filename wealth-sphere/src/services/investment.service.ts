@@ -6,7 +6,9 @@ const API_PATH = "/investments";
 
 export class InvestmentService {
   private investmentsSubject = new BehaviorSubject<Investment[]>([]);
-  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(null);
+  private currentInvestmentSubject = new BehaviorSubject<Investment | null>(
+    null
+  );
 
   getInvestments(): Observable<Investment[]> {
     return this.investmentsSubject.asObservable();
@@ -38,7 +40,9 @@ export class InvestmentService {
 
   async fetchInvestmentBySymbol(symbol: string): Promise<Investment | null> {
     try {
-      const response = await api.get<Investment>(`${API_PATH}/symbol/${symbol}`);
+      const response = await api.get<Investment>(
+        `${API_PATH}/symbol/${symbol}`
+      );
       if (response.data) {
         this.currentInvestmentSubject.next(response.data);
         return response.data;
@@ -50,11 +54,9 @@ export class InvestmentService {
     }
   }
 
-  async addInvestment(
-    newInvestment: Omit<Investment, "id" | "transactions" | "storages" | "stakings">
-  ): Promise<void> {
+  async addInvestment(id: string): Promise<void> {
     try {
-      await api.post(API_PATH, newInvestment);
+      await api.post(API_PATH, { id });
       await this.fetchInvestments();
     } catch (error) {
       console.error("Error adding investment:", error);

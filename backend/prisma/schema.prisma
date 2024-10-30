@@ -22,7 +22,8 @@ model User {
 
 model Investment {
   id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String?       @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  userId       String        @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  coinId       String        
   name         String
   symbol       String
   currentPrice Float
