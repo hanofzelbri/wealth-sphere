@@ -33,17 +33,29 @@ export const PortfolioDashboard: React.FC = () => {
       .subscribe((fetchedInvestments) => {
         setInvestments(fetchedInvestments || []);
       });
-      
-      return () => subscription.unsubscribe();
-    }, []);
-    
-    const fetchInvestments = async () => {
-      try {
-        setIsLoading(true);
-        await investmentService.fetchInvestments();
-        setIsLoading(false);
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchInvestments = async () => {
+    try {
+      setIsLoading(true);
+      await investmentService.fetchInvestments();
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching investments:", error);
+      setIsLoading(false);
+    }
+  };
+
+  const updateInvestmentInfo = async () => {
+    try {
+      setIsLoading(true);
+      await investmentService.updateInvestmentInfo();
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error updating investments info:", error);
+      setIsLoading(false);
     }
   };
 
@@ -96,7 +108,7 @@ export const PortfolioDashboard: React.FC = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={fetchInvestments}
+              onClick={updateInvestmentInfo}
               disabled={isLoading}
             >
               <RefreshCw className="h-4 w-4" />

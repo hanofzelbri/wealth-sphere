@@ -48,6 +48,16 @@ export const InvestmentDetails = () => {
     }
   };
 
+  const updateInvestmentInfo = async () => {
+    try {
+      setLoading(true);
+      await investmentService.updateInvestmentInfo();
+      await refreshInvestment();
+    } catch (error) {
+      console.error("Error updating investments info:", error);
+    }
+  };
+
   useEffect(() => {
     refreshInvestment();
   }, [symbol]);
@@ -61,7 +71,7 @@ export const InvestmentDetails = () => {
       <CardHeader>
         <InvestmentHeader
           investment={investment}
-          onRefresh={refreshInvestment}
+          onRefresh={updateInvestmentInfo}
         />
       </CardHeader>
       <CardContent>

@@ -160,4 +160,46 @@ export class InvestmentsService {
       throw error;
     }
   }
+
+  async updateInvestmentInfo(userId: string): Promise<InvestmentWithDetails[]> {
+    try {
+      // Get all investments for the user
+      const investments = await this.prisma
+        .getPrismaClient(userId)
+        .investment.findMany({
+          where: {
+            userId,
+          },
+          include: { transactions: true, stakings: true, storages: true },
+        });
+
+      // Get all unique coin IDs
+      const coinIds = [...new Set(investments.map((inv) => inv.coinId))];
+
+      // Get prices for all coins
+      const coinPrices = await this.coingeckoService.getCoinPrices(coinIds);
+
+      // Update each investment with its corresponding coin price info
+      const updates = investments.map(async (inv) => {
+        const coinInfo = coinPrices.find((coin) => coin.id === inv.coinId);
+        if (!coinInfo) return inv;
+
+        return this.prisma.getPrismaClient(userId).investment.update({
+          where: { id: inv.id, userId },
+          data: {
+            name: coinInfo.name,
+            symbol: coinInfo.symbol,
+            image: coinInfo.image,
+            currentPrice: coinInfo.current_price,
+          },
+          include: { transactions: true, stakings: true, storages: true },
+        });
+      });
+
+      return await Promise.all(updates);
+    } catch (error) {
+      console.error('Error updating investment info:', error);
+      throw error;
+    }
+  }
 }

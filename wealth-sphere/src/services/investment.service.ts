@@ -83,6 +83,16 @@ export class InvestmentService {
       throw error;
     }
   }
+
+  async updateInvestmentInfo(): Promise<void> {
+    try {
+      const response = await api.post(`${API_PATH}/update-info`);
+      this.investmentsSubject.next(response.data);
+    } catch (error) {
+      console.error("Error updating investment info:", error);
+      throw error;
+    }
+  }
 }
 
 export const investmentService = new InvestmentService();

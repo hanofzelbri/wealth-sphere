@@ -69,4 +69,9 @@ export class InvestmentsController {
   async getWorstPerformer(@User() user: string): Promise<Investment | null> {
     return this.investmentsService.getWorstPerformer(user);
   }
+
+  @Post('update-info')
+  async updateInvestmentInfo(@User() userId: string) {
+    return this.investmentsService.updateInvestmentInfo(userId);
+  }
 }
