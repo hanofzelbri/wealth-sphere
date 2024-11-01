@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RefreshCw, Plus } from "lucide-react";
+import { LoadingState } from "./LoadingState";
 
 export const PortfolioDashboard: React.FC = () => {
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -31,19 +32,18 @@ export const PortfolioDashboard: React.FC = () => {
       .getInvestments()
       .subscribe((fetchedInvestments) => {
         setInvestments(fetchedInvestments || []);
-        setIsLoading(false);
       });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchInvestments = async () => {
-    try {
-      setIsLoading(true);
-      await investmentService.fetchInvestments();
+      
+      return () => subscription.unsubscribe();
+    }, []);
+    
+    const fetchInvestments = async () => {
+      try {
+        setIsLoading(true);
+        await investmentService.fetchInvestments();
+        setIsLoading(false);
     } catch (error) {
       console.error("Error fetching investments:", error);
-      setIsLoading(false);
     }
   };
 
@@ -104,16 +104,17 @@ export const PortfolioDashboard: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <PortfolioSummary investments={investments} />
-
           {isLoading ? (
-            <div>Loading investments...</div>
+            <LoadingState />
           ) : (
-            <InvestmentsTable
-              investments={investments}
-              onDeleteInvestment={handleDeleteInvestment}
-              onUpdateInvestment={handleUpdateInvestment}
-            />
+            <>
+              <PortfolioSummary investments={investments} />
+              <InvestmentsTable
+                investments={investments}
+                onDeleteInvestment={handleDeleteInvestment}
+                onUpdateInvestment={handleUpdateInvestment}
+              />
+            </>
           )}
         </CardContent>
       </Card>
