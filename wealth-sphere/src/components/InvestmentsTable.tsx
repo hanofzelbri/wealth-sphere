@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Investment } from "../types/types";
+import { Investment } from "../types/investment.types";
 import {
   Table,
   TableBody,
@@ -9,6 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, ArrowDownIcon, Eye, Pencil, Trash2 } from "lucide-react";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -214,7 +221,23 @@ export const InvestmentsTable: React.FC<InvestmentsTableProps> = ({
               return (
                 <React.Fragment key={investment.id}>
                   <TableRow>
-                    <TableCell>{investment.symbol}</TableCell>
+                    <TableCell>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Avatar>
+                              <AvatarImage src={investment.image} />
+                              <AvatarFallback>
+                                {investment.symbol}
+                              </AvatarFallback>
+                            </Avatar>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{investment.symbol}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
                     <TableCell>{investment.name}</TableCell>
                     <TableCell>{totalQuantity}</TableCell>
                     <TableCell>${investment.currentPrice.toFixed(2)}</TableCell>

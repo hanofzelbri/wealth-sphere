@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Investment } from "@/types/types";
+import { Investment } from "@/types/investment.types";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { investmentService } from "@/services/investment.service";
 import { InvestmentHeader } from "./InvestmentHeader";
@@ -24,21 +24,24 @@ export const InvestmentDetails = () => {
 
     try {
       setLoading(true);
-      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(symbol);
-      
+      const fetchedInvestment = await investmentService.fetchInvestmentBySymbol(
+        symbol
+      );
+
       if (!fetchedInvestment) {
         setError("Investment not found");
         return;
       }
-      
+
       // Ensure transactions and stakings are always arrays
       setInvestment({
         ...fetchedInvestment,
         transactions: fetchedInvestment.transactions || [],
-        stakings: fetchedInvestment.stakings || []
+        stakings: fetchedInvestment.stakings || [],
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch investment data";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch investment data";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -50,12 +53,13 @@ export const InvestmentDetails = () => {
   }, [symbol]);
 
   if (loading) return <LoadingState />;
-  if (error || !investment) return <ErrorState error={error || "Investment not found"} />;
+  if (error || !investment)
+    return <ErrorState error={error || "Investment not found"} />;
 
   return (
-    <Card className="space-y-8">
+    <Card>
       <CardHeader>
-        <InvestmentHeader 
+        <InvestmentHeader
           investment={investment}
           onRefresh={refreshInvestment}
         />

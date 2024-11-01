@@ -1,8 +1,10 @@
 import { Transaction } from "./transaction.types";
 import { Staking } from "./staking.types";
+
 export interface Investment {
   id: string;
   symbol: string;
+  image: string;
   name: string;
   currentPrice: number;
   priceChange: number;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Investment } from "../../types/types";
+import { Investment } from "../../types/investment.types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   calculateAverageBuyingPrice,

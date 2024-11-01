@@ -73,6 +73,7 @@ export class InvestmentsService {
           coinId: data.id,
           name: coinInfo.name,
           symbol: coinInfo.symbol,
+          image: coinInfo.image,
           currentPrice: coinInfo.current_price,
           userId,
         },

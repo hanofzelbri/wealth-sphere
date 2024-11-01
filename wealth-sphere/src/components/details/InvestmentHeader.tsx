@@ -1,4 +1,11 @@
-import { Investment } from "@/types/types";
+import { Investment } from "@/types/investment.types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -8,21 +15,35 @@ interface InvestmentHeaderProps {
   onRefresh: () => Promise<void>;
 }
 
-export const InvestmentHeader = ({ investment, onRefresh }: InvestmentHeaderProps) => {
+export const InvestmentHeader = ({
+  investment,
+  onRefresh,
+}: InvestmentHeaderProps) => {
   const currentPrice = investment.currentPrice ?? 0;
 
   return (
     <div className="flex justify-between items-center">
-      <CardTitle className="text-2xl font-bold">{investment.name}</CardTitle>
+      <div className="flex items-center">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Avatar>
+                <AvatarImage src={investment.image} />
+                <AvatarFallback>{investment.symbol}</AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{investment.symbol}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <CardTitle className="text-2xl font-bold ml-2">{investment.name}</CardTitle>
+      </div>
       <div className="flex items-center gap-4">
         <span className="text-xl font-semibold">
           ${currentPrice.toFixed(2)}
         </span>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={onRefresh}
-        >
+        <Button variant="ghost" size="icon" onClick={onRefresh}>
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>

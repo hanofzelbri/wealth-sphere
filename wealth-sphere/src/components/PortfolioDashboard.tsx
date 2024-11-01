@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Investment } from "../types/types";
+import { Investment } from "../types/investment.types";
 import { investmentService } from "../services/investment.service";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PortfolioSummary } from "./PortfolioSummary";

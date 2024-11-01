@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { PerformerCard } from "./PerformerCard";
-import { Investment } from "../types/types";
+import { Investment } from "../types/investment.types";
 import { calculateProfitLoss } from "@/utils/investmentCalculations";
 
 interface PortfolioSummaryProps {

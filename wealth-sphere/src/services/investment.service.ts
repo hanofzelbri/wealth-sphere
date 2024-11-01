@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Investment } from "@/types/types";
+import { Investment } from "@/types/investment.types";
 import { BehaviorSubject, Observable } from "rxjs";
 
 const API_PATH = "/investments";
