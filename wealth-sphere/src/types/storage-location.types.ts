@@ -1,18 +1,26 @@
+export type StorageLocationType =
+  | "hardwareWallet"
+  | "softwareWallet"
+  | "echange";
+
 export interface StorageLocation {
   id: string;
   userId: string;
   name: string;
   image: string;
+  storageLocationType: StorageLocationType;
 }
 
 export interface CreateStorageLocationInput {
   name: string;
   image: string;
+  storageLocationType: StorageLocationType;
 }
 
 export interface UpdateStorageLocationInput {
   name?: string;
   image?: string;
+  storageLocationType?: StorageLocationType;
 }
 
 export interface DeleteStorageLocationInput {

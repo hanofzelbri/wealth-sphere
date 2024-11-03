@@ -1,10 +1,19 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+
+import { StorageLocationType as PrismaStorageLocationType } from '@prisma/client';
+
+export enum StorageLocationType {
+  hardwareWallet = 'hardwareWallet',
+  softwareWallet = 'softwareWallet',
+  exchange = 'echange',
+}
 
 export class StorageLocation {
   id: string;
   userId: string;
   name: string;
   image: string;
+  storageLocationType: StorageLocationType;
 }
 
 export class CreateStorageLocationDto {
@@ -13,6 +22,9 @@ export class CreateStorageLocationDto {
 
   @IsString()
   image: string;
+
+  @IsEnum(StorageLocationType)
+  storageLocationType: StorageLocationType;
 }
 
 export class UpdateStorageLocationDto {
@@ -23,9 +35,26 @@ export class UpdateStorageLocationDto {
   @IsOptional()
   @IsString()
   image: string;
+
+  @IsOptional()
+  @IsEnum(StorageLocationType)
+  storageLocationType: StorageLocationType;
 }
 
 export class DelteStorageLocationDto {
   @IsUUID()
   id: string;
+}
+
+export function mapStorageLocationType(
+  type: PrismaStorageLocationType,
+): StorageLocationType {
+  const mapping = {
+    [PrismaStorageLocationType.hardwareWallet]:
+      StorageLocationType.hardwareWallet,
+    [PrismaStorageLocationType.softwareWallet]:
+      StorageLocationType.softwareWallet,
+    [PrismaStorageLocationType.echange]: StorageLocationType.exchange,
+  };
+  return mapping[type];
 }

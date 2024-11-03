@@ -90,7 +90,19 @@ export function StorageList({
             storages.map((storage) => (
               <TableRow key={storage.id}>
                 <TableCell>{storage.amount}</TableCell>
-                <TableCell>{storage.storageLocationId}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={storage.storageLocation.image} 
+                      alt={storage.storageLocation.name}
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span>{storage.storageLocation.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({storage.storageLocation.storageLocationType})
+                    </span>
+                  </div>
+                </TableCell>
                 <TableCell>{format(new Date(storage.date), "PP")}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

@@ -13,6 +13,7 @@ import {
   StorageLocation,
   CreateStorageLocationDto,
   UpdateStorageLocationDto,
+  mapStorageLocationType,
 } from './dto/storage-locations.dto';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -26,7 +27,11 @@ export class StorageLocationsController {
 
   @Get()
   async findAll(@User('id') userId: string): Promise<StorageLocation[]> {
-    return this.storageLocationsService.findAll(userId);
+    const locations = await this.storageLocationsService.findAll(userId);
+    return locations.map((location) => ({
+      ...location,
+      storageLocationType: mapStorageLocationType(location.storageLocationType),
+    }));
   }
 
   @Get(':id')
@@ -34,7 +39,11 @@ export class StorageLocationsController {
     @Param('id') id: string,
     @User('id') userId: string,
   ): Promise<StorageLocation> {
-    return this.storageLocationsService.findOne(id, userId);
+    const location = await this.storageLocationsService.findOne(id, userId);
+    return {
+      ...location,
+      storageLocationType: mapStorageLocationType(location.storageLocationType),
+    };
   }
 
   @Post()
@@ -42,7 +51,14 @@ export class StorageLocationsController {
     @User('id') userId: string,
     @Body() createDto: CreateStorageLocationDto,
   ): Promise<StorageLocation> {
-    return this.storageLocationsService.create(userId, createDto);
+    const location = await this.storageLocationsService.create(
+      userId,
+      createDto,
+    );
+    return {
+      ...location,
+      storageLocationType: mapStorageLocationType(location.storageLocationType),
+    };
   }
 
   @Put(':id')
@@ -51,7 +67,15 @@ export class StorageLocationsController {
     @User('id') userId: string,
     @Body() updateDto: UpdateStorageLocationDto,
   ): Promise<StorageLocation> {
-    return this.storageLocationsService.update(id, userId, updateDto);
+    const location = await this.storageLocationsService.update(
+      id,
+      userId,
+      updateDto,
+    );
+    return {
+      ...location,
+      storageLocationType: mapStorageLocationType(location.storageLocationType),
+    };
   }
 
   @Delete(':id')

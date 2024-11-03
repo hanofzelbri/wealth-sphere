@@ -1,54 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateStorageDto, Storage, UpdateStorageDto } from './dto/storage.dto';
+import { CreateStorageDto, UpdateStorageDto } from './dto/storage.dto';
+import { Storage, StorageLocation } from '@prisma/client';
+
+type StorageWithStorageLocation = Storage & { location: StorageLocation };
 
 @Injectable()
 export class StorageService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(userId: string): Promise<Storage[]> {
-    return this.prisma.getPrismaClient(userId).storage.findMany({
-      where: { userId },
-      include: {
-        investment: true,
-        location: true,
-      },
+  async create(
+    createStorageDto: CreateStorageDto,
+    userId: string,
+  ): Promise<StorageWithStorageLocation> {
+    return this.prisma.getPrismaClient(userId).storage.create({
+      data: { ...createStorageDto, userId },
+      include: { location: true },
     });
   }
 
-  async findOne(id: string, userId: string): Promise<Storage> {
+  async findAll(userId: string): Promise<StorageWithStorageLocation[]> {
+    return this.prisma.getPrismaClient(userId).storage.findMany({
+      where: { userId },
+      include: { location: true },
+    });
+  }
+
+  async findOne(
+    id: string,
+    userId: string,
+  ): Promise<StorageWithStorageLocation> {
     return this.prisma.getPrismaClient(userId).storage.findFirst({
       where: { id, userId },
-      include: {
-        investment: true,
-        location: true,
-      },
+      include: { location: true },
     });
   }
 
   async findByInvestment(
     investmentId: string,
     userId: string,
-  ): Promise<Storage[]> {
+  ): Promise<StorageWithStorageLocation[]> {
     return this.prisma.getPrismaClient(userId).storage.findMany({
       where: { investmentId, userId },
-      include: {
-        investment: true,
-        location: true,
-      },
-    });
-  }
-
-  async create(userId: string, data: CreateStorageDto): Promise<Storage> {
-    return this.prisma.getPrismaClient(userId).storage.create({
-      data: {
-        ...data,
-        userId,
-      },
-      include: {
-        investment: true,
-        location: true,
-      },
+      include: { location: true },
     });
   }
 
@@ -56,20 +50,21 @@ export class StorageService {
     id: string,
     userId: string,
     data: UpdateStorageDto,
-  ): Promise<Storage> {
+  ): Promise<StorageWithStorageLocation> {
     return this.prisma.getPrismaClient(userId).storage.update({
       where: { id, userId },
       data,
-      include: {
-        investment: true,
-        location: true,
-      },
+      include: { location: true },
     });
   }
 
-  async delete(id: string, userId: string): Promise<void> {
-    await this.prisma.getPrismaClient(userId).storage.delete({
+  async delete(
+    id: string,
+    userId: string,
+  ): Promise<StorageWithStorageLocation> {
+    return await this.prisma.getPrismaClient(userId).storage.delete({
       where: { id, userId },
+      include: { location: true },
     });
   }
 }

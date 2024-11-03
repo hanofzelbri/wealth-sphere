@@ -125,7 +125,9 @@ export function AddStorageDialog({
                       type="number"
                       step="any"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -151,7 +153,17 @@ export function AddStorageDialog({
                     <SelectContent>
                       {locations.map((location) => (
                         <SelectItem key={location.id} value={location.id}>
-                          {location.name}
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={location.image}
+                              alt={location.name}
+                              className="w-4 h-4 rounded-full"
+                            />
+                            <span>{location.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({location.storageLocationType})
+                            </span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -183,4 +195,4 @@ export function AddStorageDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

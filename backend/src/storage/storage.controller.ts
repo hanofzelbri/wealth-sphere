@@ -12,6 +12,7 @@ import { StorageService } from './storage.service';
 import { Storage, CreateStorageDto, UpdateStorageDto } from './dto/storage.dto';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { mapStorageLocationType } from '../storage-locations/dto/storage-locations.dto';
 
 @Controller('storages')
 @UseGuards(JwtAuthGuard)
@@ -20,7 +21,16 @@ export class StorageController {
 
   @Get()
   async findAll(@User('id') userId: string): Promise<Storage[]> {
-    return this.storageService.findAll(userId);
+    const storages = await this.storageService.findAll(userId);
+    return storages.map((storage) => ({
+      ...storage,
+      location: {
+        ...storage.location,
+        storageLocationType: mapStorageLocationType(
+          storage.location.storageLocationType,
+        ),
+      },
+    }));
   }
 
   @Get(':id')
@@ -28,7 +38,16 @@ export class StorageController {
     @Param('id') id: string,
     @User('id') userId: string,
   ): Promise<Storage> {
-    return this.storageService.findOne(id, userId);
+    const storage = await this.storageService.findOne(id, userId);
+    return {
+      ...storage,
+      location: {
+        ...storage.location,
+        storageLocationType: mapStorageLocationType(
+          storage.location.storageLocationType,
+        ),
+      },
+    };
   }
 
   @Get('investment/:investmentId')
@@ -36,15 +55,36 @@ export class StorageController {
     @Param('investmentId') investmentId: string,
     @User('id') userId: string,
   ): Promise<Storage[]> {
-    return this.storageService.findByInvestment(investmentId, userId);
+    const storages = await this.storageService.findByInvestment(
+      investmentId,
+      userId,
+    );
+    return storages.map((storage) => ({
+      ...storage,
+      location: {
+        ...storage.location,
+        storageLocationType: mapStorageLocationType(
+          storage.location.storageLocationType,
+        ),
+      },
+    }));
   }
 
   @Post()
   async create(
-    @User('id') userId: string,
     @Body() createDto: CreateStorageDto,
+    @User('id') userId: string,
   ): Promise<Storage> {
-    return this.storageService.create(userId, createDto);
+    const storage = await this.storageService.create(createDto, userId);
+    return {
+      ...storage,
+      location: {
+        ...storage.location,
+        storageLocationType: mapStorageLocationType(
+          storage.location.storageLocationType,
+        ),
+      },
+    };
   }
 
   @Put(':id')
@@ -53,14 +93,32 @@ export class StorageController {
     @User('id') userId: string,
     @Body() updateDto: UpdateStorageDto,
   ): Promise<Storage> {
-    return this.storageService.update(id, userId, updateDto);
+    const storage = await this.storageService.update(id, userId, updateDto);
+    return {
+      ...storage,
+      location: {
+        ...storage.location,
+        storageLocationType: mapStorageLocationType(
+          storage.location.storageLocationType,
+        ),
+      },
+    };
   }
 
   @Delete(':id')
   async delete(
     @Param('id') id: string,
     @User('id') userId: string,
-  ): Promise<void> {
-    return this.storageService.delete(id, userId);
+  ): Promise<Storage> {
+    const storage = await this.storageService.delete(id, userId);
+    return {
+      ...storage,
+      location: {
+        ...storage.location,
+        storageLocationType: mapStorageLocationType(
+          storage.location.storageLocationType,
+        ),
+      },
+    };
   }
 }

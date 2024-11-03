@@ -17,6 +17,7 @@ import {
   UpdateStakingDto,
   StakingResponseDto,
 } from './dto/staking.dto';
+import { mapStorageLocationType } from '../storage-locations/dto/storage-locations.dto';
 
 @Controller('stakings')
 @UseGuards(JwtAuthGuard)
@@ -25,7 +26,16 @@ export class StakingsController {
 
   @Get()
   async getAllStakings(@User() user: string): Promise<StakingResponseDto[]> {
-    return await this.stakingsService.getAllStakings(user);
+    const stakings = await this.stakingsService.getAllStakings(user);
+    return stakings.map((staking) => ({
+      ...staking,
+      location: {
+        ...staking.location,
+        storageLocationType: mapStorageLocationType(
+          staking.location.storageLocationType,
+        ),
+      },
+    }));
   }
 
   @Get(':id')
@@ -33,7 +43,18 @@ export class StakingsController {
     @Param('id') id: string,
     @User() user: string,
   ): Promise<StakingResponseDto | null> {
-    return this.stakingsService.getStakingById(id, user);
+    const staking = await this.stakingsService.getStakingById(id, user);
+    if (!staking) return null;
+
+    return {
+      ...staking,
+      location: {
+        ...staking.location,
+        storageLocationType: mapStorageLocationType(
+          staking.location.storageLocationType,
+        ),
+      },
+    };
   }
 
   @Post()
@@ -41,7 +62,16 @@ export class StakingsController {
     @Body() data: CreateStakingDto,
     @User() user: string,
   ): Promise<StakingResponseDto> {
-    return this.stakingsService.createStaking(data, user);
+    const staking = await this.stakingsService.createStaking(data, user);
+    return {
+      ...staking,
+      location: {
+        ...staking.location,
+        storageLocationType: mapStorageLocationType(
+          staking.location.storageLocationType,
+        ),
+      },
+    };
   }
 
   @Put(':id')
@@ -50,7 +80,17 @@ export class StakingsController {
     @Body() data: UpdateStakingDto,
     @User() user: string,
   ): Promise<StakingResponseDto> {
-    return this.stakingsService.updateStaking(id, data, user);
+    const staking = await this.stakingsService.updateStaking(id, data, user);
+    return {
+      ...staking,
+      amount: staking.amount,
+      location: {
+        ...staking.location,
+        storageLocationType: mapStorageLocationType(
+          staking.location.storageLocationType,
+        ),
+      },
+    };
   }
 
   @Delete(':id')

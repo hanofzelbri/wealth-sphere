@@ -16,6 +16,7 @@ import {
   CreateTransactionDto,
   UpdateTransactionDto,
   TransactionResponseDto,
+  mapTransactionType,
 } from './dto/transaction.dto';
 
 @Controller('transactions')
@@ -27,7 +28,12 @@ export class TransactionsController {
   async getAllTransactions(
     @User() user: string,
   ): Promise<TransactionResponseDto[]> {
-    return this.transactionsService.getAllTransactions(user);
+    const ret = await this.transactionsService.getAllTransactions(user);
+
+    return ret.map((transaction) => ({
+      ...transaction,
+      type: mapTransactionType(transaction.type),
+    }));
   }
 
   @Get(':id')
@@ -35,7 +41,15 @@ export class TransactionsController {
     @Param('id') id: string,
     @User() user: string,
   ): Promise<TransactionResponseDto | null> {
-    return this.transactionsService.getTransactionById(id, user);
+    const transaction = await this.transactionsService.getTransactionById(
+      id,
+      user,
+    );
+
+    return {
+      ...transaction,
+      type: mapTransactionType(transaction.type),
+    };
   }
 
   @Post()
@@ -43,7 +57,12 @@ export class TransactionsController {
     @Body() data: CreateTransactionDto,
     @User() user: string,
   ): Promise<TransactionResponseDto> {
-    return this.transactionsService.createTransaction(data, user);
+    const transaction = await this.transactionsService.createTransaction(
+      data,
+      user,
+    );
+
+    return { ...transaction, type: mapTransactionType(transaction.type) };
   }
 
   @Put(':id')
@@ -52,7 +71,13 @@ export class TransactionsController {
     @Body() data: UpdateTransactionDto,
     @User() user: string,
   ): Promise<TransactionResponseDto> {
-    return this.transactionsService.updateTransaction(id, data, user);
+    const transaction = await this.transactionsService.updateTransaction(
+      id,
+      data,
+      user,
+    );
+
+    return { ...transaction, type: mapTransactionType(transaction.type) };
   }
 
   @Delete(':id')
@@ -60,6 +85,11 @@ export class TransactionsController {
     @Param('id') id: string,
     @User() user: string,
   ): Promise<Transaction> {
-    return this.transactionsService.deleteTransaction(id, user);
+    const transaction = await this.transactionsService.deleteTransaction(
+      id,
+      user,
+    );
+
+    return { ...transaction, type: mapTransactionType(transaction.type) };
   }
 }

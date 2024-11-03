@@ -22,18 +22,25 @@ import {
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-
-interface StorageLocation {
-  id: string;
-  name: string;
-  image: string;
-}
+import {
+  StorageLocation,
+  StorageLocationType,
+} from "@/types/storage-location.types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function SettingsDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
+  const [storageLocationType, setStorageLocationType] =
+    useState<StorageLocationType>("WALLET");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [storageLocations, setStorageLocations] = useState<StorageLocation[]>(
     []
@@ -67,36 +74,51 @@ export default function SettingsDialog() {
 
   const isFormValid = name.trim() !== "" && image.trim() !== "";
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!isFormValid) return;
-    if (editingId) {
-      setStorageLocations((locations) =>
-        locations.map((loc) =>
-          loc.id === editingId ? { ...loc, name, image } : loc
-        )
-      );
-    } else {
-      const newLocation: StorageLocation = {
-        id: Date.now().toString(),
-        name,
-        image,
-      };
-      setStorageLocations((prev) => [...prev, newLocation]);
+
+    try {
+      setIsLoading(true);
+      if (editingId) {
+        await storageLocationService.updateStorageLocation(editingId, {
+          name,
+          image,
+          storageLocationType,
+        });
+      } else {
+        await storageLocationService.addStorageLocation({
+          name,
+          image,
+          storageLocationType,
+        });
+      }
+      handleCloseForm();
+    } catch (error) {
+      console.error("Error saving storage location:", error);
+      // You might want to add error handling/notification here
+    } finally {
+      setIsLoading(false);
     }
-    handleCloseForm();
   };
 
   const handleEdit = (location: StorageLocation) => {
     setName(location.name);
     setImage(location.image);
+    setStorageLocationType(location.storageLocationType);
     setEditingId(location.id);
     setFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setStorageLocations((locations) =>
-      locations.filter((loc) => loc.id !== id)
-    );
+  const handleDelete = async (id: string) => {
+    try {
+      setIsLoading(true);
+      await storageLocationService.deleteStorageLocation(id);
+    } catch (error) {
+      console.error("Error deleting storage location:", error);
+      // You might want to add error handling/notification here
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCloseForm = () => {
@@ -202,6 +224,24 @@ export default function SettingsDialog() {
                     onChange={(e) => setImage(e.target.value)}
                     className="col-span-3"
                   />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="storageLocationType" className="text-right">
+                    Type
+                  </Label>
+                  <Select
+                    value={storageLocationType}
+                    onValueChange={(value: StorageLocationType) => setStorageLocationType(value)}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select a storage type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hardwareWallet">Hardware Wallet</SelectItem>
+                      <SelectItem value="softwareWallet">Software Wallet</SelectItem>
+                      <SelectItem value="echange">Exchange</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <DialogFooter>

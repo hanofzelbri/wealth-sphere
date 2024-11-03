@@ -6,6 +6,13 @@ import {
   IsDateString,
 } from 'class-validator';
 
+import { TransactionType as PrismaTransactionType } from '@prisma/client';
+
+export enum TransactionType {
+  buy = 'buy',
+  sell = 'sell',
+}
+
 export class CreateTransactionDto {
   @IsUUID()
   investmentId: string;
@@ -19,8 +26,8 @@ export class CreateTransactionDto {
   @IsDateString()
   date: Date;
 
-  @IsEnum(['buy', 'sell'])
-  type: 'buy' | 'sell';
+  @IsEnum(TransactionType)
+  type: TransactionType;
 }
 
 export class UpdateTransactionDto {
@@ -37,8 +44,8 @@ export class UpdateTransactionDto {
   date?: Date;
 
   @IsOptional()
-  @IsEnum(['buy', 'sell'])
-  type?: 'buy' | 'sell';
+  @IsEnum(TransactionType)
+  type?: TransactionType;
 }
 
 export class TransactionResponseDto {
@@ -47,5 +54,15 @@ export class TransactionResponseDto {
   quantity: number;
   price: number;
   date: Date;
-  type: 'buy' | 'sell';
+  type: TransactionType;
+}
+
+export function mapTransactionType(
+  type: PrismaTransactionType,
+): TransactionType {
+  const mapping = {
+    [PrismaTransactionType.buy]: TransactionType.buy,
+    [PrismaTransactionType.sell]: TransactionType.sell,
+  };
+  return mapping[type];
 }
