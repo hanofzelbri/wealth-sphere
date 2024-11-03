@@ -11,7 +11,9 @@ export class TransactionsService {
   constructor(private prisma: PrismaService) {}
 
   async getAllTransactions(userId: string): Promise<Transaction[]> {
-    return await this.prisma.getPrismaClient(userId).transaction.findMany();
+    return await this.prisma
+      .getPrismaClient(userId)
+      .transaction.findMany({ where: { userId } });
   }
 
   async getTransactionById(
@@ -19,7 +21,7 @@ export class TransactionsService {
     userId: string,
   ): Promise<Transaction | null> {
     return await this.prisma.getPrismaClient(userId).transaction.findUnique({
-      where: { id },
+      where: { id, userId },
     });
   }
 
@@ -29,7 +31,7 @@ export class TransactionsService {
   ): Promise<Transaction> {
     try {
       return await this.prisma.getPrismaClient(userId).transaction.create({
-        data,
+        data: { ...data, userId },
       });
     } catch (error) {
       console.error('Error adding transaction:', error);
@@ -44,13 +46,8 @@ export class TransactionsService {
   ) {
     try {
       return await this.prisma.getPrismaClient(userId).transaction.update({
-        where: { id },
-        data: {
-          ...(data.quantity && { quantity: data.quantity }),
-          ...(data.price && { price: data.price }),
-          ...(data.date && { date: data.date }),
-          ...(data.type && { type: data.type }),
-        },
+        where: { id, userId },
+        data,
       });
     } catch (error) {
       console.error('Error updating transaction:', error);
@@ -58,10 +55,10 @@ export class TransactionsService {
     }
   }
 
-  async deleteTransaction(transactionId: string, userId: string) {
+  async deleteTransaction(id: string, userId: string) {
     try {
       return await this.prisma.getPrismaClient(userId).transaction.delete({
-        where: { id: transactionId, investment: { userId } },
+        where: { id, userId },
       });
     } catch (error) {
       console.error('Error deleting transaction:', error);
