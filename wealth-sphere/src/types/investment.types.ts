@@ -1,5 +1,6 @@
 import { Transaction } from "./transaction.types";
 import { Staking } from "./staking.types";
+import { Storage } from "./storage.types";
 
 export interface Investment {
   id: string;
@@ -11,5 +12,5 @@ export interface Investment {
   priceChangePercentage: number;
   transactions: Transaction[];
   stakings: Staking[];
-  storageUsage?: number;
+  storages: Storage[];
 }

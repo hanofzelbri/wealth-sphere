@@ -1,9 +1,11 @@
+import { StorageLocation } from "./storage-location.types";
+
 export interface Storage {
   id: string;
   userId: string;
   investmentId: string;
   amount: number;
-  storageLocationId: string;
+  storageLocation: StorageLocation;
   date: Date;
 }
 

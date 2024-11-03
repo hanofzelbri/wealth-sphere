@@ -9,6 +9,7 @@ import { ErrorState } from "../ErrorState";
 import { TransactionList } from "./transactions/TransactionList";
 import { InvestmentSummary } from "./InvestmentSummary";
 import { StakingList } from "./stakings/StakingList";
+import { StorageList } from "./storage/StorageList";
 
 export const InvestmentDetails = () => {
   const [investment, setInvestment] = useState<Investment | null>(null);
@@ -38,6 +39,7 @@ export const InvestmentDetails = () => {
         ...fetchedInvestment,
         transactions: fetchedInvestment.transactions || [],
         stakings: fetchedInvestment.stakings || [],
+        storages: fetchedInvestment.storages || [],
       });
     } catch (err) {
       const errorMessage =
@@ -81,6 +83,13 @@ export const InvestmentDetails = () => {
             transactions={investment.transactions}
             investmentId={investment.id}
             onTransactionChange={refreshInvestment}
+          />
+        </div>
+        <div className="mt-8">
+          <StorageList
+            storages={investment.storages}
+            investmentId={investment.id}
+            onStorageChange={refreshInvestment}
           />
         </div>
         <div className="mt-8">

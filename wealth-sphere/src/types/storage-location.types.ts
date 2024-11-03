@@ -15,6 +15,6 @@ export interface UpdateStorageLocationInput {
   image?: string;
 }
 
-export interface StorageLocationInput {
+export interface DeleteStorageLocationInput {
   id: string;
 }

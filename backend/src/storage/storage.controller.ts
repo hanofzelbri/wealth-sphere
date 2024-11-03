@@ -13,7 +13,7 @@ import { Storage, CreateStorageDto, UpdateStorageDto } from './dto/storage.dto';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
-@Controller('storage')
+@Controller('storages')
 @UseGuards(JwtAuthGuard)
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
