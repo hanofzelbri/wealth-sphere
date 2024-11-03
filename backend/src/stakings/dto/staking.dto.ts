@@ -6,6 +6,7 @@ import {
   IsDateString,
   Min,
 } from 'class-validator';
+import { StorageLocation } from 'src/storage-locations/dto/storage-locations.dto';
 
 export class CreateStakingDto {
   @IsUUID()
@@ -15,8 +16,8 @@ export class CreateStakingDto {
   @Min(0)
   amount: number;
 
-  @IsString()
-  location: string;
+  @IsUUID()
+  storageLocationId: string;
 
   @IsString()
   websiteLink: string;
@@ -36,8 +37,8 @@ export class UpdateStakingDto {
   amount?: number;
 
   @IsOptional()
-  @IsString()
-  location?: string;
+  @IsUUID()
+  storageLocationId: string;
 
   @IsOptional()
   @IsString()
@@ -57,7 +58,7 @@ export class StakingResponseDto {
   id: string;
   investmentId: string;
   amount: number;
-  location: string;
+  location: StorageLocation;
   websiteLink: string;
   coolDownPeriod: number;
   startDate: Date;

@@ -38,31 +38,44 @@ model Investment {
 }
 
 model Storage {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
-  investmentId String   @db.Uuid
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String          @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String          @db.Uuid
   amount       Float
-  location     String
+  location     StorageLocation @relation(fields: [storageLocationId], references: [id])
   date         DateTime
 
-  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
-  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investment        Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  User              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storageLocationId String     @db.Uuid
 
   @@map("storages")
 }
 
+model StorageLocation {
+  id      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String    @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  name    String
+  image   String
+  Storage Storage[]
+  Staking Staking[]
+
+  @@map("storage_locations")
+}
+
 model Staking {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String   @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
-  investmentId   String   @db.Uuid
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String          @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId   String          @db.Uuid
   amount         Float
-  location       String
+  location       StorageLocation @relation(fields: [storageLocationId], references: [id])
   websiteLink    String
   coolDownPeriod Int
   startDate      DateTime
 
-  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
-  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investment        Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  User              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storageLocationId String     @db.Uuid
 
   @@map("stakings")
 }

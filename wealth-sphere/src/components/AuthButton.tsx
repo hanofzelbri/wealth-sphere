@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { userService } from '@/services/user.service';
+import { DialogDescription } from '@radix-ui/react-dialog';
 
 export const AuthButton: FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -56,6 +57,7 @@ export const AuthButton: FC = () => {
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Login</DialogTitle>
+                    <DialogDescription>Enter your username and password</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">

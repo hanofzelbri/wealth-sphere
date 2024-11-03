@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RefreshCw, Plus } from "lucide-react";
@@ -28,13 +29,15 @@ export const PortfolioDashboard: React.FC = () => {
   useEffect(() => {
     fetchInvestments();
 
-    const subscription = investmentService
+    const investmentSubscription = investmentService
       .getInvestments()
       .subscribe((fetchedInvestments) => {
         setInvestments(fetchedInvestments || []);
       });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      investmentSubscription.unsubscribe();
+    };
   }, []);
 
   const fetchInvestments = async () => {
@@ -138,6 +141,7 @@ export const PortfolioDashboard: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Investment</DialogTitle>
+            <DialogDescription>Enter Coingecko Coin ID</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input

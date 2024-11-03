@@ -25,7 +25,7 @@ export class StakingsController {
 
   @Get()
   async getAllStakings(@User() user: string): Promise<StakingResponseDto[]> {
-    return this.stakingsService.getAllStakings(user);
+    return await this.stakingsService.getAllStakings(user);
   }
 
   @Get(':id')

@@ -8,6 +8,7 @@ import { StakingsModule } from './stakings/stakings.module';
 import { CoingeckoModule } from './coingecko/coingecko.module';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './config/configuration';
+import { StorageLocationsModule } from './storage-locations/storage-locations.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { appConfig } from './config/configuration';
     TransactionsModule,
     StakingsModule,
     CoingeckoModule,
+    StorageLocationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
