@@ -45,7 +45,7 @@ ALTER TABLE "storages" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "stakings" FORCE ROW LEVEL SECURITY;
 
 -- Create row security policies
-CREATE POLICY tenant_isolation_policy ON "storages" USING ("id" = current_setting('app.current_user_id', TRUE)::uuid);
+CREATE POLICY tenant_isolation_policy ON "storages" USING ("userId" = current_setting('app.current_user_id', TRUE)::uuid);
 CREATE POLICY tenant_isolation_policy ON "stakings" USING ("userId" = current_setting('app.current_user_id', TRUE)::uuid);
 
 -- Create policies to bypass RLS (optional)

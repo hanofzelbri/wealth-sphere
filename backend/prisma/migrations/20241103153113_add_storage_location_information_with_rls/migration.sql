@@ -51,7 +51,7 @@ ALTER TABLE "storage_locations" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "storage_locations" FORCE ROW LEVEL SECURITY;
 
 -- Create row security policies
-CREATE POLICY tenant_isolation_policy ON "storage_locations" USING ("id" = current_setting('app.current_user_id', TRUE)::uuid);
+CREATE POLICY tenant_isolation_policy ON "storage_locations" USING ("userId" = current_setting('app.current_user_id', TRUE)::uuid);
 
 -- Create policies to bypass RLS (optional)
 CREATE POLICY bypass_rls_policy ON "storage_locations" USING (current_setting('app.bypass_rls', TRUE)::text = 'on');
