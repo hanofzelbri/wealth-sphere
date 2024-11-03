@@ -53,12 +53,13 @@ model Storage {
 }
 
 model StorageLocation {
-  id      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId  String    @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
-  name    String
-  image   String
-  Storage Storage[]
-  Staking Staking[]
+  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String              @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  name                String
+  image               String
+  storageLocationType StorageLocationType
+  Storage             Storage[]
+  Staking             Staking[]
 
   @@map("storage_locations")
 }
@@ -98,4 +99,10 @@ model Transaction {
 enum TransactionType {
   buy
   sell
+}
+
+enum StorageLocationType {
+  hardwareWallet
+  softwareWallet
+  echange
 }

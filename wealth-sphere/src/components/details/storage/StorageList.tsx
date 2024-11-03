@@ -117,7 +117,7 @@ export function StorageList({
           ) : (
             <TableRow>
               <TableCell colSpan={4} className="text-center py-4">
-                No storage entries found
+                No storages found
               </TableCell>
             </TableRow>
           )}
