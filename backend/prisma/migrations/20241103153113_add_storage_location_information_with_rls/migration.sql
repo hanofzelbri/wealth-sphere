@@ -11,7 +11,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "StorageLocationType" AS ENUM ('hardwareWallet', 'softwareWallet', 'echange');
+CREATE TYPE "StorageLocationType" AS ENUM ('hardwareWallet', 'softwareWallet', 'exchange');
 
 -- AlterTable
 ALTER TABLE "investments" ADD COLUMN     "coinId" TEXT NOT NULL,

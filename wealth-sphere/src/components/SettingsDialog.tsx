@@ -239,7 +239,7 @@ export default function SettingsDialog() {
                     <SelectContent>
                       <SelectItem value="hardwareWallet">Hardware Wallet</SelectItem>
                       <SelectItem value="softwareWallet">Software Wallet</SelectItem>
-                      <SelectItem value="echange">Exchange</SelectItem>
+                      <SelectItem value="exchange">Exchange</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -1,7 +1,7 @@
 export type StorageLocationType =
   | "hardwareWallet"
   | "softwareWallet"
-  | "echange";
+  | "exchange";
 
 export interface StorageLocation {
   id: string;

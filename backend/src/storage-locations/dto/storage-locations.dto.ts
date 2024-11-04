@@ -5,7 +5,7 @@ import { StorageLocationType as PrismaStorageLocationType } from '@prisma/client
 export enum StorageLocationType {
   hardwareWallet = 'hardwareWallet',
   softwareWallet = 'softwareWallet',
-  exchange = 'echange',
+  exchange = 'exchange',
 }
 
 export class StorageLocation {
@@ -54,7 +54,7 @@ export function mapStorageLocationType(
       StorageLocationType.hardwareWallet,
     [PrismaStorageLocationType.softwareWallet]:
       StorageLocationType.softwareWallet,
-    [PrismaStorageLocationType.echange]: StorageLocationType.exchange,
+    [PrismaStorageLocationType.exchange]: StorageLocationType.exchange,
   };
   return mapping[type];
 }

@@ -104,5 +104,5 @@ enum TransactionType {
 enum StorageLocationType {
   hardwareWallet
   softwareWallet
-  echange
+  exchange
 }
