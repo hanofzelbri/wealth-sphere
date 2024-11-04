@@ -32,7 +32,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 export default function SettingsDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -40,7 +40,7 @@ export default function SettingsDialog() {
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [storageLocationType, setStorageLocationType] =
-    useState<StorageLocationType>("WALLET");
+    useState<StorageLocationType>("exchange");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [storageLocations, setStorageLocations] = useState<StorageLocation[]>(
     []
@@ -231,14 +231,20 @@ export default function SettingsDialog() {
                   </Label>
                   <Select
                     value={storageLocationType}
-                    onValueChange={(value: StorageLocationType) => setStorageLocationType(value)}
+                    onValueChange={(value: StorageLocationType) =>
+                      setStorageLocationType(value)
+                    }
                   >
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select a storage type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hardwareWallet">Hardware Wallet</SelectItem>
-                      <SelectItem value="softwareWallet">Software Wallet</SelectItem>
+                      <SelectItem value="hardwareWallet">
+                        Hardware Wallet
+                      </SelectItem>
+                      <SelectItem value="softwareWallet">
+                        Software Wallet
+                      </SelectItem>
                       <SelectItem value="exchange">Exchange</SelectItem>
                     </SelectContent>
                   </Select>
