@@ -7,7 +7,10 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
-import { InvestmentsService } from './investments.service';
+import {
+  InvestmentsService,
+  InvestmentWithDetails,
+} from './investments.service';
 import { Investment } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../decorators/user.decorator';
@@ -35,7 +38,7 @@ export class InvestmentsController {
   async getInvestmentBySymbol(
     @Param('symbol') symbol: string,
     @User() user: string,
-  ): Promise<Investment | null> {
+  ): Promise<InvestmentWithDetails | null> {
     return this.investmentsService.getInvestmentBySymbol(symbol, user);
   }
 

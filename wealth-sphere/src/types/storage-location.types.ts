@@ -18,6 +18,7 @@ export interface CreateStorageLocationInput {
 }
 
 export interface UpdateStorageLocationInput {
+  id: string;
   name?: string;
   image?: string;
   storageLocationType?: StorageLocationType;

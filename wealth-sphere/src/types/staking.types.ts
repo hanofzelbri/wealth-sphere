@@ -1,8 +1,10 @@
+import { StorageLocation } from "./storage-location.types";
+
 export interface Staking {
   id: string;
   investmentId: string;
   amount: number;
-  location: string;
+  location: StorageLocation;
   websiteLink: string;
   coolDownPeriod: number;
   startDate: Date;
@@ -11,7 +13,7 @@ export interface Staking {
 export interface CreateStakingInput {
   investmentId: string;
   amount: number;
-  location: string;
+  storageLocationId: string;
   websiteLink: string;
   coolDownPeriod: number;
   startDate: Date;
@@ -19,8 +21,8 @@ export interface CreateStakingInput {
 
 export interface UpdateStakingInput {
   amount?: number;
-  location?: string;
+  storageLocationId?: string;
   websiteLink?: string;
   coolDownPeriod?: number;
   startDate?: Date;
-} 
+}

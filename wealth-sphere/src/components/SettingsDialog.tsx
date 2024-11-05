@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Settings, Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { storageLocationService } from "@/services/storage-location.service";
 import { LoadingState } from "./LoadingState";
 import {
   Tooltip,
@@ -33,6 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useStorageLocations,
+  useCreateStorageLocation,
+  useUpdateStorageLocation,
+  useDeleteStorageLocation,
+} from "@/hooks/storage-locations";
 
 export default function SettingsDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -42,62 +47,39 @@ export default function SettingsDialog() {
   const [storageLocationType, setStorageLocationType] =
     useState<StorageLocationType>("exchange");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [storageLocations, setStorageLocations] = useState<StorageLocation[]>(
-    []
-  );
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    data: storageLocations,
+    error: storageLocationsError,
+    isLoading: storageLocationsLoading,
+  } = useStorageLocations();
 
-  useEffect(() => {
-    fetchStorageLocations();
-
-    const storageLocationSubscription = storageLocationService
-      .getStorageLocations()
-      .subscribe((fetchedStorageLocations) => {
-        setStorageLocations(fetchedStorageLocations || []);
-      });
-
-    return () => {
-      storageLocationSubscription.unsubscribe();
-    };
-  }, []);
-
-  const fetchStorageLocations = async () => {
-    try {
-      setIsLoading(true);
-      await storageLocationService.fetchStorageLocations();
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching storageLocations:", error);
-      setIsLoading(false);
-    }
+  const handleCloseForm = () => {
+    setName("");
+    setImage("");
+    setEditingId(null);
+    setFormOpen(false);
   };
+
+  const createStorageLocation = useCreateStorageLocation(handleCloseForm);
+  const updateStorageLocation = useUpdateStorageLocation(handleCloseForm);
+  const deleteStorageLocation = useDeleteStorageLocation();
 
   const isFormValid = name.trim() !== "" && image.trim() !== "";
 
   const handleSave = async () => {
-    if (!isFormValid) return;
-
-    try {
-      setIsLoading(true);
-      if (editingId) {
-        await storageLocationService.updateStorageLocation(editingId, {
-          name,
-          image,
-          storageLocationType,
-        });
-      } else {
-        await storageLocationService.addStorageLocation({
-          name,
-          image,
-          storageLocationType,
-        });
-      }
-      handleCloseForm();
-    } catch (error) {
-      console.error("Error saving storage location:", error);
-      // You might want to add error handling/notification here
-    } finally {
-      setIsLoading(false);
+    if (editingId) {
+      await updateStorageLocation.mutateAsync({
+        id: editingId,
+        name,
+        image,
+        storageLocationType,
+      });
+    } else {
+      await createStorageLocation.mutateAsync({
+        name,
+        image,
+        storageLocationType,
+      });
     }
   };
 
@@ -110,23 +92,12 @@ export default function SettingsDialog() {
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      setIsLoading(true);
-      await storageLocationService.deleteStorageLocation(id);
-    } catch (error) {
-      console.error("Error deleting storage location:", error);
-      // You might want to add error handling/notification here
-    } finally {
-      setIsLoading(false);
-    }
+    await deleteStorageLocation.mutateAsync({ id });
   };
 
-  const handleCloseForm = () => {
-    setName("");
-    setImage("");
-    setEditingId(null);
-    setFormOpen(false);
-  };
+  if (storageLocationsLoading) return <LoadingState />;
+  if (storageLocationsError)
+    return <p>Error: {storageLocationsError.message}</p>;
 
   return (
     <>
@@ -140,58 +111,59 @@ export default function SettingsDialog() {
             <DialogTitle>Storage Settings</DialogTitle>
             <DialogDescription>Manage your storage locations</DialogDescription>
           </DialogHeader>
-          {isLoading ? (
-            <LoadingState />
-          ) : !formOpen ? (
+          {!formOpen ? (
             <div className="py-4">
               <h3 className="mb-2 font-semibold">Existing Storage Locations</h3>
               <ul className="space-y-2">
-                {storageLocations.map((location) => (
-                  <li
-                    key={location.id}
-                    className="flex items-center justify-between p-2 bg-secondary rounded-md"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Avatar>
-                              <AvatarImage
-                                src={location.image}
-                                className="w-8 h-8 rounded-full"
-                              />
-                              <AvatarFallback>
-                                {location.name} Icon
-                              </AvatarFallback>
-                            </Avatar>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{location.name} Icon</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <span>{location.name}</span>
-                    </div>
-                    <div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(location)}
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit {location.name}</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(location.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete {location.name}</span>
-                      </Button>
-                    </div>
-                  </li>
-                ))}
+                {storageLocations &&
+                  storageLocations.map((location) => (
+                    <li
+                      key={location.id}
+                      className="flex items-center justify-between p-2 bg-secondary rounded-md"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Avatar>
+                                <AvatarImage
+                                  src={location.image}
+                                  className="w-8 h-8 rounded-full"
+                                />
+                                <AvatarFallback>
+                                  {location.name} Icon
+                                </AvatarFallback>
+                              </Avatar>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{location.name} Icon</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <span>{location.name}</span>
+                      </div>
+                      <div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(location)}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit {location.name}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(location.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">
+                            Delete {location.name}
+                          </span>
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
               </ul>
               <Button className="mt-4" onClick={() => setFormOpen(true)}>
                 <Plus className="h-4 w-4" />

@@ -21,10 +21,19 @@ import { Input } from "@/components/ui/input";
 import { stakingService } from "@/services/staking.service";
 import { useToast } from "@/hooks/use-toast";
 import { Staking } from "@/types/staking.types";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useStorageLocations } from "@/hooks/storage-locations";
+import { LoadingState } from "@/components/LoadingState";
 
 const stakingSchema = z.object({
   amount: z.number().min(0),
-  location: z.string().min(1),
+  storageLocationId: z.string().min(1),
   websiteLink: z.string().url(),
   coolDownPeriod: z.number().min(0),
   startDate: z.string(),
@@ -47,12 +56,17 @@ export function EditStakingDialog({
 }: EditStakingDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const {
+    data: storageLocations,
+    error: storageLocationsError,
+    isLoading: storageLocationsLoading,
+  } = useStorageLocations();
 
   const form = useForm<StakingFormData>({
     resolver: zodResolver(stakingSchema),
     defaultValues: {
       amount: staking.amount,
-      location: staking.location,
+      storageLocationId: staking.storageLocationId,
       websiteLink: staking.websiteLink,
       coolDownPeriod: staking.coolDownPeriod,
       startDate: new Date(staking.startDate).toISOString().split("T")[0],
@@ -82,6 +96,10 @@ export function EditStakingDialog({
       setIsSubmitting(false);
     }
   };
+
+  if (storageLocationsLoading) return <LoadingState />;
+  if (storageLocationsError)
+    return <p>Error: {storageLocationsError.message}</p>;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,13 +132,38 @@ export function EditStakingDialog({
 
             <FormField
               control={form.control}
-              name="location"
+              name="storageLocationId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {storageLocations &&
+                        storageLocations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={location.image}
+                                alt={location.name}
+                                className="w-4 h-4 rounded-full"
+                              />
+                              <span>{location.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({location.storageLocationType})
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

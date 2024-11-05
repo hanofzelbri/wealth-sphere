@@ -4,7 +4,7 @@ import { Investment, Transaction, Staking, Storage } from '@prisma/client';
 import { CreateInvestmentDto } from './dto/investment.dto';
 import { CoingeckoService } from 'src/coingecko/coingecko.service';
 
-type InvestmentWithDetails = Investment & {
+export type InvestmentWithDetails = Investment & {
   transactions: Transaction[];
   stakings: Staking[];
   storages: Storage[];
@@ -53,7 +53,11 @@ export class InvestmentsService {
         .getPrismaClient(userId)
         .investment.findFirstOrThrow({
           where: { symbol, userId },
-          include: { transactions: true, stakings: true, storages: true },
+          include: {
+            transactions: true,
+            stakings: { include: { location: true } },
+            storages: { include: { location: true } },
+          },
         });
     } catch (error) {
       console.error('Error fetching investment by symbol:', error);

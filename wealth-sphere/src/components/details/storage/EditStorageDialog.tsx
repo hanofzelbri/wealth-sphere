@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -28,8 +28,8 @@ import {
 import { storageService } from "@/services/storage.service";
 import { useToast } from "@/hooks/use-toast";
 import { Storage } from "@/types/storage.types";
-import { storageLocationService } from "@/services/storage-location.service";
-import { StorageLocation } from "@/types/storage-location.types";
+import { useStorageLocations } from "@/hooks/storage-locations";
+import { LoadingState } from "@/components/LoadingState";
 
 const storageSchema = z.object({
   amount: z.number().min(0),
@@ -54,28 +54,17 @@ export function EditStorageDialog({
 }: EditStorageDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [locations, setLocations] = useState<StorageLocation[]>([]);
-
-  useEffect(() => {
-    const fetchLocations = async () => {
-      await storageLocationService.fetchStorageLocations();
-    };
-    fetchLocations();
-
-    const subscription = storageLocationService
-      .getStorageLocations()
-      .subscribe((fetchedLocations) => {
-        setLocations(fetchedLocations);
-      });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const {
+    data: storageLocations,
+    error: storageLocationsError,
+    isLoading: storageLocationsLoading,
+  } = useStorageLocations();
 
   const form = useForm<StorageFormData>({
     resolver: zodResolver(storageSchema),
     defaultValues: {
       amount: storage.amount,
-      storageLocationId: storage.storageLocationId,
+      storageLocationId: storage.location.id,
       date: new Date(storage.date).toISOString().split("T")[0],
     },
   });
@@ -104,6 +93,10 @@ export function EditStorageDialog({
     }
   };
 
+  if (storageLocationsLoading) return <LoadingState />;
+  if (storageLocationsError)
+    return <p>Error: {storageLocationsError.message}</p>;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
@@ -123,7 +116,9 @@ export function EditStorageDialog({
                       type="number"
                       step="any"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -147,11 +142,22 @@ export function EditStorageDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {locations.map((location) => (
-                        <SelectItem key={location.id} value={location.id}>
-                          {location.name}
-                        </SelectItem>
-                      ))}
+                      {storageLocations &&
+                        storageLocations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={location.image}
+                                alt={location.name}
+                                className="w-4 h-4 rounded-full"
+                              />
+                              <span>{location.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({location.storageLocationType})
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -181,4 +187,4 @@ export function EditStorageDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

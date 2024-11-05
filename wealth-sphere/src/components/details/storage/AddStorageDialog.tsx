@@ -27,9 +27,8 @@ import {
 } from "@/components/ui/select";
 import { storageService } from "@/services/storage.service";
 import { useToast } from "@/hooks/use-toast";
-import { storageLocationService } from "@/services/storage-location.service";
-import { StorageLocation } from "@/types/storage-location.types";
-import { useEffect } from "react";
+import { useStorageLocations } from "@/hooks/storage-locations";
+import { LoadingState } from "@/components/LoadingState";
 
 const storageSchema = z.object({
   amount: z.number().min(0),
@@ -40,9 +39,9 @@ const storageSchema = z.object({
 type StorageFormData = z.infer<typeof storageSchema>;
 
 interface AddStorageDialogProps {
+  investmentId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  investmentId: string;
   onSuccess: () => void;
 }
 
@@ -54,22 +53,11 @@ export function AddStorageDialog({
 }: AddStorageDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [locations, setLocations] = useState<StorageLocation[]>([]);
-
-  useEffect(() => {
-    const fetchLocations = async () => {
-      await storageLocationService.fetchStorageLocations();
-    };
-    fetchLocations();
-
-    const subscription = storageLocationService
-      .getStorageLocations()
-      .subscribe((fetchedLocations) => {
-        setLocations(fetchedLocations);
-      });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const {
+    data: storageLocations,
+    error: storageLocationsError,
+    isLoading: storageLocationsLoading,
+  } = useStorageLocations();
 
   const form = useForm<StorageFormData>({
     resolver: zodResolver(storageSchema),
@@ -105,6 +93,10 @@ export function AddStorageDialog({
       setIsSubmitting(false);
     }
   };
+
+  if (storageLocationsLoading) return <LoadingState />;
+  if (storageLocationsError)
+    return <p>Error: {storageLocationsError.message}</p>;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -151,21 +143,22 @@ export function AddStorageDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {locations.map((location) => (
-                        <SelectItem key={location.id} value={location.id}>
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={location.image}
-                              alt={location.name}
-                              className="w-4 h-4 rounded-full"
-                            />
-                            <span>{location.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              ({location.storageLocationType})
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
+                      {storageLocations &&
+                        storageLocations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={location.image}
+                                alt={location.name}
+                                className="w-4 h-4 rounded-full"
+                              />
+                              <span>{location.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({location.storageLocationType})
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

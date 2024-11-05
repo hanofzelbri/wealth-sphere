@@ -5,7 +5,7 @@ export interface Storage {
   userId: string;
   investmentId: string;
   amount: number;
-  storageLocation: StorageLocation;
+  location: StorageLocation;
   date: Date;
 }
 

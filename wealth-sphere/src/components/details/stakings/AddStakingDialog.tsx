@@ -20,10 +20,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { stakingService } from "@/services/staking.service";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectValue,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { useStorageLocations } from "@/hooks/storage-locations";
+import { LoadingState } from "@/components/LoadingState";
 
 const stakingSchema = z.object({
   amount: z.number().min(0),
-  location: z.string().min(1),
+  storageLocationId: z.string().min(1),
   websiteLink: z.string().url(),
   coolDownPeriod: z.number().min(0),
   startDate: z.string(),
@@ -32,26 +41,31 @@ const stakingSchema = z.object({
 type StakingFormData = z.infer<typeof stakingSchema>;
 
 interface AddStakingDialogProps {
+  investmentId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  investmentId: string;
   onSuccess: () => void;
 }
 
 export function AddStakingDialog({
+  investmentId,
   open,
   onOpenChange,
-  investmentId,
   onSuccess,
 }: AddStakingDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const {
+    data: storageLocations,
+    error: storageLocationsError,
+    isLoading: storageLocationsLoading,
+  } = useStorageLocations();
 
   const form = useForm<StakingFormData>({
     resolver: zodResolver(stakingSchema),
     defaultValues: {
       amount: 0,
-      location: "",
+      storageLocationId: "",
       websiteLink: "",
       coolDownPeriod: 0,
       startDate: new Date().toISOString().split("T")[0],
@@ -84,6 +98,10 @@ export function AddStakingDialog({
     }
   };
 
+  if (storageLocationsLoading) return <LoadingState />;
+  if (storageLocationsError)
+    return <p>Error: {storageLocationsError.message}</p>;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
@@ -115,13 +133,38 @@ export function AddStakingDialog({
 
             <FormField
               control={form.control}
-              name="location"
+              name="storageLocationId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {storageLocations &&
+                        storageLocations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={location.image}
+                                alt={location.name}
+                                className="w-4 h-4 rounded-full"
+                              />
+                              <span>{location.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({location.storageLocationType})
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
