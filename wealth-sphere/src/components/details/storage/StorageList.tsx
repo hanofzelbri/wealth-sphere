@@ -93,14 +93,11 @@ export function StorageList({
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <img
-                      src={storage?.storageLocation?.image}
-                      alt={storage?.storageLocation?.name}
-                      className="w-6 h-6 rounded-full"
+                      src={storage.location.image}
+                      alt={storage.location.name}
+                      className="w-5 h-5 rounded-full"
                     />
-                    <span>{storage?.storageLocation?.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      ({storage?.storageLocation?.storageLocationType})
-                    </span>
+                    <span>{storage.location?.name}</span>
                   </div>
                 </TableCell>
                 <TableCell>{format(new Date(storage.date), "PP")}</TableCell>

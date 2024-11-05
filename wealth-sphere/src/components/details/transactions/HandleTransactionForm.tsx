@@ -32,7 +32,7 @@ export const HandleTransactionForm: React.FC<HandleTransactionFormProps> = ({
   const [date, setDate] = useState(
     transaction?.date
       ? new Date(transaction.date).toISOString().split("T")[0]
-      : ""
+      : new Date().toISOString().split("T")[0]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {

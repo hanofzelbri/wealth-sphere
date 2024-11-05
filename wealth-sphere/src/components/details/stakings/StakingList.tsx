@@ -92,7 +92,16 @@ export function StakingList({
             stakings.map((staking) => (
               <TableRow key={staking.id}>
                 <TableCell>{staking.amount}</TableCell>
-                <TableCell>{staking.location}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={staking.location.image}
+                      alt={staking.location.name}
+                      className="w-5 h-5 rounded-full"
+                    />
+                    <span>{staking.location.name}</span>
+                  </div>
+                </TableCell>
                 <TableCell>
                   <a
                     href={staking.websiteLink}

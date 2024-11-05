@@ -4,6 +4,7 @@ export interface Staking {
   id: string;
   investmentId: string;
   amount: number;
+  storageLocationId: string;
   location: StorageLocation;
   websiteLink: string;
   coolDownPeriod: number;

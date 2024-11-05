@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoadingState } from "./LoadingState";
 import {
   Tooltip,
   TooltipContent,
@@ -47,11 +46,7 @@ export default function SettingsDialog() {
   const [storageLocationType, setStorageLocationType] =
     useState<StorageLocationType>("exchange");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const {
-    data: storageLocations,
-    error: storageLocationsError,
-    isLoading: storageLocationsLoading,
-  } = useStorageLocations();
+  const { data: storageLocations } = useStorageLocations();
 
   const handleCloseForm = () => {
     setName("");
@@ -95,10 +90,6 @@ export default function SettingsDialog() {
     await deleteStorageLocation.mutateAsync({ id });
   };
 
-  if (storageLocationsLoading) return <LoadingState />;
-  if (storageLocationsError)
-    return <p>Error: {storageLocationsError.message}</p>;
-
   return (
     <>
       <Button variant="ghost" size="icon" onClick={() => setDialogOpen(true)}>
@@ -111,6 +102,7 @@ export default function SettingsDialog() {
             <DialogTitle>Storage Settings</DialogTitle>
             <DialogDescription>Manage your storage locations</DialogDescription>
           </DialogHeader>
+
           {!formOpen ? (
             <div className="py-4">
               <h3 className="mb-2 font-semibold">Existing Storage Locations</h3>
