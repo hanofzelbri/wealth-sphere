@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Staking } from "@/types/staking.types";
-import { stakingService } from "@/services/staking.service";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,49 +12,31 @@ import {
 import { format } from "date-fns";
 import { AddStakingDialog } from "./AddStakingDialog";
 import { EditStakingDialog } from "./EditStakingDialog";
-import { useToast } from "@/hooks/use-toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useDeleteStaking } from "@/hooks/stakings";
+import { useInvestments } from "@/hooks/investments";
 
 interface StakingListProps {
   investmentId: string;
-  stakings: Staking[];
-  onStakingChange: () => Promise<void>;
 }
 
-export function StakingList({
-  investmentId,
-  stakings,
-  onStakingChange,
-}: StakingListProps) {
+export function StakingList({ investmentId }: StakingListProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedStaking, setSelectedStaking] = useState<Staking | null>(null);
-  const { toast } = useToast();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const investments = useInvestments();
+  const deleteStaking = useDeleteStaking(() => setDeleteId(null));
 
-  const handleDeleteClick = (id: string) => {
-    setDeleteId(id);
-  };
+  if (investments.isLoading) return <p>Loading investments...</p>;
+  if (investments.isError) return <p>Error: {investments.error.message}</p>;
+
+  const investment = investments.data?.find((inv) => inv.id === investmentId);
+  if (!investment) return <p>Investment not found</p>;
 
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
-
-    try {
-      await stakingService.deleteStaking(deleteId);
-      await onStakingChange();
-      toast({
-        title: "Success",
-        description: "Staking deleted successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to delete staking",
-        variant: "destructive",
-      });
-    } finally {
-      setDeleteId(null);
-    }
+    await deleteStaking.mutateAsync({ id: deleteId });
   };
 
   const handleEdit = (staking: Staking) => {
@@ -88,8 +69,8 @@ export function StakingList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.isArray(stakings) && stakings.length > 0 ? (
-            stakings.map((staking) => (
+          {investment.stakings.length > 0 ? (
+            investment.stakings.map((staking) => (
               <TableRow key={staking.id}>
                 <TableCell>{staking.amount}</TableCell>
                 <TableCell>
@@ -113,9 +94,7 @@ export function StakingList({
                   </a>
                 </TableCell>
                 <TableCell>{staking.coolDownPeriod} days</TableCell>
-                <TableCell>
-                  {format(new Date(staking.startDate), "PP")}
-                </TableCell>
+                <TableCell>{format(new Date(staking.startDate), "PP")}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
@@ -129,7 +108,7 @@ export function StakingList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteClick(staking.id)}
+                      onClick={() => setDeleteId(staking.id)}
                       className="h-8 w-8 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -152,7 +131,6 @@ export function StakingList({
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         investmentId={investmentId}
-        onSuccess={onStakingChange}
       />
 
       {selectedStaking && (
@@ -160,7 +138,6 @@ export function StakingList({
           staking={selectedStaking}
           open={!!selectedStaking}
           onOpenChange={(open) => !open && setSelectedStaking(null)}
-          onSuccess={onStakingChange}
         />
       )}
 

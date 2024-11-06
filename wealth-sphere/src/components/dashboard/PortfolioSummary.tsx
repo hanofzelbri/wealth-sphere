@@ -2,12 +2,10 @@ import React, { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { PerformerCard } from "./PerformerCard";
-import { Investment } from "../types/investment.types";
+import { Investment } from "../../types/investment.types";
 import { calculateProfitLoss } from "@/utils/investmentCalculations";
-
-interface PortfolioSummaryProps {
-  investments: Investment[];
-}
+import { useInvestments } from "@/hooks/investments";
+import { LoadingState } from "../utils/LoadingState";
 
 interface Performer {
   investment: Investment;
@@ -15,17 +13,19 @@ interface Performer {
   profitLossPercentage: number;
 }
 
-export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({
-  investments,
-}) => {
+export const PortfolioSummary: React.FC = () => {
+  const investments = useInvestments();
+
   const { totalValue, totalGainLoss, bestPerformer, worstPerformer } =
     useMemo(() => {
+      if (!investments.isSuccess) return {};
+
       let value = 0;
       let gainLoss = 0;
       let best: Performer | null = null;
       let worst: Performer | null = null;
 
-      investments.forEach((inv) => {
+      investments.data.forEach((inv) => {
         const totalQuantity = inv.transactions.reduce(
           (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
           0
@@ -72,7 +72,7 @@ export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({
     return (
       <PerformerCard
         title={title}
-        symbol={performer.investment.symbol}
+        image={performer.investment.image}
         name={performer.investment.name}
         value={performer.profitLoss}
         percentage={performer.profitLossPercentage}
@@ -80,44 +80,47 @@ export const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({
     );
   };
 
+  if (investments.isLoading) return <LoadingState />;
+  if (investments.isError) return <p>Error: {investments.error.message}</p>;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 text-center">
           <h3 className="text-sm font-medium text-gray-500 mb-2">
             All-time profit
           </h3>
           <div
             className={`text-2xl font-semibold ${
-              totalGainLoss >= 0 ? "text-green-600" : "text-red-600"
+              (totalGainLoss ?? 0) >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
-            ${Math.abs(totalGainLoss).toFixed(2)}
+            ${Math.abs(totalGainLoss ?? 0).toFixed(2)}
           </div>
           <div
-            className={`flex items-center text-sm ${
-              totalGainLoss >= 0 ? "text-green-600" : "text-red-600"
+            className={`flex items-center text-sm justify-center ${
+              (totalGainLoss ?? 0) >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
-            {totalGainLoss >= 0 ? (
+            {totalGainLoss ?? 0 >= 0 ? (
               <ArrowUpIcon className="w-4 h-4 mr-1" />
             ) : (
               <ArrowDownIcon className="w-4 h-4 mr-1" />
             )}
-            {((totalGainLoss / (totalValue - totalGainLoss)) * 100).toFixed(2)}%
+            {totalValue ? ((totalGainLoss / (totalValue - totalGainLoss)) * 100).toFixed(2) : "0.00"}%
           </div>
         </CardContent>
       </Card>
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 text-center">
           <h3 className="text-sm font-medium text-gray-500 mb-2">
             Portfolio Value
           </h3>
-          <div className="text-2xl font-semibold">${totalValue.toFixed(2)}</div>
+          <div className="text-2xl font-semibold">${totalValue?.toFixed(2) || "0.00"}</div>
         </CardContent>
       </Card>
-      {renderPerformanceCard(bestPerformer, "Best Performer")}
-      {renderPerformanceCard(worstPerformer, "Worst Performer")}
+      {renderPerformanceCard(bestPerformer || null, "Best Performer")}
+      {renderPerformanceCard(worstPerformer || null, "Worst Performer")}
     </div>
   );
 };

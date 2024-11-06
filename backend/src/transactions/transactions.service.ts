@@ -15,6 +15,14 @@ export class TransactionsService {
       .getPrismaClient(userId)
       .transaction.findMany({ where: { userId } });
   }
+  async getAllTransactionsForInvestmentId(
+    userId: string,
+    investmentId: string,
+  ): Promise<Transaction[]> {
+    return await this.prisma.getPrismaClient(userId).transaction.findMany({
+      where: { AND: { userId, investmentId } },
+    });
+  }
 
   async getTransactionById(
     id: string,

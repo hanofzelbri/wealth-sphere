@@ -21,7 +21,11 @@ export class InvestmentsService {
     try {
       return await this.prisma.getPrismaClient(userId).investment.findMany({
         where: { userId },
-        include: { transactions: true, stakings: true, storages: true },
+        include: {
+          transactions: true,
+          stakings: { include: { location: true } },
+          storages: { include: { location: true } },
+        },
       });
     } catch (error) {
       console.error('Error fetching all investments:', error);
@@ -36,7 +40,11 @@ export class InvestmentsService {
     try {
       return await this.prisma.getPrismaClient(userId).investment.findUnique({
         where: { id, userId },
-        include: { transactions: true, stakings: true, storages: true },
+        include: {
+          transactions: true,
+          stakings: { include: { location: true } },
+          storages: { include: { location: true } },
+        },
       });
     } catch (error) {
       console.error('Error fetching investment by ID:', error);
@@ -81,7 +89,11 @@ export class InvestmentsService {
           currentPrice: coinInfo.current_price,
           userId,
         },
-        include: { transactions: true, stakings: true, storages: true },
+        include: {
+          transactions: true,
+          stakings: { include: { location: true } },
+          storages: { include: { location: true } },
+        },
       });
     } catch (error) {
       console.error('Error creating investment:', error);
@@ -96,7 +108,11 @@ export class InvestmentsService {
     try {
       return await this.prisma.getPrismaClient(userId).investment.delete({
         where: { id, userId },
-        include: { transactions: true, stakings: true, storages: true },
+        include: {
+          transactions: true,
+          stakings: { include: { location: true } },
+          storages: { include: { location: true } },
+        },
       });
     } catch (error) {
       console.error('Error deleting investment:', error);
@@ -174,7 +190,11 @@ export class InvestmentsService {
           where: {
             userId,
           },
-          include: { transactions: true, stakings: true, storages: true },
+          include: {
+            transactions: true,
+            stakings: { include: { location: true } },
+            storages: { include: { location: true } },
+          },
         });
 
       // Get all unique coin IDs
@@ -196,7 +216,11 @@ export class InvestmentsService {
             image: coinInfo.image,
             currentPrice: coinInfo.current_price,
           },
-          include: { transactions: true, stakings: true, storages: true },
+          include: {
+            transactions: true,
+            stakings: { include: { location: true } },
+            storages: { include: { location: true } },
+          },
         });
       });
 

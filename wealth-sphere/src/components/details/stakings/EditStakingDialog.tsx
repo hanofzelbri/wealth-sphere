@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,8 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { stakingService } from "@/services/staking.service";
-import { useToast } from "@/hooks/use-toast";
 import { Staking } from "@/types/staking.types";
 import {
   Select,
@@ -29,7 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useStorageLocations } from "@/hooks/storage-locations";
-import { LoadingState } from "@/components/LoadingState";
+import { LoadingState } from "@/components/utils/LoadingState";
+import { useUpdateStaking } from "@/hooks/stakings";
 
 const stakingSchema = z.object({
   amount: z.number().min(0),
@@ -45,17 +43,13 @@ interface EditStakingDialogProps {
   staking: Staking;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
 }
 
 export function EditStakingDialog({
   staking,
   open,
   onOpenChange,
-  onSuccess,
 }: EditStakingDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const {
     data: storageLocations,
     error: storageLocationsError,
@@ -73,28 +67,17 @@ export function EditStakingDialog({
     },
   });
 
+  const onSuccess = () => {
+    onOpenChange(false);
+  };
+  const updateStaking = useUpdateStaking(onSuccess);
+
   const onSubmit = async (data: StakingFormData) => {
-    setIsSubmitting(true);
-    try {
-      await stakingService.updateStaking(staking.id, {
-        ...data,
-        startDate: new Date(data.startDate),
-      });
-      onSuccess();
-      onOpenChange(false);
-      toast({
-        title: "Success",
-        description: "Staking updated successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to update staking",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await updateStaking.mutateAsync({
+      ...data,
+      startDate: new Date(data.startDate),
+      id: staking.id,
+    });
   };
 
   if (storageLocationsLoading) return <LoadingState />;
@@ -215,9 +198,7 @@ export function EditStakingDialog({
               )}
             />
 
-            <Button type="submit" disabled={isSubmitting}>
-              Update Staking
-            </Button>
+            <Button type="submit">Update Staking</Button>
           </form>
         </Form>
       </DialogContent>

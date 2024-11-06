@@ -21,9 +21,14 @@ export interface CreateStakingInput {
 }
 
 export interface UpdateStakingInput {
+  id: string;
   amount?: number;
   storageLocationId?: string;
   websiteLink?: string;
   coolDownPeriod?: number;
   startDate?: Date;
+}
+
+export interface DeleteStakingInput {
+  id: string;
 }

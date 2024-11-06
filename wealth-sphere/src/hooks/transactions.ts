@@ -1,10 +1,9 @@
 import { api } from "@/lib/api";
 import {
-  CreateStorageLocationInput,
-  DeleteStorageLocationInput,
-  StorageLocation,
-  UpdateStorageLocationInput,
-} from "@/types/storage-location.types";
+  CreateTransactionInput,
+  UpdateTransactionInput,
+  Transaction,
+} from "@/types/transaction.types";
 import {
   keepPreviousData,
   useMutation,
@@ -14,18 +13,41 @@ import {
 import {
   FIVE_MINUTES,
   INVESTMENTS_QUERY_KEY,
-  STORAGE_LOCATIONS_API_PATH,
-  STORAGE_LOCATIONS_QUERY_KEY,
+  TRANSACTIONS_API_PATH,
+  TRANSACTIONS_QUERY_KEY,
 } from "./static";
+import { DeleteStorageInput } from "@/types/storage.types";
 
-export function useStorageLocations() {
+export function useTransactions() {
   return useQuery({
-    queryKey: [STORAGE_LOCATIONS_QUERY_KEY],
+    queryKey: [TRANSACTIONS_QUERY_KEY],
     staleTime: FIVE_MINUTES,
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const response = await api.get<StorageLocation[]>(
-        STORAGE_LOCATIONS_API_PATH
+      const response = await api.get<Transaction[]>(TRANSACTIONS_API_PATH);
+
+      if (response.status === 200) {
+        return response.data;
+      }
+
+      throw new Error(
+        "Network response was not ok, status: " +
+          response.status +
+          " message: " +
+          response.statusText
+      );
+    },
+  });
+}
+
+export function useTransactionsForInvestmentId(investmentId: string) {
+  return useQuery({
+    queryKey: [TRANSACTIONS_QUERY_KEY, investmentId],
+    staleTime: FIVE_MINUTES,
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      const response = await api.get<Transaction[]>(
+        `${TRANSACTIONS_API_PATH}/investment/${investmentId}`
       );
 
       if (response.status === 200) {
@@ -42,19 +64,19 @@ export function useStorageLocations() {
   });
 }
 
-export function useCreateStorageLocation(
+export function useCreateTransaction(
   onSuccess?: () => void,
   onError?: () => void
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newLocation: CreateStorageLocationInput) =>
-      await api.post(STORAGE_LOCATIONS_API_PATH, newLocation),
+    mutationFn: async (newTransaction: CreateTransactionInput) =>
+      await api.post(TRANSACTIONS_API_PATH, newTransaction),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
+          queryKey: [TRANSACTIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
         })
         .then(onSuccess ?? undefined)
         .catch(console.error);
@@ -66,22 +88,22 @@ export function useCreateStorageLocation(
   });
 }
 
-export function useUpdateStorageLocation(
+export function useUpdateTransaction(
   onSuccess?: () => void,
   onError?: () => void
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (updatedLocation: UpdateStorageLocationInput) =>
+    mutationFn: async (updatedTransaction: UpdateTransactionInput) =>
       await api.put(
-        `${STORAGE_LOCATIONS_API_PATH}/${updatedLocation.id}`,
-        updatedLocation
+        `${TRANSACTIONS_API_PATH}/${updatedTransaction.id}`,
+        updatedTransaction
       ),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
+          queryKey: [TRANSACTIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
         })
         .then(onSuccess ?? undefined)
         .catch(console.error);
@@ -93,21 +115,19 @@ export function useUpdateStorageLocation(
   });
 }
 
-export function useDeleteStorageLocation(
+export function useDeleteTransaction(
   onSuccess?: () => void,
   onError?: () => void
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (deletedStorageLocation: DeleteStorageLocationInput) =>
-      await api.delete(
-        `${STORAGE_LOCATIONS_API_PATH}/${deletedStorageLocation.id}`
-      ),
+    mutationFn: async (deleteTransaction: DeleteStorageInput) =>
+      await api.delete(`${TRANSACTIONS_API_PATH}/${deleteTransaction.id}`),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
+          queryKey: [TRANSACTIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
         })
         .then(onSuccess ?? undefined)
         .catch(console.error);

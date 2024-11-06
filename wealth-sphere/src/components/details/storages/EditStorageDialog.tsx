@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,10 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { storageService } from "@/services/storage.service";
-import { useToast } from "@/hooks/use-toast";
+import { Storage } from "@/types/storage.types";
 import { useStorageLocations } from "@/hooks/storage-locations";
-import { LoadingState } from "@/components/LoadingState";
+import { LoadingState } from "@/components/utils/LoadingState";
+import { useUpdateStorage } from "@/hooks/storages";
 
 const storageSchema = z.object({
   amount: z.number().min(0),
@@ -38,60 +37,43 @@ const storageSchema = z.object({
 
 type StorageFormData = z.infer<typeof storageSchema>;
 
-interface AddStorageDialogProps {
-  investmentId: string;
+interface EditStorageDialogProps {
+  storage: Storage;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
 }
 
-export function AddStorageDialog({
+export function EditStorageDialog({
+  storage,
   open,
   onOpenChange,
-  investmentId,
-  onSuccess,
-}: AddStorageDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+}: EditStorageDialogProps) {
   const {
     data: storageLocations,
     error: storageLocationsError,
     isLoading: storageLocationsLoading,
   } = useStorageLocations();
 
+  const onSuccess = () => {
+    onOpenChange(false);
+  };
+  const updateStorage = useUpdateStorage(onSuccess);
+
   const form = useForm<StorageFormData>({
     resolver: zodResolver(storageSchema),
     defaultValues: {
-      amount: 0,
-      storageLocationId: "",
-      date: new Date().toISOString().split("T")[0],
+      amount: storage.amount,
+      storageLocationId: storage.location.id,
+      date: new Date(storage.date).toISOString().split("T")[0],
     },
   });
 
   const onSubmit = async (data: StorageFormData) => {
-    setIsSubmitting(true);
-    try {
-      await storageService.addStorage({
-        ...data,
-        date: new Date(data.date),
-        investmentId,
-      });
-      onSuccess();
-      onOpenChange(false);
-      form.reset();
-      toast({
-        title: "Success",
-        description: "Storage entry added successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to add storage entry",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    updateStorage.mutateAsync({
+      ...data,
+      id: storage.id,
+      date: new Date(data.date),
+    });
   };
 
   if (storageLocationsLoading) return <LoadingState />;
@@ -102,7 +84,7 @@ export function AddStorageDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle>Add New Storage Entry</DialogTitle>
+          <DialogTitle>Edit Storage Entry</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -180,9 +162,7 @@ export function AddStorageDialog({
               )}
             />
 
-            <Button type="submit" disabled={isSubmitting}>
-              Add Storage Entry
-            </Button>
+            <Button type="submit">Update Storage Entry</Button>
           </form>
         </Form>
       </DialogContent>

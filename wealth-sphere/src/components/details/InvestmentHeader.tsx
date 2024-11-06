@@ -1,4 +1,3 @@
-import { Investment } from "@/types/investment.types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   TooltipProvider,
@@ -9,16 +8,24 @@ import {
 import { CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import {
+  useInvestments,
+  useUpdateInvestmentLiveData,
+} from "@/hooks/investments";
 
 interface InvestmentHeaderProps {
-  investment: Investment;
-  onRefresh: () => Promise<void>;
+  investmentId: string;
 }
 
-export const InvestmentHeader = ({
-  investment,
-  onRefresh,
-}: InvestmentHeaderProps) => {
+export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
+  const { data: investments } = useInvestments();
+  const updateInvestmentLiveData = useUpdateInvestmentLiveData();
+
+  const investment = investments?.find(
+    (investment) => investment.id === investmentId
+  );
+
+  if (!investment) return;
   const currentPrice = investment.currentPrice ?? 0;
 
   return (
@@ -37,13 +44,19 @@ export const InvestmentHeader = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <CardTitle className="text-2xl font-bold ml-2">{investment.name}</CardTitle>
+        <CardTitle className="text-2xl font-bold ml-2">
+          {investment.name}
+        </CardTitle>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-xl font-semibold">
           ${currentPrice.toFixed(2)}
         </span>
-        <Button variant="ghost" size="icon" onClick={onRefresh}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => updateInvestmentLiveData.mutateAsync()}
+        >
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>

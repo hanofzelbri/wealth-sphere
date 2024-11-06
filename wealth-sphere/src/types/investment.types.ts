@@ -4,6 +4,7 @@ import { Storage } from "./storage.types";
 
 export interface Investment {
   id: string;
+  coinId: string;
   symbol: string;
   image: string;
   name: string;
@@ -13,4 +14,17 @@ export interface Investment {
   transactions: Transaction[];
   stakings: Staking[];
   storages: Storage[];
+}
+
+export interface CreateInvestmentInput {
+  coinId: string;
+}
+
+export interface UpdateInvestmentInput {
+  id: string;
+  coinId: string;
+}
+
+export interface DeleteInvestmentInput {
+  id: string;
 }

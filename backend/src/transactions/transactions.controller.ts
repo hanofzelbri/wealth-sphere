@@ -35,6 +35,24 @@ export class TransactionsController {
       type: mapTransactionType(transaction.type),
     }));
   }
+  @Get('investment/:id')
+  async getAllTransactionsForInvestmentId(
+    @Param('id') investmentId: string,
+    @User() user: string,
+  ): Promise<TransactionResponseDto[]> {
+    const ret =
+      await this.transactionsService.getAllTransactionsForInvestmentId(
+        user,
+        investmentId,
+      );
+
+    console.log(ret);
+
+    return ret.map((transaction) => ({
+      ...transaction,
+      type: mapTransactionType(transaction.type),
+    }));
+  }
 
   @Get(':id')
   async getTransactionById(

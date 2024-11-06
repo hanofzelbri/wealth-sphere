@@ -9,59 +9,31 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Transaction } from "@/types/transaction.types";
-import { transactionService } from "@/services/transaction.service";
 import { AddTransactionDialog } from "./AddTransactionDialog";
 import { EditTransactionDialog } from "./EditTransactionDialog";
-import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useDeleteTransaction } from "@/hooks/transactions";
+import { useInvestments } from "@/hooks/investments";
 
 interface TransactionListProps {
   investmentId: string;
-  transactions: Transaction[];
-  onTransactionChange: () => Promise<void>;
 }
 
-export function TransactionList({
-  investmentId,
-  transactions,
-  onTransactionChange,
-}: TransactionListProps) {
+export function TransactionList({ investmentId }: TransactionListProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { toast } = useToast();
+  const investments = useInvestments();
+  const deleteTransaction = useDeleteTransaction(() => setDeleteId(null));
 
-  const handleDeleteClick = (id: string) => {
-    setDeleteId(id);
-  };
+  if (investments.isLoading) return <p>Loading investments...</p>;
+  if (investments.isError) return <p>Error: {investments.error.message}</p>;
 
-  const handleConfirmDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      await transactionService.deleteTransaction(deleteId);
-      await onTransactionChange();
-      toast({
-        title: "Success",
-        description: "Transaction deleted successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to delete transaction",
-        variant: "destructive",
-      });
-    } finally {
-      setDeleteId(null);
-    }
-  };
-
-  const handleEdit = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
-  };
+  const investment = investments.data?.find((inv) => inv.id === investmentId);
+  if (!investment) return <p>Investment not found</p>;
 
   return (
     <div className="space-y-4">
@@ -89,8 +61,8 @@ export function TransactionList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.isArray(transactions) && transactions.length > 0 ? (
-            transactions.map((transaction) => (
+          {investment.transactions.length > 0 ? (
+            investment.transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>
                   {format(new Date(transaction.date), "PP")}
@@ -106,7 +78,7 @@ export function TransactionList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleEdit(transaction)}
+                      onClick={() => setSelectedTransaction(transaction)}
                       className="h-8 w-8"
                     >
                       <Pencil className="h-4 w-4" />
@@ -114,7 +86,7 @@ export function TransactionList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteClick(transaction.id)}
+                      onClick={() => setDeleteId(transaction.id)}
                       className="h-8 w-8 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -137,7 +109,6 @@ export function TransactionList({
         investmentId={investmentId}
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
-        onTransactionAdd={onTransactionChange}
       />
 
       {selectedTransaction && (
@@ -145,14 +116,13 @@ export function TransactionList({
           transaction={selectedTransaction}
           open={!!selectedTransaction}
           onOpenChange={(open) => !open && setSelectedTransaction(null)}
-          onSuccess={onTransactionChange}
         />
       )}
 
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => deleteTransaction.mutateAsync({ id: deleteId || "" })}
         title="Delete Transaction"
         description="Are you sure you want to delete this transaction? This action cannot be undone."
       />

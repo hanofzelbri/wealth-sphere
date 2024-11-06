@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,8 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { stakingService } from "@/services/staking.service";
-import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectItem,
@@ -28,7 +25,8 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { useStorageLocations } from "@/hooks/storage-locations";
-import { LoadingState } from "@/components/LoadingState";
+import { LoadingState } from "@/components/utils/LoadingState";
+import { useCreateStaking } from "@/hooks/stakings";
 
 const stakingSchema = z.object({
   amount: z.number().min(0),
@@ -44,22 +42,24 @@ interface AddStakingDialogProps {
   investmentId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
 }
 
 export function AddStakingDialog({
   investmentId,
   open,
   onOpenChange,
-  onSuccess,
 }: AddStakingDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const {
     data: storageLocations,
     error: storageLocationsError,
     isLoading: storageLocationsLoading,
   } = useStorageLocations();
+
+  const onSuccess = () => {
+    onOpenChange(false);
+    form.reset();
+  };
+  const createStaking = useCreateStaking(onSuccess);
 
   const form = useForm<StakingFormData>({
     resolver: zodResolver(stakingSchema),
@@ -73,29 +73,11 @@ export function AddStakingDialog({
   });
 
   const onSubmit = async (data: StakingFormData) => {
-    setIsSubmitting(true);
-    try {
-      await stakingService.addStaking({
-        ...data,
-        startDate: new Date(data.startDate),
-        investmentId,
-      });
-      onSuccess();
-      onOpenChange(false);
-      form.reset();
-      toast({
-        title: "Success",
-        description: "Staking added successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to add staking",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await createStaking.mutateAsync({
+      ...data,
+      startDate: new Date(data.startDate),
+      investmentId,
+    });
   };
 
   if (storageLocationsLoading) return <LoadingState />;
@@ -216,9 +198,7 @@ export function AddStakingDialog({
               )}
             />
 
-            <Button type="submit" disabled={isSubmitting}>
-              Add Staking
-            </Button>
+            <Button type="submit">Add Staking</Button>
           </form>
         </Form>
       </DialogContent>

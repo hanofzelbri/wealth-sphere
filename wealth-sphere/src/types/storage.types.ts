@@ -17,6 +17,7 @@ export interface CreateStorageInput {
 }
 
 export interface UpdateStorageInput {
+  id: string;
   amount?: number;
   storageLocationId?: string;
   date?: Date;

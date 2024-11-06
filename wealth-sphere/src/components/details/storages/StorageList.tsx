@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Storage } from "@/types/storage.types";
-import { storageService } from "@/services/storage.service";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,54 +12,27 @@ import {
 import { format } from "date-fns";
 import { AddStorageDialog } from "./AddStorageDialog";
 import { EditStorageDialog } from "./EditStorageDialog";
-import { useToast } from "@/hooks/use-toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useDeleteStorage } from "@/hooks/storages";
+import { useInvestments } from "@/hooks/investments";
 
 interface StorageListProps {
   investmentId: string;
-  storages: Storage[];
-  onStorageChange: () => Promise<void>;
 }
 
-export function StorageList({
-  investmentId,
-  storages,
-  onStorageChange,
-}: StorageListProps) {
+export function StorageList({ investmentId }: StorageListProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedStorage, setSelectedStorage] = useState<Storage | null>(null);
-  const { toast } = useToast();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const investments = useInvestments();
+  const deleteStorage = useDeleteStorage();
 
-  const handleDeleteClick = (id: string) => {
-    setDeleteId(id);
-  };
+  if (investments.isLoading) return <p>Loading investments...</p>;
+  if (investments.isError) return <p>Error: {investments.error.message}</p>;
 
-  const handleConfirmDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      await storageService.deleteStorage(deleteId);
-      await onStorageChange();
-      toast({
-        title: "Success",
-        description: "Storage deleted successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to delete storage",
-        variant: "destructive",
-      });
-    } finally {
-      setDeleteId(null);
-    }
-  };
-
-  const handleEdit = (storage: Storage) => {
-    setSelectedStorage(storage);
-  };
+  const investment = investments.data?.find((inv) => inv.id === investmentId);
+  if (!investment) return <p>Investment not found</p>;
 
   return (
     <div className="space-y-4">
@@ -86,8 +58,8 @@ export function StorageList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.isArray(storages) && storages.length > 0 ? (
-            storages.map((storage) => (
+          {investment.storages.length > 0 ? (
+            investment.storages.map((storage) => (
               <TableRow key={storage.id}>
                 <TableCell>{storage.amount}</TableCell>
                 <TableCell>
@@ -106,7 +78,7 @@ export function StorageList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleEdit(storage)}
+                      onClick={() => setSelectedStorage(storage)}
                       className="h-8 w-8"
                     >
                       <Pencil className="h-4 w-4" />
@@ -114,7 +86,9 @@ export function StorageList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteClick(storage.id)}
+                      onClick={() => {
+                        setDeleteId(storage.id);
+                      }}
                       className="h-8 w-8 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -137,7 +111,6 @@ export function StorageList({
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         investmentId={investmentId}
-        onSuccess={onStorageChange}
       />
 
       {selectedStorage && (
@@ -145,14 +118,13 @@ export function StorageList({
           storage={selectedStorage}
           open={!!selectedStorage}
           onOpenChange={(open) => !open && setSelectedStorage(null)}
-          onSuccess={onStorageChange}
         />
       )}
 
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => deleteStorage.mutateAsync({ id: deleteId || "" })}
         title="Delete Storage"
         description="Are you sure you want to delete this storage entry? This action cannot be undone."
       />

@@ -1,10 +1,10 @@
 import { api } from "@/lib/api";
 import {
-  CreateStorageLocationInput,
-  DeleteStorageLocationInput,
-  StorageLocation,
-  UpdateStorageLocationInput,
-} from "@/types/storage-location.types";
+  CreateStakingInput,
+  UpdateStakingInput,
+  Staking,
+  DeleteStakingInput,
+} from "@/types/staking.types";
 import {
   keepPreviousData,
   useMutation,
@@ -14,19 +14,17 @@ import {
 import {
   FIVE_MINUTES,
   INVESTMENTS_QUERY_KEY,
-  STORAGE_LOCATIONS_API_PATH,
-  STORAGE_LOCATIONS_QUERY_KEY,
+  STAKINGS_API_PATH,
+  STAKINGS_QUERY_KEY,
 } from "./static";
 
-export function useStorageLocations() {
+export function useStakings() {
   return useQuery({
-    queryKey: [STORAGE_LOCATIONS_QUERY_KEY],
+    queryKey: [STAKINGS_QUERY_KEY],
     staleTime: FIVE_MINUTES,
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      const response = await api.get<StorageLocation[]>(
-        STORAGE_LOCATIONS_API_PATH
-      );
+      const response = await api.get<Staking[]>(STAKINGS_API_PATH);
 
       if (response.status === 200) {
         return response.data;
@@ -42,19 +40,16 @@ export function useStorageLocations() {
   });
 }
 
-export function useCreateStorageLocation(
-  onSuccess?: () => void,
-  onError?: () => void
-) {
+export function useCreateStaking(onSuccess?: () => void, onError?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newLocation: CreateStorageLocationInput) =>
-      await api.post(STORAGE_LOCATIONS_API_PATH, newLocation),
+    mutationFn: async (newStaking: CreateStakingInput) =>
+      await api.post(STAKINGS_API_PATH, newStaking),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
+          queryKey: [STAKINGS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
         })
         .then(onSuccess ?? undefined)
         .catch(console.error);
@@ -66,22 +61,19 @@ export function useCreateStorageLocation(
   });
 }
 
-export function useUpdateStorageLocation(
-  onSuccess?: () => void,
-  onError?: () => void
-) {
+export function useUpdateStaking(onSuccess?: () => void, onError?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (updatedLocation: UpdateStorageLocationInput) =>
+    mutationFn: async (updatedStaking: UpdateStakingInput) =>
       await api.put(
-        `${STORAGE_LOCATIONS_API_PATH}/${updatedLocation.id}`,
-        updatedLocation
+        `${STAKINGS_API_PATH}/${updatedStaking.id}`,
+        updatedStaking
       ),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
+          queryKey: [STAKINGS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
         })
         .then(onSuccess ?? undefined)
         .catch(console.error);
@@ -93,21 +85,16 @@ export function useUpdateStorageLocation(
   });
 }
 
-export function useDeleteStorageLocation(
-  onSuccess?: () => void,
-  onError?: () => void
-) {
+export function useDeleteStaking(onSuccess?: () => void, onError?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (deletedStorageLocation: DeleteStorageLocationInput) =>
-      await api.delete(
-        `${STORAGE_LOCATIONS_API_PATH}/${deletedStorageLocation.id}`
-      ),
+    mutationFn: async (deletedStakingInput: DeleteStakingInput) =>
+      await api.delete(`${STAKINGS_API_PATH}/${deletedStakingInput.id}`),
     onSuccess: () => {
       queryClient
         .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
+          queryKey: [STAKINGS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
         })
         .then(onSuccess ?? undefined)
         .catch(console.error);

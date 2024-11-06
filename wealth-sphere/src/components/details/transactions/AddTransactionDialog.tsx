@@ -1,49 +1,27 @@
 import { Transaction } from "@/types/transaction.types";
-import { transactionService } from "@/services/transaction.service";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { HandleTransactionForm } from "./HandleTransactionForm";
-import { useToast } from "@/hooks/use-toast";
+import { useCreateTransaction } from "@/hooks/transactions";
 
 interface AddTransactionDialogProps {
   investmentId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onTransactionAdd: () => Promise<void>;
 }
 
 export const AddTransactionDialog = ({
   investmentId,
   open,
   onOpenChange,
-  onTransactionAdd,
 }: AddTransactionDialogProps) => {
-  const { toast } = useToast();
+  const createTransaction = useCreateTransaction(() => onOpenChange(false));
 
   const handleAddTransaction = async (transaction: Transaction) => {
-    try {
-      await transactionService.addTransaction({
-        ...transaction,
-        date: new Date(transaction.date),
-        investmentId,
-      });
-      toast({
-        title: "Success",
-        description: "Transaction added successfully",
-      });
-      onOpenChange(false);
-      await onTransactionAdd();
-    } catch (error) {
-      console.error("Error adding transaction:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add transaction",
-        variant: "destructive",
-      });
-    }
+    createTransaction.mutateAsync({
+      ...transaction,
+      date: new Date(transaction.date),
+      investmentId,
+    });
   };
 
   return (
