@@ -244,7 +244,7 @@ export const InvestmentsTable: React.FC = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {stakingPercentage?.toFixed(0) || "0"} %
+                        {isNaN(stakingPercentage) ? "-" : `${stakingPercentage.toFixed(0)} %`}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">

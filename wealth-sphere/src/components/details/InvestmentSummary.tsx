@@ -6,6 +6,7 @@ import {
   calculateProfitLoss,
   calculateTotalHolding,
   calculateTotalStaking as calculateStakedUnits,
+  storageLocationPercentage,
 } from "@/utils/investmentCalculations";
 
 interface InvestmentSummaryProps {
@@ -27,6 +28,16 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
 
   const stakedUnits = calculateStakedUnits(investment.stakings);
   const stakedValue = stakedUnits * investment.currentPrice;
+
+  const hardwarePercentage = storageLocationPercentage(
+    investment,
+    "hardwareWallet"
+  );
+  const softwarePercentage = storageLocationPercentage(
+    investment,
+    "softwareWallet"
+  );
+  const exchangePercentage = storageLocationPercentage(investment, "exchange");
 
   return (
     <div className="grid grid-cols-4 gap-4">
@@ -85,6 +96,33 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">${stakedValue.toFixed(2)}</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Storage Location</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {hardwarePercentage > 0 && (
+            <div className="flex space-x-2 items-center">
+              <span className="font-semibold">Hardware:</span>
+              <span>{hardwarePercentage.toFixed(2)}%</span>
+            </div>
+          )}
+
+          {softwarePercentage > 0 && (
+            <div className="flex space-x-2 items-center">
+              <span className="font-semibold">Software:</span>
+              <span>{softwarePercentage.toFixed(2)}%</span>
+            </div>
+          )}
+
+          {exchangePercentage > 0 && (
+            <div className="flex space-x-2 items-center">
+              <span className="font-semibold">Exchange:</span>
+              <span>{exchangePercentage.toFixed(2)}%</span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

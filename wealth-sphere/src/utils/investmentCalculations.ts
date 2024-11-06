@@ -1,4 +1,6 @@
+import { Investment } from "@/types/investment.types";
 import { Staking } from "@/types/staking.types";
+import { StorageLocationType } from "@/types/storage-location.types";
 import { Transaction } from "@/types/transaction.types";
 
 export const calculateAverageBuyingPrice = (
@@ -62,4 +64,62 @@ export const calculateTotalHolding = (transactions: Transaction[]): number => {
 
 export const calculateTotalStaking = (stakings: Staking[]): number => {
   return stakings.reduce((total, staking) => total + staking.amount, 0);
+};
+export const calculateStorageLocationPercentageStakings = (
+  investment: Investment,
+  storageLocationType: StorageLocationType
+): { total: number; percentage: number; storageLocationAmount: number } => {
+  const { totalAmount, storageLocationAmount } = investment.stakings.reduce(
+    ({ totalAmount, storageLocationAmount }, staking) => {
+      totalAmount += staking.amount;
+      if (staking.location.storageLocationType === storageLocationType) {
+        storageLocationAmount += staking.amount;
+      }
+      return { totalAmount, storageLocationAmount };
+    },
+    { totalAmount: 0, storageLocationAmount: 0 }
+  );
+
+  const percentage = totalAmount === 0 ? 0 : (storageLocationAmount / totalAmount) * 100;
+
+  return { total: totalAmount, percentage, storageLocationAmount };
+};
+
+export const calculateStorageLocationPercentageStorages = (
+  investment: Investment,
+  storageLocationType: StorageLocationType
+): { total: number; percentage: number; storageLocationAmount: number } => {
+  const { totalAmount, storageLocationAmount } = investment.storages.reduce(
+    ({ totalAmount, storageLocationAmount }, storage) => {
+      totalAmount += storage.amount;
+      if (storage.location.storageLocationType === storageLocationType) {
+        storageLocationAmount += storage.amount;
+      }
+      return { totalAmount, storageLocationAmount };
+    },
+    { totalAmount: 0, storageLocationAmount: 0 }
+  );
+
+  const percentage = totalAmount === 0 ? 0 : (storageLocationAmount / totalAmount) * 100;
+
+  return { total: totalAmount, percentage, storageLocationAmount };
+};
+
+export const storageLocationPercentage = (
+  investment: Investment,
+  storageLocationType: StorageLocationType
+): number => {
+  const staking = calculateStorageLocationPercentageStakings(
+    investment,
+    storageLocationType
+  );
+  const storage = calculateStorageLocationPercentageStorages(
+    investment,
+    storageLocationType
+  );
+
+  const total = storage.total + staking.total;
+  const storageLocationAmount = storage.storageLocationAmount + staking.storageLocationAmount;
+
+  return storageLocationAmount === 0 ? 0 : total / storageLocationAmount * 100;
 };

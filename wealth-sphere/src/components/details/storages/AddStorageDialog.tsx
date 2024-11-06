@@ -62,7 +62,7 @@ export function AddStorageDialog({
     },
   });
 
-  const createStorage = useCreateStorage();
+  const createStorage = useCreateStorage(() => onOpenChange(false));
 
   if (storageLocationsLoading) return <LoadingState />;
   if (storageLocationsError)
