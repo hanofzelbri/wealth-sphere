@@ -12,38 +12,45 @@ model User {
   id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name String
 
-  investments  Investment[]
-  transactions Transaction[]
-  storages     Storage[]
-  stakings     Staking[]
+  investments     Investment[]
+  transactions    Transaction[]
+  storages        Storage[]
+  stakings        Staking[]
+  ChartDataHourly ChartDataHourly[]
+  ChartDataDaily  ChartDataDaily[]
 
   @@map("users")
 }
 
 model Investment {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String        @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+
   coinId       String
   name         String
   symbol       String
   image        String
   currentPrice Float
+
   transactions Transaction[]
   storages     Storage[]
   stakings     Staking[]
 
-  User User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User            User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ChartDataHourly ChartDataHourly[]
+  ChartDataDaily  ChartDataDaily[]
 
   @@map("investments")
 }
 
 model Storage {
-  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String          @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
-  investmentId String          @db.Uuid
-  amount       Float
-  location     StorageLocation @relation(fields: [storageLocationId], references: [id])
-  date         DateTime
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String @db.Uuid
+
+  amount   Float
+  location StorageLocation @relation(fields: [storageLocationId], references: [id])
+  date     DateTime
 
   investment        Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   User              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -53,8 +60,9 @@ model Storage {
 }
 
 model StorageLocation {
-  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId              String              @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+
   name                String
   image               String
   storageLocationType StorageLocationType
@@ -65,9 +73,10 @@ model StorageLocation {
 }
 
 model Staking {
-  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId         String          @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
-  investmentId   String          @db.Uuid
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String @db.Uuid
+
   amount         Float
   location       StorageLocation @relation(fields: [storageLocationId], references: [id])
   websiteLink    String
@@ -82,18 +91,47 @@ model Staking {
 }
 
 model Transaction {
-  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String          @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
-  investmentId String          @db.Uuid
-  quantity     Float
-  price        Float
-  date         DateTime
-  type         TransactionType
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String @db.Uuid
+
+  quantity Float
+  price    Float
+  date     DateTime
+  type     TransactionType
 
   investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("transactions")
+}
+
+model ChartDataHourly {
+  id           BigInt @id
+  userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String @db.Uuid
+
+  timestamp DateTime
+  price     Float
+
+  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chart_data_hourly")
+}
+
+model ChartDataDaily {
+  id           BigInt @id
+  userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
+  investmentId String @db.Uuid
+
+  timestamp DateTime
+  price     Float
+
+  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chart_data_daily")
 }
 
 enum TransactionType {

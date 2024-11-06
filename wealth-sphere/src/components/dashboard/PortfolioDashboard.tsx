@@ -10,6 +10,7 @@ import {
   useUpdateInvestmentLiveData,
 } from "@/hooks/investments";
 import { AddInvestment } from "./AddInvestment";
+import PortfolioChart from "./PortfolioChart";
 
 export const PortfolioDashboard: React.FC = () => {
   const investments = useInvestments();
@@ -38,6 +39,7 @@ export const PortfolioDashboard: React.FC = () => {
           ) : (
             <>
               <PortfolioSummary />
+              <PortfolioChart />
               <InvestmentsTable />
             </>
           )}

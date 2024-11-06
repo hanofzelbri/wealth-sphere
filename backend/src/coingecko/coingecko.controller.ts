@@ -17,12 +17,8 @@ export class CoingeckoController {
   @Get('chart/:coinId')
   async getMarketChart(
     @Param('coinId') coinId: string,
-    @Query('days') days: string = '7',
+    @Query('days') days: number = 7,
   ): Promise<CoinMarketChart> {
-    return this.coingeckoService.getCoinMarketChart(
-      coinId,
-      'usd',
-      Number(days),
-    );
+    return this.coingeckoService.getCoinMarketChart(coinId, 'usd', days);
   }
 }
