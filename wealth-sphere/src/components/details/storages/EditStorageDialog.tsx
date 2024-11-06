@@ -54,10 +54,7 @@ export function EditStorageDialog({
     isLoading: storageLocationsLoading,
   } = useStorageLocations();
 
-  const onSuccess = () => {
-    onOpenChange(false);
-  };
-  const updateStorage = useUpdateStorage(onSuccess);
+  const updateStorage = useUpdateStorage(() => onOpenChange(false));
 
   const form = useForm<StorageFormData>({
     resolver: zodResolver(storageSchema),
@@ -162,7 +159,16 @@ export function EditStorageDialog({
               )}
             />
 
-            <Button type="submit">Update Storage Entry</Button>
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Update Storage</Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

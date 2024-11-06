@@ -47,11 +47,11 @@ export function useCreateStaking(onSuccess?: () => void, onError?: () => void) {
     mutationFn: async (newStaking: CreateStakingInput) =>
       await api.post(STAKINGS_API_PATH, newStaking),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STAKINGS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [STAKINGS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -71,11 +71,11 @@ export function useUpdateStaking(onSuccess?: () => void, onError?: () => void) {
         updatedStaking
       ),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STAKINGS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [STAKINGS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -92,11 +92,11 @@ export function useDeleteStaking(onSuccess?: () => void, onError?: () => void) {
     mutationFn: async (deletedStakingInput: DeleteStakingInput) =>
       await api.delete(`${STAKINGS_API_PATH}/${deletedStakingInput.id}`),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STAKINGS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [STAKINGS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {

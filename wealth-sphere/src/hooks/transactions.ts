@@ -74,11 +74,11 @@ export function useCreateTransaction(
     mutationFn: async (newTransaction: CreateTransactionInput) =>
       await api.post(TRANSACTIONS_API_PATH, newTransaction),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [TRANSACTIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -101,11 +101,11 @@ export function useUpdateTransaction(
         updatedTransaction
       ),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [TRANSACTIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -125,11 +125,11 @@ export function useDeleteTransaction(
     mutationFn: async (deleteTransaction: DeleteStorageInput) =>
       await api.delete(`${TRANSACTIONS_API_PATH}/${deleteTransaction.id}`),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [TRANSACTIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [TRANSACTIONS_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {

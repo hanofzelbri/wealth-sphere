@@ -198,7 +198,16 @@ export function EditStakingDialog({
               )}
             />
 
-            <Button type="submit">Update Staking</Button>
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Update Staking</Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

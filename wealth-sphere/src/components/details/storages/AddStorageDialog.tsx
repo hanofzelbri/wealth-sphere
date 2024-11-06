@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { useStorageLocations } from "@/hooks/storage-locations";
 import { LoadingState } from "@/components/utils/LoadingState";
 import { useCreateStorage } from "@/hooks/storages"; // Corrected import
@@ -48,7 +47,6 @@ export function AddStorageDialog({
   onOpenChange,
   investmentId,
 }: AddStorageDialogProps) {
-  const { toast } = useToast();
   const {
     data: storageLocations,
     error: storageLocationsError,
@@ -66,27 +64,6 @@ export function AddStorageDialog({
 
   const createStorage = useCreateStorage();
 
-  const onSubmit = async (data: StorageFormData) => {
-    try {
-      await createStorage.mutateAsync({
-        ...data,
-        date: new Date(data.date),
-        investmentId,
-      });
-
-      toast({
-        title: "Success",
-        description: "Storage entry added successfully",
-      });
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to add storage entry",
-        variant: "destructive",
-      });
-    }
-  };
-
   if (storageLocationsLoading) return <LoadingState />;
   if (storageLocationsError)
     return <p>Error: {storageLocationsError.message}</p>;
@@ -98,7 +75,16 @@ export function AddStorageDialog({
           <DialogTitle>Add New Storage Entry</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit((data: StorageFormData) =>
+              createStorage.mutateAsync({
+                ...data,
+                date: new Date(data.date),
+                investmentId,
+              })
+            )}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="amount"
@@ -173,7 +159,16 @@ export function AddStorageDialog({
               )}
             />
 
-            <Button type="submit">Add Storage Entry</Button>
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Add Storage</Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

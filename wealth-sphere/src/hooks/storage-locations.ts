@@ -52,11 +52,13 @@ export function useCreateStorageLocation(
     mutationFn: async (newLocation: CreateStorageLocationInput) =>
       await api.post(STORAGE_LOCATIONS_API_PATH, newLocation),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [STORAGE_LOCATIONS_QUERY_KEY],
+        }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -79,11 +81,13 @@ export function useUpdateStorageLocation(
         updatedLocation
       ),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [STORAGE_LOCATIONS_QUERY_KEY],
+        }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -105,11 +109,13 @@ export function useDeleteStorageLocation(
         `${STORAGE_LOCATIONS_API_PATH}/${deletedStorageLocation.id}`
       ),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STORAGE_LOCATIONS_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [STORAGE_LOCATIONS_QUERY_KEY],
+        }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {

@@ -29,7 +29,7 @@ export const AddTransactionDialog = ({
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>Add Transaction</DialogTitle>
         <HandleTransactionForm
-          submitButtonText="Add transaction"
+          submitButtonText="Add Transaction"
           onSubmit={handleAddTransaction}
           onCancel={() => onOpenChange(false)}
         />

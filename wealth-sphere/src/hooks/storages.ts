@@ -47,11 +47,11 @@ export function useCreateStorage(onSuccess?: () => void, onError?: () => void) {
     mutationFn: async (newStorage: CreateStorageInput) =>
       await api.post(STORAGES_API_PATH, newStorage),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STORAGES_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [STORAGES_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -71,11 +71,11 @@ export function useUpdateStorage(onSuccess?: () => void, onError?: () => void) {
         updateStorageInput
       ),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STORAGES_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [STORAGES_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
@@ -92,11 +92,11 @@ export function useDeleteStorage(onSuccess?: () => void, onError?: () => void) {
     mutationFn: async (deleteStorageInput: DeleteStorageInput) =>
       await api.delete(`${STORAGES_API_PATH}/${deleteStorageInput.id}`),
     onSuccess: () => {
-      queryClient
-        .invalidateQueries({
-          queryKey: [STORAGES_QUERY_KEY, INVESTMENTS_QUERY_KEY],
-        })
-        .then(onSuccess ?? undefined)
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [STORAGES_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] }),
+      ])
+        .then(() => onSuccess?.())
         .catch(console.error);
     },
     onError: (error: Error) => {
