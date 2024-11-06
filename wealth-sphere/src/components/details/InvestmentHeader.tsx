@@ -12,6 +12,7 @@ import {
   useInvestments,
   useUpdateInvestmentLiveData,
 } from "@/hooks/investments";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 interface InvestmentHeaderProps {
   investmentId: string;
@@ -50,7 +51,7 @@ export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
       </div>
       <div className="flex items-center gap-4">
         <span className="text-xl font-semibold">
-          ${currentPrice.toFixed(2)}
+          ${formatNumber(currentPrice)}
         </span>
         <Button
           variant="ghost"

@@ -3,6 +3,13 @@ import { Staking } from "@/types/staking.types";
 import { StorageLocationType } from "@/types/storage-location.types";
 import { Transaction } from "@/types/transaction.types";
 
+export function formatNumber(value: number): string {
+  if (Math.abs(value) < 1) {
+    return value.toFixed(5);
+  }
+  return value.toFixed(2);
+}
+
 export const calculateAverageBuyingPrice = (
   transactions: Transaction[] = []
 ): number => {

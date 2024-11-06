@@ -3,7 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { PerformerCard } from "./PerformerCard";
 import { Investment } from "../../types/investment.types";
-import { calculateProfitLoss } from "@/utils/investmentCalculations";
+import {
+  calculateProfitLoss,
+  formatNumber,
+} from "@/utils/investmentCalculations";
 import { useInvestments } from "@/hooks/investments";
 import { LoadingState } from "../utils/LoadingState";
 
@@ -95,7 +98,7 @@ export const PortfolioSummary: React.FC = () => {
               (totalGainLoss ?? 0) >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
-            ${Math.abs(totalGainLoss ?? 0).toFixed(2)}
+            ${formatNumber(Math.abs(totalGainLoss ?? 0))}
           </div>
           <div
             className={`flex items-center text-sm justify-center ${
@@ -107,7 +110,12 @@ export const PortfolioSummary: React.FC = () => {
             ) : (
               <ArrowDownIcon className="w-4 h-4 mr-1" />
             )}
-            {totalValue ? ((totalGainLoss / (totalValue - totalGainLoss)) * 100).toFixed(2) : "0.00"}%
+            {totalValue
+              ? formatNumber(
+                  (totalGainLoss / (totalValue - totalGainLoss)) * 100
+                )
+              : "0.00"}
+            %
           </div>
         </CardContent>
       </Card>
@@ -116,7 +124,9 @@ export const PortfolioSummary: React.FC = () => {
           <h3 className="text-sm font-medium text-gray-500 mb-2">
             Portfolio Value
           </h3>
-          <div className="text-2xl font-semibold">${totalValue?.toFixed(2) || "0.00"}</div>
+          <div className="text-2xl font-semibold">
+            ${formatNumber(totalValue || 0)}
+          </div>
         </CardContent>
       </Card>
       {renderPerformanceCard(bestPerformer || null, "Best Performer")}

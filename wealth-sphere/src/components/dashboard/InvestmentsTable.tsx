@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, ArrowDownIcon, Eye, Trash2 } from "lucide-react";
 import { useDeleteInvestment, useInvestments } from "@/hooks/investments";
 import { ConfirmDialog } from "../ui/confirm-dialog";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 type SortField =
   | "symbol"
@@ -228,15 +229,15 @@ export const InvestmentsTable: React.FC = () => {
                       <TableCell>{investment.name}</TableCell>
                       <TableCell>{totalQuantity}</TableCell>
                       <TableCell>
-                        ${investment.currentPrice.toFixed(2)}
+                        ${formatNumber(investment.currentPrice)}
                       </TableCell>
-                      <TableCell>${value.toFixed(2)}</TableCell>
+                      <TableCell>${formatNumber(value)}</TableCell>
                       <TableCell
                         className={
                           gainLoss >= 0 ? "text-green-600" : "text-red-600"
                         }
                       >
-                        ${Math.abs(gainLoss).toFixed(2)}
+                        ${formatNumber(Math.abs(gainLoss))}
                         {gainLoss >= 0 ? (
                           <ArrowUpIcon className="inline ml-1" />
                         ) : (
@@ -244,7 +245,9 @@ export const InvestmentsTable: React.FC = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {isNaN(stakingPercentage) ? "-" : `${stakingPercentage.toFixed(0)} %`}
+                        {isNaN(stakingPercentage)
+                          ? "-"
+                          : `${formatNumber(stakingPercentage)} %`}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">

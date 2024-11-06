@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 interface PerformerCardProps {
   title: string;
@@ -38,7 +39,7 @@ export const PerformerCard: React.FC<PerformerCardProps> = ({
             <span className="mr-1">
               {value > 0 ? "+" : value < 0 ? "-" : ""}
             </span>
-            ${Math.abs(value).toFixed(2)}
+            ${formatNumber(Math.abs(value))}
           </span>
           <div
             className={`flex items-center text-sm ${
@@ -52,7 +53,7 @@ export const PerformerCard: React.FC<PerformerCardProps> = ({
             ) : (
               <ArrowRight className="w-4 h-4 mr-1" />
             )}
-            {Math.abs(percentage).toFixed(2)}%
+            {formatNumber(Math.abs(percentage))}%
           </div>
         </div>
       </CardContent>

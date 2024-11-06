@@ -16,6 +16,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useDeleteTransaction } from "@/hooks/transactions";
 import { useInvestments } from "@/hooks/investments";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 interface TransactionListProps {
   investmentId: string;
@@ -69,9 +70,9 @@ export function TransactionList({ investmentId }: TransactionListProps) {
                 </TableCell>
                 <TableCell>{transaction.type}</TableCell>
                 <TableCell>{transaction.quantity}</TableCell>
-                <TableCell>${transaction.price.toFixed(2)}</TableCell>
+                <TableCell>${formatNumber(transaction.price)}</TableCell>
                 <TableCell>
-                  ${(transaction.price * transaction.quantity).toFixed(2)}
+                  ${formatNumber(transaction.price * transaction.quantity)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

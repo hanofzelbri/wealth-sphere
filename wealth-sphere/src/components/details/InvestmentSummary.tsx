@@ -7,6 +7,7 @@ import {
   calculateTotalHolding,
   calculateTotalStaking as calculateStakedUnits,
   storageLocationPercentage,
+  formatNumber,
 } from "@/utils/investmentCalculations";
 
 interface InvestmentSummaryProps {
@@ -46,7 +47,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Holding Units</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">{totalHolding.toFixed(2)}</p>
+          <p className="text-2xl font-semibold">{formatNumber(totalHolding)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -54,7 +55,9 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Holding Value</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">${currentValue.toFixed(2)}</p>
+          <p className="text-2xl font-semibold">
+            ${formatNumber(currentValue)}
+          </p>
         </CardContent>
       </Card>
       <Card>
@@ -63,7 +66,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">
-            ${averageBuyingPrice.toFixed(2)}
+            ${formatNumber(averageBuyingPrice)}
           </p>
         </CardContent>
       </Card>
@@ -77,8 +80,8 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
               profitLoss >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
-            ${Math.abs(profitLoss).toFixed(2)} (
-            {profitLossPercentage.toFixed(2)}%)
+            ${formatNumber(Math.abs(profitLoss))} (
+            {formatNumber(profitLossPercentage)}%)
           </p>
         </CardContent>
       </Card>
@@ -87,7 +90,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Staked Units</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">{stakedUnits.toFixed(2)}</p>
+          <p className="text-2xl font-semibold">{formatNumber(stakedUnits)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -95,7 +98,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Staked Value</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">${stakedValue.toFixed(2)}</p>
+          <p className="text-2xl font-semibold">${formatNumber(stakedValue)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -106,21 +109,21 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           {hardwarePercentage > 0 && (
             <div className="flex space-x-2 items-center">
               <span className="font-semibold">Hardware:</span>
-              <span>{hardwarePercentage.toFixed(2)}%</span>
+              <span>{formatNumber(hardwarePercentage)}%</span>
             </div>
           )}
 
           {softwarePercentage > 0 && (
             <div className="flex space-x-2 items-center">
               <span className="font-semibold">Software:</span>
-              <span>{softwarePercentage.toFixed(2)}%</span>
+              <span>{formatNumber(softwarePercentage)}%</span>
             </div>
           )}
 
           {exchangePercentage > 0 && (
             <div className="flex space-x-2 items-center">
               <span className="font-semibold">Exchange:</span>
-              <span>{exchangePercentage.toFixed(2)}%</span>
+              <span>{formatNumber(exchangePercentage)}%</span>
             </div>
           )}
         </CardContent>
