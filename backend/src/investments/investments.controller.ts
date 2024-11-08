@@ -57,24 +57,4 @@ export class InvestmentsController {
   ): Promise<Investment> {
     return this.investmentsService.deleteInvestment(id, user);
   }
-
-  @Get('count')
-  async getInvestmentCount(@User() user: string): Promise<number> {
-    return this.investmentsService.getInvestmentCount(user);
-  }
-
-  @Get('best-performer')
-  async getBestPerformer(@User() user: string): Promise<Investment | null> {
-    return this.investmentsService.getBestPerformer(user);
-  }
-
-  @Get('worst-performer')
-  async getWorstPerformer(@User() user: string): Promise<Investment | null> {
-    return this.investmentsService.getWorstPerformer(user);
-  }
-
-  @Post('update-info')
-  async updateInvestmentInfo(@User() userId: string) {
-    return this.investmentsService.updateInvestmentInfo(userId);
-  }
 }

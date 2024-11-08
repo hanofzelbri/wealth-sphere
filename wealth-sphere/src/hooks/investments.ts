@@ -68,26 +68,6 @@ export function useUpdateInvestment(
   });
 }
 
-export function useUpdateInvestmentLiveData(
-  onSuccess?: () => void,
-  onError?: () => void
-) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () =>
-      await api.put(`${INVESTMENTS_API_PATH}/update-info`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [INVESTMENTS_QUERY_KEY] });
-      onSuccess?.();
-    },
-    onError: (error: Error) => {
-      console.log(error);
-      onError?.();
-    },
-  });
-}
-
 export function useDeleteInvestment(
   onSuccess?: () => void,
   onError?: () => void

@@ -14,3 +14,6 @@ export const TRANSACTIONS_QUERY_KEY = "transactions";
 
 export const INVESTMENTS_API_PATH = "/investments";
 export const INVESTMENTS_QUERY_KEY = "investments";
+
+export const COINGECKO_DATA_API_PATH = "/coingecko";
+export const MARKET_DATA_QUERY_KEY = "market-data";

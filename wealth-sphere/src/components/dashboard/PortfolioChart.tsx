@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
+import { useMarketData } from "@/hooks/coingecko";
 
 Chart.register(...registerables);
 
@@ -8,7 +9,9 @@ interface PortfolioChartProps {
   data: { timestamp: number; price: number }[];
 }
 
-const PortfolioChart: React.FC<PortfolioChartProps> = ({ data }) => {
+const PortfolioChart: React.FC<PortfolioChartProps> = ({ data: data2 }) => {
+  const { data } = useMarketData();
+
   const [chartData, setChartData] = useState<{
     labels: string[];
     datasets: {
@@ -36,10 +39,12 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data }) => {
   });
 
   useEffect(() => {
-    const labels = data.map((dataPoint) =>
-      new Date(dataPoint.timestamp).toLocaleDateString()
+    if (!data) return;
+
+    const labels = data[0].timestamps.map((dataPoint) =>
+      new Date(dataPoint).toLocaleDateString()
     );
-    const prices = data.map((dataPoint) => dataPoint.price);
+    const prices = data[0].prices.map((dataPoint) => dataPoint);
 
     setChartData({
       labels,
@@ -81,9 +86,9 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data }) => {
 
               callbacks: {
                 title: (tooltipItem) => {
-                  const date = new Date(
-                    data[tooltipItem[0].dataIndex].timestamp
-                  );
+                  const timestamp =
+                    data?.[0]?.timestamps[tooltipItem[0].dataIndex];
+                  const date = timestamp ? new Date(timestamp) : new Date();
                   const formattedDate = date.toLocaleDateString();
                   const formattedTime = date.toLocaleTimeString([], {
                     hour: "2-digit",

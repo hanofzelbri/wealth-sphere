@@ -8,7 +8,7 @@ export class BaseApiService {
   protected readonly apiKey: string;
   protected readonly baseUrl: string;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(protected readonly configService: ConfigService) {
     this.axiosInstance = axios.create({
       baseURL: this.configService.coingeckoApiUrl,
       headers: {

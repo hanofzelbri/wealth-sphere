@@ -1,19 +1,260 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CoinPrice, CoinMarketChart } from './interfaces';
 import { BaseApiService } from '../common/base-api.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ConfigService } from 'src/config/config.service';
+import { MarketData } from './dto/coingecko.dto';
+import { subDays } from 'date-fns';
 
 @Injectable()
 export class CoingeckoService extends BaseApiService {
-  async pingAPI(): Promise<{ gecko_says: string }> {
-    return this.fetchWithRetry<{ gecko_says: string }>('/ping');
+  constructor(
+    private prisma: PrismaService,
+    protected configService: ConfigService,
+  ) {
+    super(configService);
   }
 
-  async getCoinPrices(
+  async getAllMarketChartData(
+    userId: string,
+    days: number,
+  ): Promise<MarketData[]> {
+    const startDate = subDays(new Date(), days);
+    const prismaClient = this.prisma.getPrismaClient(userId);
+    const data =
+      days < 90
+        ? await prismaClient.chartDataHourly.findMany({
+            where: {
+              userId,
+              timestamp: {
+                gte: startDate,
+              },
+            },
+            orderBy: {
+              timestamp: 'asc',
+            },
+            select: {
+              id: true,
+              price: true,
+              timestamp: true,
+              investmentId: true,
+            },
+          })
+        : await prismaClient.chartDataDaily.findMany({
+            where: {
+              userId,
+              timestamp: {
+                gte: startDate,
+              },
+            },
+            orderBy: {
+              timestamp: 'asc',
+            },
+            select: {
+              id: true,
+              price: true,
+              timestamp: true,
+              investmentId: true,
+            },
+          });
+
+    const groupedData = data.reduce(
+      (acc, { id, price, timestamp, investmentId }) => {
+        if (!acc[investmentId]) {
+          acc[investmentId] = { ids: [], prices: [], timestamps: [] };
+        }
+        acc[investmentId].ids.push(id);
+        acc[investmentId].prices.push(price);
+        acc[investmentId].timestamps.push(timestamp);
+        return acc;
+      },
+      {},
+    );
+
+    return Object.values(groupedData).map(
+      ({ ids, prices, timestamps }, index) => ({
+        userId,
+        investmentId: index.toString(),
+        ids,
+        prices,
+        timestamps,
+      }),
+    );
+  }
+
+  async getMarketChartData(
+    userId: string,
+    investmentId: string,
+    days: number,
+  ): Promise<MarketData> {
+    const startDate = new Date(new Date().setDate(new Date().getDate() - days));
+    const prismaClient = this.prisma.getPrismaClient(userId);
+    const data =
+      days < 90
+        ? await prismaClient.chartDataHourly.findMany({
+            where: {
+              userId,
+              investmentId,
+              timestamp: {
+                gte: startDate,
+              },
+            },
+            orderBy: {
+              timestamp: 'asc',
+            },
+            select: {
+              id: true,
+              price: true,
+              timestamp: true,
+            },
+          })
+        : await prismaClient.chartDataDaily.findMany({
+            where: {
+              userId,
+              investmentId,
+              timestamp: {
+                gte: startDate,
+              },
+            },
+            orderBy: {
+              timestamp: 'asc',
+            },
+            select: {
+              id: true,
+              price: true,
+              timestamp: true,
+            },
+          });
+
+    const ids = data.map(({ id }) => id);
+    const prices = data.map(({ price }) => price);
+    const timestamps = data.map(({ timestamp }) => timestamp);
+
+    return {
+      userId,
+      investmentId,
+      ids,
+      prices,
+      timestamps,
+    } as MarketData;
+  }
+
+  async storeCoinPrices(userId: string): Promise<void> {
+    try {
+      const investments = await this.prisma
+        .getPrismaClient(userId)
+        .investment.findMany({
+          where: {
+            userId,
+          },
+          include: {
+            transactions: true,
+            stakings: { include: { location: true } },
+            storages: { include: { location: true } },
+          },
+        });
+
+      const coinIds = [...new Set(investments.map((inv) => inv.coinId))];
+
+      const coinPrices = await this.fetchCoinPrices(coinIds);
+
+      const updates = investments.map(async (inv) => {
+        const coinInfo = coinPrices.find((coin) => coin.id === inv.coinId);
+        if (!coinInfo) return inv;
+
+        return this.prisma.getPrismaClient(userId).investment.update({
+          where: { id: inv.id, userId },
+          data: {
+            name: coinInfo.name,
+            symbol: coinInfo.symbol,
+            image: coinInfo.image,
+            currentPrice: coinInfo.current_price,
+          },
+          include: {
+            transactions: true,
+            stakings: { include: { location: true } },
+            storages: { include: { location: true } },
+          },
+        });
+      });
+
+      await Promise.all(updates);
+    } catch (error) {
+      console.error('Error updating investment info:', error);
+      throw error;
+    }
+  }
+
+  async storeMarketChartData(user: string): Promise<void> {
+    const prismaClient = this.prisma.getPrismaClient(user);
+    const investments = await prismaClient.investment.findMany({
+      where: {
+        userId: user,
+      },
+    });
+
+    for (const investment of investments) {
+      const chartData90 = await this.fetchCoinMarketChart(
+        investment.coinId,
+        'usd',
+        90,
+      );
+      const chartData365 = await this.fetchCoinMarketChart(
+        investment.coinId,
+        'usd',
+        365,
+      );
+
+      for (const data of chartData90.prices) {
+        await prismaClient.chartDataDaily.upsert({
+          where: {
+            userId: user,
+            investmentId_timestamp: {
+              investmentId: investment.id,
+              timestamp: new Date(data[0]),
+            },
+          },
+          update: {
+            price: data[1],
+          },
+          create: {
+            userId: user,
+            investmentId: investment.id,
+            timestamp: new Date(data[0]),
+            price: data[1],
+          },
+        });
+      }
+
+      for (const data of chartData365.prices) {
+        await prismaClient.chartDataHourly.upsert({
+          where: {
+            userId: user,
+            investmentId_timestamp: {
+              investmentId: investment.id,
+              timestamp: new Date(data[0]),
+            },
+          },
+          update: {
+            price: data[1],
+          },
+          create: {
+            userId: user,
+            investmentId: investment.id,
+            timestamp: new Date(data[0]),
+            price: data[1],
+          },
+        });
+      }
+    }
+  }
+
+  async fetchCoinPrices(
     coinIds: string[],
     currency = 'usd',
   ): Promise<CoinPrice[]> {
     if (!coinIds || coinIds.length === 0) {
-      throw new HttpException('Keine Coins angegeben', HttpStatus.BAD_REQUEST);
+      throw new HttpException('No coins provided', HttpStatus.BAD_REQUEST);
     }
 
     const response = await this.fetchWithRetry<CoinPrice[]>(
@@ -37,10 +278,10 @@ export class CoingeckoService extends BaseApiService {
     }));
   }
 
-  async getCoinMarketChart(
+  private async fetchCoinMarketChart(
     coinId: string,
     currency = 'usd',
-    days = 7,
+    days,
   ): Promise<CoinMarketChart> {
     return await this.fetchWithRetry<CoinMarketChart>(
       `/coins/${coinId}/market_chart?vs_currency=${currency}&days=${days}`,

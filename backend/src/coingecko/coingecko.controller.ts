@@ -1,24 +1,37 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
+import { Controller, Get, Query, Param, Post, UseGuards } from '@nestjs/common';
 import { CoingeckoService } from './coingecko.service';
-import { CoinPrice, CoinMarketChart } from './interfaces';
+import { User } from 'src/decorators/user.decorator';
+import { MarketData } from './dto/coingecko.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('coingecko')
 export class CoingeckoController {
   constructor(private readonly coingeckoService: CoingeckoService) {}
 
-  @Get('prices')
-  async getPrices(
-    @Query('coins') coins: string | string[],
-  ): Promise<CoinPrice[]> {
-    const coinIds = Array.isArray(coins) ? coins : [coins];
-    return this.coingeckoService.getCoinPrices(coinIds);
+  @Get('market-chart')
+  @UseGuards(JwtAuthGuard)
+  async getAllMarketChartData(
+    @User('id') userId: string,
+    @Query('days') days: string,
+  ): Promise<MarketData[]> {
+    return this.coingeckoService.getAllMarketChartData(userId, Number(days));
   }
 
-  @Get('chart/:coinId')
-  async getMarketChart(
+  @Get('market-chart/:coinId')
+  async getMarketChartData(
     @Param('coinId') coinId: string,
-    @Query('days') days: number = 7,
-  ): Promise<CoinMarketChart> {
-    return this.coingeckoService.getCoinMarketChart(coinId, 'usd', days);
+    @Query('days') days: number,
+  ): Promise<MarketData> {
+    return this.coingeckoService.getMarketChartData(coinId, 'usd', days);
+  }
+
+  @Post('update-coin-prices')
+  async updateCoinPrices(@User() userId: string) {
+    this.coingeckoService.storeCoinPrices(userId);
+  }
+
+  @Post('update-market-chart-data')
+  async updateMarketChartData(@User() userId: string) {
+    this.coingeckoService.storeMarketChartData(userId);
   }
 }

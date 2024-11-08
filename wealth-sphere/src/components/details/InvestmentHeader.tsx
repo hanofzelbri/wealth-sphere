@@ -8,11 +8,9 @@ import {
 import { CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import {
-  useInvestments,
-  useUpdateInvestmentLiveData,
-} from "@/hooks/investments";
+import { useInvestments } from "@/hooks/investments";
 import { formatNumber } from "@/utils/investmentCalculations";
+import RefreshButton from "../utils/RefreshButton";
 
 interface InvestmentHeaderProps {
   investmentId: string;
@@ -53,13 +51,7 @@ export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
         <span className="text-xl font-semibold">
           ${formatNumber(currentPrice)}
         </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => updateInvestmentLiveData.mutateAsync()}
-        >
-          <RefreshCw className="h-4 w-4" />
-        </Button>
+        <RefreshButton />
       </div>
     </div>
   );

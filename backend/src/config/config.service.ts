@@ -2,14 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { appConfig } from './configuration';
 
+import * as dotenv from 'dotenv';
+import { existsSync } from 'fs';
+
 @Injectable()
 export class ConfigService {
-  constructor(
-    private configService: NestConfigService<
-      ReturnType<typeof appConfig>,
-      true
-    >,
-  ) {
+  private configService: NestConfigService<ReturnType<typeof appConfig>, true>;
+  constructor() {
+    const envFilePath = '.env.local';
+    dotenv.config({
+      path: existsSync(envFilePath) ? envFilePath : undefined,
+      override: true,
+    });
+
+    this.configService = new NestConfigService(appConfig());
     this.validateConfig();
   }
 
@@ -41,6 +47,8 @@ export class ConfigService {
       COINGECKO_API_KEY: this.coingeckoApiKey,
       COINGECKO_API_URL: this.coingeckoApiUrl,
     };
+
+    console.log(this.databaseUrl);
 
     const missingVars = Object.entries(configMap)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

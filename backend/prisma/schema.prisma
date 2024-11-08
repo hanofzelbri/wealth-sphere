@@ -107,7 +107,7 @@ model Transaction {
 }
 
 model ChartDataHourly {
-  id           BigInt @id
+  id           Int    @default(autoincrement())
   userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
   investmentId String @db.Uuid
 
@@ -117,11 +117,13 @@ model ChartDataHourly {
   investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@id([id, timestamp])
+  @@unique([investmentId, timestamp])
   @@map("chart_data_hourly")
 }
 
 model ChartDataDaily {
-  id           BigInt @id
+  id           Int    @default(autoincrement())
   userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
   investmentId String @db.Uuid
 
@@ -131,6 +133,8 @@ model ChartDataDaily {
   investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@id([id, timestamp])
+  @@unique([investmentId, timestamp])
   @@map("chart_data_daily")
 }
 

@@ -78,7 +78,7 @@ export class InvestmentsService {
     userId: string,
   ): Promise<InvestmentWithDetails> {
     try {
-      const coinPrices = await this.coingeckoService.getCoinPrices([data.id]);
+      const coinPrices = await this.coingeckoService.fetchCoinPrices([data.id]);
       const coinInfo = coinPrices[0];
       return await this.prisma.getPrismaClient(userId).investment.create({
         data: {
@@ -116,117 +116,6 @@ export class InvestmentsService {
       });
     } catch (error) {
       console.error('Error deleting investment:', error);
-      throw error;
-    }
-  }
-
-  async getInvestmentCount(userId: string): Promise<number> {
-    try {
-      return await this.prisma.getPrismaClient(userId).investment.count({
-        where: { userId },
-      });
-    } catch (error) {
-      console.error('Error getting investment count:', error);
-      throw error;
-    }
-  }
-
-  async getBestPerformer(
-    userId: string,
-  ): Promise<InvestmentWithDetails | null> {
-    try {
-      const investments = await this.getAllInvestments(userId);
-      return investments.reduce((best, current) => {
-        const bestPerformance = this.calculatePerformance(best);
-        const currentPerformance = this.calculatePerformance(current);
-        return currentPerformance > bestPerformance ? current : best;
-      });
-    } catch (error) {
-      console.error('Error getting best performer:', error);
-      throw error;
-    }
-  }
-
-  async getWorstPerformer(
-    userId: string,
-  ): Promise<InvestmentWithDetails | null> {
-    try {
-      const investments = await this.getAllInvestments(userId);
-      return investments.reduce((worst, current) => {
-        const worstPerformance = this.calculatePerformance(worst);
-        const currentPerformance = this.calculatePerformance(current);
-        return currentPerformance < worstPerformance ? current : worst;
-      });
-    } catch (error) {
-      console.error('Error getting worst performer:', error);
-      throw error;
-    }
-  }
-
-  private calculatePerformance(investment: InvestmentWithDetails): number {
-    try {
-      const totalQuantity = investment.transactions.reduce(
-        (sum, t) => sum + (t.type === 'buy' ? t.quantity : -t.quantity),
-        0,
-      );
-      const currentValue = totalQuantity * investment.currentPrice;
-      const costBasis = investment.transactions.reduce(
-        (sum, t) => sum + (t.type === 'buy' ? t.quantity * t.price : 0),
-        0,
-      );
-      return (currentValue - costBasis) / costBasis;
-    } catch (error) {
-      console.error('Error calculating performance:', error);
-      throw error;
-    }
-  }
-
-  async updateInvestmentInfo(userId: string): Promise<InvestmentWithDetails[]> {
-    try {
-      // Get all investments for the user
-      const investments = await this.prisma
-        .getPrismaClient(userId)
-        .investment.findMany({
-          where: {
-            userId,
-          },
-          include: {
-            transactions: true,
-            stakings: { include: { location: true } },
-            storages: { include: { location: true } },
-          },
-        });
-
-      // Get all unique coin IDs
-      const coinIds = [...new Set(investments.map((inv) => inv.coinId))];
-
-      // Get prices for all coins
-      const coinPrices = await this.coingeckoService.getCoinPrices(coinIds);
-
-      // Update each investment with its corresponding coin price info
-      const updates = investments.map(async (inv) => {
-        const coinInfo = coinPrices.find((coin) => coin.id === inv.coinId);
-        if (!coinInfo) return inv;
-
-        return this.prisma.getPrismaClient(userId).investment.update({
-          where: { id: inv.id, userId },
-          data: {
-            name: coinInfo.name,
-            symbol: coinInfo.symbol,
-            image: coinInfo.image,
-            currentPrice: coinInfo.current_price,
-          },
-          include: {
-            transactions: true,
-            stakings: { include: { location: true } },
-            storages: { include: { location: true } },
-          },
-        });
-      });
-
-      return await Promise.all(updates);
-    } catch (error) {
-      console.error('Error updating investment info:', error);
       throw error;
     }
   }
