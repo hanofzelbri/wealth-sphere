@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
-import { useMarketData } from "@/hooks/coingecko";
+import { useQuery } from "@tanstack/react-query";
+import { coingeckoControllerGetAllMarketChartDataOptions } from "@/api-client/@tanstack/react-query.gen";
 
 Chart.register(...registerables);
 
-interface PortfolioChartProps {
-  data: { timestamp: number; price: number }[];
-}
-
-const PortfolioChart: React.FC<PortfolioChartProps> = ({ data: data2 }) => {
-  const { data } = useMarketData();
+const PortfolioChart: React.FC = () => {
+  const { data } = useQuery({
+    ...coingeckoControllerGetAllMarketChartDataOptions({
+      query: { days: "90" },
+    }),
+  });
 
   const [chartData, setChartData] = useState<{
     labels: string[];
@@ -41,10 +42,8 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data: data2 }) => {
   useEffect(() => {
     if (!data) return;
 
-    const labels = data[0].timestamps.map((dataPoint) =>
-      new Date(dataPoint).toLocaleDateString()
-    );
-    const prices = data[0].prices.map((dataPoint) => dataPoint);
+    const labels = data[0].timestamps;
+    const prices = data[0].prices;
 
     setChartData({
       labels,

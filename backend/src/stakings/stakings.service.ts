@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Staking, StorageLocation } from '@prisma/client';
-import { CreateStakingDto, UpdateStakingDto } from './dto/staking.dto';
-
-type StakingWithLocation = Staking & { location: StorageLocation };
+import { StakingResponseDto } from './dto/staking.dto';
 
 @Injectable()
 export class StakingsService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllStakings(userId: string): Promise<StakingWithLocation[]> {
+  async getAllStakings(userId: string): Promise<StakingResponseDto[]> {
     return await this.prisma
       .getPrismaClient(userId)
       .staking.findMany({ where: { userId }, include: { location: true } });
@@ -18,37 +15,34 @@ export class StakingsService {
   async getStakingById(
     id: string,
     userId: string,
-  ): Promise<StakingWithLocation | null> {
+  ): Promise<StakingResponseDto | null> {
     return await this.prisma.getPrismaClient(userId).staking.findUnique({
       where: { id, userId },
       include: { location: true },
     });
   }
 
-  async createStaking(
-    data: CreateStakingDto,
-    userId: string,
-  ): Promise<StakingWithLocation> {
+  async createStaking(userId: string, data: any): Promise<StakingResponseDto> {
     return await this.prisma.getPrismaClient(userId).staking.create({
-      data,
+      data: { ...data, userId },
       include: { location: true },
     });
   }
 
   async updateStaking(
     id: string,
-    data: UpdateStakingDto,
     userId: string,
-  ): Promise<StakingWithLocation> {
+    data: any,
+  ): Promise<StakingResponseDto> {
     return await this.prisma.getPrismaClient(userId).staking.update({
       where: { id },
-      data,
+      data: { ...data, userId },
       include: { location: true },
     });
   }
 
-  async deleteStaking(stakingId: string, userId: string): Promise<Staking> {
-    return await this.prisma.getPrismaClient(userId).staking.delete({
+  async deleteStaking(stakingId: string, userId: string): Promise<void> {
+    await this.prisma.getPrismaClient(userId).staking.delete({
       where: { id: stakingId, investment: { userId } },
     });
   }

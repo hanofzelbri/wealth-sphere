@@ -1,68 +1,40 @@
-import {
-  IsNumber,
-  IsEnum,
-  IsOptional,
-  IsUUID,
-  IsDateString,
-} from 'class-validator';
+import { createZodDto } from '@anatine/zod-nestjs';
+import { z } from 'zod';
 
-import { TransactionType as PrismaTransactionType } from '@prisma/client';
+import { TransactionType } from '@prisma/client';
 
-export enum TransactionType {
-  buy = 'buy',
-  sell = 'sell',
-}
+export const CreateTransactionSchema = z.object({
+  investmentId: z.string(),
+  quantity: z.number(),
+  price: z.number(),
+  date: z.date(),
+  type: z.nativeEnum(TransactionType),
+});
 
-export class CreateTransactionDto {
-  @IsUUID()
-  investmentId: string;
+export const UpdateTransactionSchema = z.object({
+  quantity: z.number().optional(),
+  price: z.number().optional(),
+  date: z.date().optional(),
+  type: z.nativeEnum(TransactionType).optional(),
+});
 
-  @IsNumber()
-  quantity: number;
+export const TransactionResponseSchema = z.object({
+  id: z.string(),
+  investmentId: z.string(),
+  quantity: z.number(),
+  price: z.number(),
+  date: z.date(),
+  type: z.nativeEnum(TransactionType),
+});
 
-  @IsNumber()
-  price: number;
+export class CreateTransactionDto extends createZodDto(
+  CreateTransactionSchema,
+) {}
 
-  @IsDateString()
-  date: Date;
+export class UpdateTransactionDto extends createZodDto(
+  UpdateTransactionSchema,
+) {}
 
-  @IsEnum(TransactionType)
-  type: TransactionType;
-}
-
-export class UpdateTransactionDto {
-  @IsOptional()
-  @IsNumber()
-  quantity?: number;
-
-  @IsOptional()
-  @IsNumber()
-  price: number;
-
-  @IsOptional()
-  @IsDateString()
-  date?: Date;
-
-  @IsOptional()
-  @IsEnum(TransactionType)
-  type?: TransactionType;
-}
-
-export class TransactionResponseDto {
-  id: string;
-  investmentId: string;
-  quantity: number;
-  price: number;
-  date: Date;
-  type: TransactionType;
-}
-
-export function mapTransactionType(
-  type: PrismaTransactionType,
-): TransactionType {
-  const mapping = {
-    [PrismaTransactionType.buy]: TransactionType.buy,
-    [PrismaTransactionType.sell]: TransactionType.sell,
-  };
-  return mapping[type];
-}
+export class TransactionResponseDto extends createZodDto(
+  TransactionResponseSchema,
+) {}

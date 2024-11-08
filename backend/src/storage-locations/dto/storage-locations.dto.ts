@@ -1,68 +1,36 @@
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { createZodDto } from '@anatine/zod-nestjs';
+import { z } from 'zod';
 
-import { StorageLocationType as PrismaStorageLocationType } from '@prisma/client';
+import { StorageLocationType } from '@prisma/client';
 
-export enum StorageLocationType {
-  hardwareWallet = 'hardwareWallet',
-  softwareWallet = 'softwareWallet',
-  exchange = 'exchange',
-}
+export const StorageLocationSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  name: z.string(),
+  image: z.string(),
+  storageLocationType: z.nativeEnum(StorageLocationType),
+});
 
-export class StorageLocation {
-  id: string;
-  userId: string;
-  name: string;
-  image: string;
-  storageLocationType: StorageLocationType;
-}
+export const CreateStorageLocationSchema = z.object({
+  name: z.string().min(1),
+  image: z.string().min(1),
+  storageLocationType: z.nativeEnum(StorageLocationType),
+});
 
-export class CreateStorageLocationDto {
-  @ApiProperty()
-  @IsString()
-  name: string;
+export const UpdateStorageLocationSchema = z.object({
+  name: z.string().optional(),
+  image: z.string().optional(),
+  storageLocationType: z.nativeEnum(StorageLocationType).optional(),
+});
 
-  @ApiProperty()
-  @IsString()
-  image: string;
+export class StorageLocationResponseDto extends createZodDto(
+  StorageLocationSchema,
+) {}
 
-  @ApiProperty({ enum: StorageLocationType })
-  @IsEnum(StorageLocationType)
-  storageLocationType: StorageLocationType;
-}
+export class CreateStorageLocationDto extends createZodDto(
+  CreateStorageLocationSchema,
+) {}
 
-export class UpdateStorageLocationDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  name: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  image: string;
-
-  @ApiProperty({ required: false, enum: StorageLocationType })
-  @IsOptional()
-  @IsEnum(StorageLocationType)
-  storageLocationType: StorageLocationType;
-}
-
-export class DelteStorageLocationDto {
-  @ApiProperty()
-  @IsUUID()
-  id: string;
-}
-
-export function mapStorageLocationType(
-  type: PrismaStorageLocationType,
-): StorageLocationType {
-  const mapping = {
-    [PrismaStorageLocationType.hardwareWallet]:
-      StorageLocationType.hardwareWallet,
-    [PrismaStorageLocationType.softwareWallet]:
-      StorageLocationType.softwareWallet,
-    [PrismaStorageLocationType.exchange]: StorageLocationType.exchange,
-  };
-  return mapping[type];
-}
+export class UpdateStorageLocationDto extends createZodDto(
+  UpdateStorageLocationSchema,
+) {}

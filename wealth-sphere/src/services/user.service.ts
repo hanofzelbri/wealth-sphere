@@ -1,6 +1,6 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { supabase } from "@/lib/supabaseClient";
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 export interface User {
   id: string;
@@ -43,7 +43,7 @@ export class UserService {
     if (error) throw error;
     if (data.user && data.session) {
       this.setCurrentUser(data.user, data.session.access_token);
-      await supabase.auth.startAutoRefresh();
+      // await supabase.auth.startAutoRefresh();
       return this.currentUserValue;
     }
     return null;
@@ -52,7 +52,7 @@ export class UserService {
   async logout() {
     await supabase.auth.signOut();
     await supabase.auth.stopAutoRefresh();
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     this.currentUserSubject.next(null);
   }
 
@@ -62,7 +62,7 @@ export class UserService {
       name: user.email || "User",
       accessToken: accessToken,
     };
-    localStorage.setItem('token', accessToken);
+    localStorage.setItem("token", accessToken);
     this.currentUserSubject.next(currentUser);
   }
 }

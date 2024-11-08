@@ -2,12 +2,10 @@ import React, { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { PerformerCard } from "./PerformerCard";
-import { Investment } from "../../types/investment.types";
 import {
   calculateProfitLoss,
   formatNumber,
 } from "@/utils/investmentCalculations";
-import { useInvestments } from "@/hooks/investments";
 import { LoadingState } from "../utils/LoadingState";
 
 interface Performer {

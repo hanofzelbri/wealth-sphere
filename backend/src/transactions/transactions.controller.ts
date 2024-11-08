@@ -16,7 +16,6 @@ import {
   CreateTransactionDto,
   UpdateTransactionDto,
   TransactionResponseDto,
-  mapTransactionType,
 } from './dto/transaction.dto';
 
 @Controller('transactions')
@@ -26,88 +25,50 @@ export class TransactionsController {
 
   @Get()
   async getAllTransactions(
-    @User() user: string,
+    @User() userId: string,
   ): Promise<TransactionResponseDto[]> {
-    const ret = await this.transactionsService.getAllTransactions(user);
-
-    return ret.map((transaction) => ({
-      ...transaction,
-      type: mapTransactionType(transaction.type),
-    }));
+    return await this.transactionsService.getAllTransactions(userId);
   }
   @Get('investment/:id')
   async getAllTransactionsForInvestmentId(
     @Param('id') investmentId: string,
     @User() user: string,
   ): Promise<TransactionResponseDto[]> {
-    const ret =
-      await this.transactionsService.getAllTransactionsForInvestmentId(
-        user,
-        investmentId,
-      );
-
-    console.log(ret);
-
-    return ret.map((transaction) => ({
-      ...transaction,
-      type: mapTransactionType(transaction.type),
-    }));
+    return await this.transactionsService.getAllTransactionsForInvestmentId(
+      user,
+      investmentId,
+    );
   }
 
   @Get(':id')
   async getTransactionById(
     @Param('id') id: string,
-    @User() user: string,
+    @User() userId: string,
   ): Promise<TransactionResponseDto | null> {
-    const transaction = await this.transactionsService.getTransactionById(
-      id,
-      user,
-    );
-
-    return {
-      ...transaction,
-      type: mapTransactionType(transaction.type),
-    };
+    return await this.transactionsService.getTransactionById(id, userId);
   }
-
   @Post()
   async createTransaction(
     @Body() data: CreateTransactionDto,
-    @User() user: string,
+    @User() userId: string,
   ): Promise<TransactionResponseDto> {
-    const transaction = await this.transactionsService.createTransaction(
-      data,
-      user,
-    );
-
-    return { ...transaction, type: mapTransactionType(transaction.type) };
+    return await this.transactionsService.createTransaction(userId, data);
   }
 
   @Put(':id')
   async updateTransaction(
     @Param('id') id: string,
     @Body() data: UpdateTransactionDto,
-    @User() user: string,
+    @User() userId: string,
   ): Promise<TransactionResponseDto> {
-    const transaction = await this.transactionsService.updateTransaction(
-      id,
-      data,
-      user,
-    );
-
-    return { ...transaction, type: mapTransactionType(transaction.type) };
+    return await this.transactionsService.updateTransaction(id, userId, data);
   }
 
   @Delete(':id')
   async deleteTransaction(
     @Param('id') id: string,
-    @User() user: string,
+    @User() userId: string,
   ): Promise<Transaction> {
-    const transaction = await this.transactionsService.deleteTransaction(
-      id,
-      user,
-    );
-
-    return { ...transaction, type: mapTransactionType(transaction.type) };
+    return await this.transactionsService.deleteTransaction(id, userId);
   }
 }

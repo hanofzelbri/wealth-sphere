@@ -3,44 +3,84 @@
 export const CreateInvestmentDtoSchema = {
     type: 'object',
     properties: {
-        id: {
+        coinId: {
             type: 'string'
         }
     },
-    required: ['id']
+    required: ['coinId']
 } as const;
 
 export const CreateTransactionDtoSchema = {
     type: 'object',
-    properties: {}
+    properties: {
+        investmentId: {
+            type: 'string'
+        },
+        quantity: {
+            type: 'number'
+        },
+        price: {
+            type: 'number'
+        },
+        date: {
+            type: 'string',
+            format: 'date-time'
+        },
+        type: {
+            type: 'string',
+            enum: ['buy', 'sell']
+        }
+    },
+    required: ['investmentId', 'quantity', 'price', 'date', 'type']
 } as const;
 
 export const UpdateTransactionDtoSchema = {
     type: 'object',
-    properties: {}
+    properties: {
+        quantity: {
+            type: 'number'
+        },
+        price: {
+            type: 'number'
+        },
+        date: {
+            type: 'string',
+            format: 'date-time'
+        },
+        type: {
+            type: 'string',
+            enum: ['buy', 'sell']
+        }
+    }
 } as const;
 
 export const CreateStakingDtoSchema = {
     type: 'object',
     properties: {
         investmentId: {
-            type: 'string'
+            type: 'string',
+            format: 'uuid'
         },
         amount: {
-            type: 'number'
+            type: 'number',
+            exclusiveMinimum: true,
+            minimum: 0
         },
         storageLocationId: {
-            type: 'string'
+            type: 'string',
+            format: 'uuid'
         },
         websiteLink: {
             type: 'string'
         },
         coolDownPeriod: {
-            type: 'number'
+            type: 'number',
+            exclusiveMinimum: true,
+            minimum: 0
         },
         startDate: {
-            format: 'date-time',
-            type: 'string'
+            type: 'string',
+            format: 'date-time'
         }
     },
     required: ['investmentId', 'amount', 'storageLocationId', 'websiteLink', 'coolDownPeriod', 'startDate']
@@ -50,20 +90,25 @@ export const UpdateStakingDtoSchema = {
     type: 'object',
     properties: {
         amount: {
-            type: 'number'
+            type: 'number',
+            exclusiveMinimum: true,
+            minimum: 0
         },
         storageLocationId: {
-            type: 'string'
+            type: 'string',
+            format: 'uuid'
         },
         websiteLink: {
             type: 'string'
         },
         coolDownPeriod: {
-            type: 'number'
+            type: 'number',
+            exclusiveMinimum: true,
+            minimum: 0
         },
         startDate: {
-            format: 'date-time',
-            type: 'string'
+            type: 'string',
+            format: 'date-time'
         }
     }
 } as const;
@@ -105,17 +150,21 @@ export const CreateStorageDtoSchema = {
     type: 'object',
     properties: {
         investmentId: {
-            type: 'string'
+            type: 'string',
+            format: 'uuid'
         },
         amount: {
-            type: 'number'
+            type: 'number',
+            exclusiveMinimum: true,
+            minimum: 0
         },
         storageLocationId: {
-            type: 'string'
+            type: 'string',
+            format: 'uuid'
         },
         date: {
-            format: 'date-time',
-            type: 'string'
+            type: 'string',
+            format: 'date-time'
         }
     },
     required: ['investmentId', 'amount', 'storageLocationId', 'date']
@@ -125,14 +174,17 @@ export const UpdateStorageDtoSchema = {
     type: 'object',
     properties: {
         amount: {
-            type: 'number'
+            type: 'number',
+            exclusiveMinimum: true,
+            minimum: 0
         },
         storageLocationId: {
-            type: 'string'
+            type: 'string',
+            format: 'uuid'
         },
         date: {
-            format: 'date-time',
-            type: 'string'
+            type: 'string',
+            format: 'date-time'
         }
     },
     required: ['amount', 'storageLocationId', 'date']

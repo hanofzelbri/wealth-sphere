@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  CreateStorageLocationDto,
-  UpdateStorageLocationDto,
-} from './dto/storage-locations.dto';
 import { StorageLocation } from '@prisma/client';
 
 @Injectable()
@@ -22,24 +18,20 @@ export class StorageLocationsService {
     });
   }
 
-  async create(
-    userId: string,
-    data: CreateStorageLocationDto,
-  ): Promise<StorageLocation> {
-    console.log(userId, data);
+  async create(userId: string, data: any): Promise<StorageLocation> {
     return await this.prisma
       .getPrismaClient(userId)
-      .storageLocation.create({ data });
+      .storageLocation.create({ data: { ...data, userId } });
   }
 
   async update(
     id: string,
     userId: string,
-    data: UpdateStorageLocationDto,
+    data: any,
   ): Promise<StorageLocation> {
     return this.prisma.getPrismaClient(userId).storageLocation.update({
       where: { id, userId },
-      data,
+      data: { ...data, userId },
     });
   }
 

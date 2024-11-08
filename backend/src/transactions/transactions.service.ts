@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Transaction } from '@prisma/client';
-import {
-  CreateTransactionDto,
-  UpdateTransactionDto,
-} from './dto/transaction.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -33,10 +29,7 @@ export class TransactionsService {
     });
   }
 
-  async createTransaction(
-    data: CreateTransactionDto,
-    userId: string,
-  ): Promise<Transaction> {
+  async createTransaction(userId: string, data: any): Promise<Transaction> {
     try {
       return await this.prisma.getPrismaClient(userId).transaction.create({
         data: { ...data, userId },
@@ -47,15 +40,11 @@ export class TransactionsService {
     }
   }
 
-  async updateTransaction(
-    id: string,
-    data: UpdateTransactionDto,
-    userId: string,
-  ) {
+  async updateTransaction(id: string, userId: string, data: any) {
     try {
       return await this.prisma.getPrismaClient(userId).transaction.update({
         where: { id, userId },
-        data,
+        data: { ...data, userId },
       });
     } catch (error) {
       console.error('Error updating transaction:', error);

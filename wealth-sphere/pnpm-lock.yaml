@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@hey-api/client-axios':
+        specifier: ^0.2.9
+        version: 0.2.9(axios@1.7.7)
       '@hey-api/client-fetch':
         specifier: ^0.4.2
         version: 0.4.2
@@ -445,6 +448,11 @@ packages:
 
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
+
+  '@hey-api/client-axios@0.2.9':
+    resolution: {integrity: sha512-K4T0KdBKl4LKbAVtfL1E9y9l2Q79NskptPBQcV1+RayjADCJctOtwdjwJitkpxj31UfQ79TSKHH96mMs9HrSsQ==}
+    peerDependencies:
+      axios: '>= 1.0.0 < 2'
 
   '@hey-api/client-fetch@0.4.2':
     resolution: {integrity: sha512-9BqcLTjsM3rWbads3afJkELS86vK7EqJvYgT429EVS9IO/kN75HEka3Ay/k142xCHSfXOuOShMdDam3nbG8wVA==}
@@ -2751,6 +2759,10 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/utils@0.2.8': {}
+
+  '@hey-api/client-axios@0.2.9(axios@1.7.7)':
+    dependencies:
+      axios: 1.7.7
 
   '@hey-api/client-fetch@0.4.2': {}
 

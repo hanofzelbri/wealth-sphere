@@ -3,12 +3,17 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PortfolioSummary } from "./PortfolioSummary";
 import { InvestmentsTable } from "./InvestmentsTable";
 import { LoadingState } from "../utils/LoadingState";
-import { useInvestments } from "@/hooks/investments";
 import { AddInvestment } from "./AddInvestment";
 import RefreshButton from "../utils/RefreshButton";
+import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
+import { useQuery } from "@tanstack/react-query";
 
 export const PortfolioDashboard: React.FC = () => {
-  const investments = useInvestments();
+  const {data, isError, error, isLoading } = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions({}),
+  });
+
+  if (isError) return <p>Error: {error.message}</p>;
 
   return (
     <div className="space-y-8">
@@ -21,7 +26,7 @@ export const PortfolioDashboard: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {investments.isLoading ? (
+          {isLoading ? (
             <LoadingState />
           ) : (
             <>

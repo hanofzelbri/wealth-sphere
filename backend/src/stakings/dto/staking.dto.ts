@@ -1,90 +1,38 @@
-import {
-  IsNumber,
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsDateString,
-  Min,
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { StorageLocation } from 'src/storage-locations/dto/storage-locations.dto';
+import { createZodDto } from '@anatine/zod-nestjs';
+import { z } from 'zod';
+import { StorageLocationResponseDto } from 'src/storage-locations/dto/storage-locations.dto';
 
-export class CreateStakingDto {
-  @ApiProperty()
-  @IsUUID()
-  public investmentId: string;
+export const CreateStakingSchema = z.object({
+  investmentId: z.string().uuid(),
+  amount: z.number().positive(),
+  storageLocationId: z.string().uuid(),
+  websiteLink: z.string(),
+  coolDownPeriod: z.number().positive(),
+  startDate: z.date(),
+});
 
-  @ApiProperty()
-  @IsNumber()
-  @Min(0)
-  public amount: number;
+export const UpdateStakingSchema = z.object({
+  amount: z.number().positive().optional(),
+  storageLocationId: z.string().uuid().optional(),
+  websiteLink: z.string().optional(),
+  coolDownPeriod: z.number().positive().optional(),
+  startDate: z.date().optional(),
+});
 
-  @ApiProperty()
-  @IsUUID()
-  public storageLocationId: string;
+export const StakingResponseSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  investmentId: z.string().uuid(),
+  amount: z.number().positive(),
+  storageLocationId: z.string().uuid().optional(),
+  location: z.lazy(() => StorageLocationResponseDto.zodSchema),
+  websiteLink: z.string(),
+  coolDownPeriod: z.number().positive(),
+  startDate: z.date(),
+});
 
-  @ApiProperty()
-  @IsString()
-  public websiteLink: string;
+export class CreateStakingDto extends createZodDto(CreateStakingSchema) {}
 
-  @ApiProperty()
-  @IsNumber()
-  @Min(0)
-  public coolDownPeriod: number;
+export class UpdateStakingDto extends createZodDto(UpdateStakingSchema) {}
 
-  @ApiProperty()
-  @IsDateString()
-  public startDate: Date;
-}
-
-export class UpdateStakingDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  amount?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsUUID()
-  storageLocationId?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  websiteLink?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  coolDownPeriod?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsDateString()
-  startDate?: Date;
-}
-
-export class StakingResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  investmentId: string;
-
-  @ApiProperty()
-  amount: number;
-
-  @ApiProperty()
-  location: StorageLocation;
-
-  @ApiProperty()
-  websiteLink: string;
-
-  @ApiProperty()
-  coolDownPeriod: number;
-
-  @ApiProperty()
-  startDate: Date;
-}
+export class StakingResponseDto extends createZodDto(StakingResponseSchema) {}

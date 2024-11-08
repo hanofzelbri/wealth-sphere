@@ -78,11 +78,13 @@ export class InvestmentsService {
     userId: string,
   ): Promise<InvestmentWithDetails> {
     try {
-      const coinPrices = await this.coingeckoService.fetchCoinPrices([data.id]);
+      const coinPrices = await this.coingeckoService.fetchCoinPrices([
+        data.coinId,
+      ]);
       const coinInfo = coinPrices[0];
       return await this.prisma.getPrismaClient(userId).investment.create({
         data: {
-          coinId: data.id,
+          coinId: data.coinId,
           name: coinInfo.name,
           symbol: coinInfo.symbol,
           image: coinInfo.image,

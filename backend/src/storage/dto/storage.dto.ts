@@ -1,53 +1,32 @@
-import { IsDate, IsNumber, IsUUID } from 'class-validator';
-import { Type } from 'class-transformer';
-import { StorageLocation } from 'src/storage-locations/dto/storage-locations.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { createZodDto } from '@anatine/zod-nestjs';
+import { StorageLocationResponseDto } from 'src/storage-locations/dto/storage-locations.dto';
+import { z } from 'zod';
 
-export class Storage {
-  id: string;
-  userId: string;
-  investmentId: string;
-  amount: number;
-  location: StorageLocation;
-  date: Date;
-}
+export const StorageCreateSchema = z.object({
+  investmentId: z.string().uuid(),
+  amount: z.number().positive(),
+  storageLocationId: z.string().uuid(),
+  date: z.date(),
+});
 
-export class CreateStorageDto {
-  @ApiProperty()
-  @IsUUID()
-  investmentId: string;
+export const StorageUpdateSchema = z.object({
+  amount: z.number().positive(),
+  storageLocationId: z.string().uuid(),
+  date: z.date(),
+});
 
-  @ApiProperty()
-  @IsNumber()
-  amount: number;
+export const StorageResponseSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  investmentId: z.string().uuid(),
+  amount: z.number().positive(),
+  locationId: z.string().uuid(),
+  location: z.lazy(() => StorageLocationResponseDto.zodSchema),
+  date: z.date(),
+});
 
-  @ApiProperty()
-  @IsUUID()
-  storageLocationId: string;
+export class CreateStorageDto extends createZodDto(StorageCreateSchema) {}
 
-  @ApiProperty()
-  @IsDate()
-  @Type(() => Date)
-  date: Date;
-}
+export class UpdateStorageDto extends createZodDto(StorageUpdateSchema) {}
 
-export class UpdateStorageDto {
-  @ApiProperty()
-  @IsNumber()
-  amount: number;
-
-  @ApiProperty()
-  @IsUUID()
-  storageLocationId: string;
-
-  @ApiProperty()
-  @IsDate()
-  @Type(() => Date)
-  date: Date;
-}
-
-export class DeleteStorageDto {
-  @ApiProperty()
-  @IsUUID()
-  id: string;
-}
+export class StorageResponseDto extends createZodDto(StorageResponseSchema) {}
