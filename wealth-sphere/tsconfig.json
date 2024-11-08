@@ -20,6 +20,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "openapi-ts.config.ts"],
+  "exclude": ["src/api-client"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -6,8 +6,6 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 import { useInvestments } from "@/hooks/investments";
 import { formatNumber } from "@/utils/investmentCalculations";
 import RefreshButton from "../utils/RefreshButton";
@@ -18,7 +16,6 @@ interface InvestmentHeaderProps {
 
 export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
   const { data: investments } = useInvestments();
-  const updateInvestmentLiveData = useUpdateInvestmentLiveData();
 
   const investment = investments?.find(
     (investment) => investment.id === investmentId
