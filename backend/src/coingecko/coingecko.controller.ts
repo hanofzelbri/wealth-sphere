@@ -20,7 +20,7 @@ export class CoingeckoController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async getAllMarketChartData(
-    @User('id') userId: string,
+    @User() userId: string,
     @Query('days') days: string,
   ) {
     return this.coingeckoService.getAllMarketChartData(userId, Number(days));
@@ -35,10 +35,11 @@ export class CoingeckoController {
   @ApiResponse({ status: 404, description: 'Coin not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async getMarketChartData(
+    @User() userId: string,
     @Param('coinId') coinId: string,
     @Query('days') days: number,
   ) {
-    return this.coingeckoService.getMarketChartData(coinId, 'usd', days);
+    return this.coingeckoService.getMarketChartData(userId, coinId, days);
   }
 
   @Put('update-coin-prices')

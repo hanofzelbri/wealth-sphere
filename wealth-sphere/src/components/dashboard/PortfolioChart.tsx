@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 import { useQuery } from "@tanstack/react-query";
-import { coingeckoControllerGetAllMarketChartDataOptions } from "@/api-client/@tanstack/react-query.gen";
+import { coingeckoControllerGetMarketChartDataOptions } from "@/api-client/@tanstack/react-query.gen";
 
 Chart.register(...registerables);
 
 const PortfolioChart: React.FC = () => {
   const { data } = useQuery({
-    ...coingeckoControllerGetAllMarketChartDataOptions({
-      query: { days: "90" },
+    ...coingeckoControllerGetMarketChartDataOptions({
+      path: { coinId: "bitcoin" },
+      query: { days: 365 },
     }),
   });
 
@@ -42,7 +43,7 @@ const PortfolioChart: React.FC = () => {
   useEffect(() => {
     if (!data) return;
 
-    const labels = data.map((item) => item.timestamp.toISOString());
+    const labels = data.map((item) => item.timestamp.toString());
     const prices = data.map((item) => item.price);
 
     setChartData({
@@ -86,7 +87,7 @@ const PortfolioChart: React.FC = () => {
               callbacks: {
                 title: (tooltipItem) => {
                   const timestamp =
-                    data?.[tooltipItem[0].dataIndex]?.timestamp?.toISOString();
+                    data?.[tooltipItem[0].dataIndex]?.timestamp?.toString();
                   const date = timestamp ? new Date(timestamp) : new Date();
                   const formattedDate = date.toLocaleDateString();
                   const formattedTime = date.toLocaleTimeString([], {
@@ -118,7 +119,7 @@ const PortfolioChart: React.FC = () => {
                 color: "#333",
                 callback: (value) => `$${value}`,
               },
-              beginAtZero: true,
+              beginAtZero: false,
               position: "right",
             },
           },
