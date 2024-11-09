@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Staking, Transaction } from '@prisma/client';
-import { TransactionEntity } from './transaction.entity';
+import { Investment } from '@prisma/client';
 import { StakingEntity } from './staking.entity';
 import { StorageEntity } from './storage.entity';
+import { TransactionEntity } from './transaction.entity';
 
-export class InvestmentEntity {
+export class InvestmentEntity implements Investment {
   @ApiProperty()
   id: string;
 
@@ -26,12 +26,12 @@ export class InvestmentEntity {
   @ApiProperty()
   currentPrice: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: [TransactionEntity] })
   transactions: TransactionEntity[];
 
-  @ApiProperty()
-  stakings: StakingEntity[];
-
-  @ApiProperty()
+  @ApiProperty({ type: [StorageEntity] })
   storages: StorageEntity[];
+
+  @ApiProperty({ type: [StakingEntity] })
+  stakings: StakingEntity[];
 }

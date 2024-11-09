@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { StorageLocationType } from '@prisma/client';
+import { StorageLocation, StorageLocationType } from '@prisma/client';
 
-export class StorageLocationEntity {
+export class StorageLocationEntity implements StorageLocation {
   @ApiProperty()
   id: string;
 
@@ -12,5 +12,8 @@ export class StorageLocationEntity {
   name: string;
 
   @ApiProperty()
-  type: StorageLocationType;
+  image: string;
+
+  @ApiProperty({ enum: StorageLocationType })
+  storageLocationType: StorageLocationType;
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType } from '@prisma/client';
+import { Transaction, TransactionType } from '@prisma/client';
 
-export class TransactionEntity {
+export class TransactionEntity implements Transaction {
   @ApiProperty()
   id: string;
 
@@ -20,6 +20,6 @@ export class TransactionEntity {
   @ApiProperty()
   date: Date;
 
-  @ApiProperty()
+  @ApiProperty({ enum: TransactionType })
   type: TransactionType;
 }

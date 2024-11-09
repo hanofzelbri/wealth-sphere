@@ -9,7 +9,7 @@ import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tan
 import { useQuery } from "@tanstack/react-query";
 
 export const PortfolioDashboard: React.FC = () => {
-  const {data, isError, error, isLoading } = useQuery({
+  const { isError, error, isLoading } = useQuery({
     ...investmentsControllerGetAllInvestmentsOptions({}),
   });
 

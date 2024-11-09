@@ -2,8 +2,8 @@
 
 import type { Options } from '@hey-api/client-axios';
 import { queryOptions, type UseMutationOptions, type DefaultError } from '@tanstack/react-query';
-import { client, appControllerGetHello, investmentsControllerGetAllInvestments, investmentsControllerCreateInvestment, investmentsControllerDeleteInvestment, investmentsControllerGetInvestmentById, investmentsControllerGetInvestmentBySymbol, coingeckoControllerGetAllMarketChartData, coingeckoControllerGetMarketChartData, coingeckoControllerUpdateCoinPrices, coingeckoControllerUpdateMarketChartData, transactionsControllerGetAllTransactions, transactionsControllerCreateTransaction, transactionsControllerGetAllTransactionsForInvestmentId, transactionsControllerDeleteTransaction, transactionsControllerGetTransactionById, transactionsControllerUpdateTransaction, stakingsControllerGetAllStakings, stakingsControllerCreateStaking, stakingsControllerDeleteStaking, stakingsControllerGetStakingById, stakingsControllerUpdateStaking, storageLocationsControllerFindAll, storageLocationsControllerCreate, storageLocationsControllerDelete, storageLocationsControllerFindOne, storageLocationsControllerUpdate, storageControllerFindAll, storageControllerCreate, storageControllerDelete, storageControllerFindOne, storageControllerUpdate, storageControllerFindByInvestment } from '../services.gen';
-import type { InvestmentsControllerCreateInvestmentData, InvestmentsControllerDeleteInvestmentData, InvestmentsControllerGetInvestmentByIdData, InvestmentsControllerGetInvestmentBySymbolData, CoingeckoControllerGetAllMarketChartDataData, CoingeckoControllerGetMarketChartDataData, TransactionsControllerCreateTransactionData, TransactionsControllerGetAllTransactionsForInvestmentIdData, TransactionsControllerDeleteTransactionData, TransactionsControllerGetTransactionByIdData, TransactionsControllerUpdateTransactionData, StakingsControllerCreateStakingData, StakingsControllerDeleteStakingData, StakingsControllerGetStakingByIdData, StakingsControllerUpdateStakingData, StorageLocationsControllerCreateData, StorageLocationsControllerDeleteData, StorageLocationsControllerFindOneData, StorageLocationsControllerUpdateData, StorageControllerCreateData, StorageControllerDeleteData, StorageControllerFindOneData, StorageControllerUpdateData, StorageControllerFindByInvestmentData } from '../types.gen';
+import { client, appControllerGetHello, investmentsControllerGetAllInvestments, investmentsControllerCreateInvestment, investmentsControllerDeleteInvestment, investmentsControllerGetInvestmentById, investmentsControllerGetInvestmentBySymbol, coingeckoControllerGetAllMarketChartData, coingeckoControllerGetMarketChartData, coingeckoControllerUpdateCoinPrices, coingeckoControllerUpdateMarketChartData, transactionsControllerGetAllTransactions, transactionsControllerCreateTransaction, transactionsControllerGetAllTransactionsForInvestmentId, transactionsControllerDeleteTransaction, transactionsControllerGetTransactionById, transactionsControllerUpdateTransaction, stakingsControllerGetAllStakings, stakingsControllerCreateStaking, stakingsControllerDeleteStaking, stakingsControllerGetStakingById, stakingsControllerUpdateStaking, storageLocationsControllerFindAll, storageLocationsControllerCreate, storageLocationsControllerDelete, storageLocationsControllerFindOne, storageLocationsControllerUpdate, storageControllerFindAll, storageControllerCreate, storageControllerDelete, storageControllerFindOne, storageControllerUpdate } from '../services.gen';
+import type { InvestmentsControllerCreateInvestmentData, InvestmentsControllerCreateInvestmentResponse, InvestmentsControllerDeleteInvestmentData, InvestmentsControllerGetInvestmentByIdData, InvestmentsControllerGetInvestmentBySymbolData, CoingeckoControllerGetAllMarketChartDataData, CoingeckoControllerGetMarketChartDataData, TransactionsControllerCreateTransactionData, TransactionsControllerCreateTransactionResponse, TransactionsControllerGetAllTransactionsForInvestmentIdData, TransactionsControllerDeleteTransactionData, TransactionsControllerGetTransactionByIdData, TransactionsControllerUpdateTransactionData, TransactionsControllerUpdateTransactionResponse, StakingsControllerCreateStakingData, StakingsControllerCreateStakingResponse, StakingsControllerDeleteStakingData, StakingsControllerGetStakingByIdData, StakingsControllerUpdateStakingData, StakingsControllerUpdateStakingResponse, StorageLocationsControllerCreateData, StorageLocationsControllerCreateResponse, StorageLocationsControllerDeleteData, StorageLocationsControllerFindOneData, StorageLocationsControllerUpdateData, StorageLocationsControllerUpdateResponse, StorageControllerCreateData, StorageControllerCreateResponse, StorageControllerDeleteData, StorageControllerFindOneData, StorageControllerUpdateData, StorageControllerUpdateResponse } from '../types.gen';
 import type { AxiosError } from 'axios';
 
 type QueryKey<TOptions extends Options> = [
@@ -91,7 +91,7 @@ export const investmentsControllerCreateInvestmentOptions = (options: Options<In
 };
 
 export const investmentsControllerCreateInvestmentMutation = (options?: Partial<Options<InvestmentsControllerCreateInvestmentData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<InvestmentsControllerCreateInvestmentData>> = {
+    const mutationOptions: UseMutationOptions<InvestmentsControllerCreateInvestmentResponse, AxiosError<DefaultError>, Options<InvestmentsControllerCreateInvestmentData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await investmentsControllerCreateInvestment({
                 ...options,
@@ -299,7 +299,7 @@ export const transactionsControllerCreateTransactionOptions = (options: Options<
 };
 
 export const transactionsControllerCreateTransactionMutation = (options?: Partial<Options<TransactionsControllerCreateTransactionData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<TransactionsControllerCreateTransactionData>> = {
+    const mutationOptions: UseMutationOptions<TransactionsControllerCreateTransactionResponse, AxiosError<DefaultError>, Options<TransactionsControllerCreateTransactionData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await transactionsControllerCreateTransaction({
                 ...options,
@@ -365,7 +365,7 @@ export const transactionsControllerGetTransactionByIdOptions = (options: Options
 };
 
 export const transactionsControllerUpdateTransactionMutation = (options?: Partial<Options<TransactionsControllerUpdateTransactionData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<TransactionsControllerUpdateTransactionData>> = {
+    const mutationOptions: UseMutationOptions<TransactionsControllerUpdateTransactionResponse, AxiosError<DefaultError>, Options<TransactionsControllerUpdateTransactionData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await transactionsControllerUpdateTransaction({
                 ...options,
@@ -417,7 +417,7 @@ export const stakingsControllerCreateStakingOptions = (options: Options<Stakings
 };
 
 export const stakingsControllerCreateStakingMutation = (options?: Partial<Options<StakingsControllerCreateStakingData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<StakingsControllerCreateStakingData>> = {
+    const mutationOptions: UseMutationOptions<StakingsControllerCreateStakingResponse, AxiosError<DefaultError>, Options<StakingsControllerCreateStakingData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await stakingsControllerCreateStaking({
                 ...options,
@@ -464,7 +464,7 @@ export const stakingsControllerGetStakingByIdOptions = (options: Options<Staking
 };
 
 export const stakingsControllerUpdateStakingMutation = (options?: Partial<Options<StakingsControllerUpdateStakingData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<StakingsControllerUpdateStakingData>> = {
+    const mutationOptions: UseMutationOptions<StakingsControllerUpdateStakingResponse, AxiosError<DefaultError>, Options<StakingsControllerUpdateStakingData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await stakingsControllerUpdateStaking({
                 ...options,
@@ -516,7 +516,7 @@ export const storageLocationsControllerCreateOptions = (options: Options<Storage
 };
 
 export const storageLocationsControllerCreateMutation = (options?: Partial<Options<StorageLocationsControllerCreateData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<StorageLocationsControllerCreateData>> = {
+    const mutationOptions: UseMutationOptions<StorageLocationsControllerCreateResponse, AxiosError<DefaultError>, Options<StorageLocationsControllerCreateData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await storageLocationsControllerCreate({
                 ...options,
@@ -563,7 +563,7 @@ export const storageLocationsControllerFindOneOptions = (options: Options<Storag
 };
 
 export const storageLocationsControllerUpdateMutation = (options?: Partial<Options<StorageLocationsControllerUpdateData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<StorageLocationsControllerUpdateData>> = {
+    const mutationOptions: UseMutationOptions<StorageLocationsControllerUpdateResponse, AxiosError<DefaultError>, Options<StorageLocationsControllerUpdateData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await storageLocationsControllerUpdate({
                 ...options,
@@ -615,7 +615,7 @@ export const storageControllerCreateOptions = (options: Options<StorageControlle
 };
 
 export const storageControllerCreateMutation = (options?: Partial<Options<StorageControllerCreateData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<StorageControllerCreateData>> = {
+    const mutationOptions: UseMutationOptions<StorageControllerCreateResponse, AxiosError<DefaultError>, Options<StorageControllerCreateData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await storageControllerCreate({
                 ...options,
@@ -662,7 +662,7 @@ export const storageControllerFindOneOptions = (options: Options<StorageControll
 };
 
 export const storageControllerUpdateMutation = (options?: Partial<Options<StorageControllerUpdateData>>) => {
-    const mutationOptions: UseMutationOptions<unknown, AxiosError<DefaultError>, Options<StorageControllerUpdateData>> = {
+    const mutationOptions: UseMutationOptions<StorageControllerUpdateResponse, AxiosError<DefaultError>, Options<StorageControllerUpdateData>> = {
         mutationFn: async (localOptions) => {
             const { data } = await storageControllerUpdate({
                 ...options,
@@ -673,23 +673,4 @@ export const storageControllerUpdateMutation = (options?: Partial<Options<Storag
         }
     };
     return mutationOptions;
-};
-
-export const storageControllerFindByInvestmentQueryKey = (options: Options<StorageControllerFindByInvestmentData>) => [
-    createQueryKey('storageControllerFindByInvestment', options)
-];
-
-export const storageControllerFindByInvestmentOptions = (options: Options<StorageControllerFindByInvestmentData>) => {
-    return queryOptions({
-        queryFn: async ({ queryKey, signal }) => {
-            const { data } = await storageControllerFindByInvestment({
-                ...options,
-                ...queryKey[0],
-                signal,
-                throwOnError: true
-            });
-            return data;
-        },
-        queryKey: storageControllerFindByInvestmentQueryKey(options)
-    });
 };
