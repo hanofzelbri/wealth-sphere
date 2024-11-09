@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  Param,
-  UseGuards,
-  Put,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Query, Param, UseGuards, Put } from '@nestjs/common';
 import { CoingeckoService } from './coingecko.service';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
