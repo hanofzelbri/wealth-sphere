@@ -18,23 +18,10 @@ export const UpdateTransactionSchema = z.object({
   type: z.nativeEnum(TransactionType).optional(),
 });
 
-export const TransactionResponseSchema = z.object({
-  id: z.string(),
-  investmentId: z.string(),
-  quantity: z.number(),
-  price: z.number(),
-  date: z.date(),
-  type: z.nativeEnum(TransactionType),
-});
-
 export class CreateTransactionDto extends createZodDto(
   CreateTransactionSchema,
 ) {}
 
 export class UpdateTransactionDto extends createZodDto(
   UpdateTransactionSchema,
-) {}
-
-export class TransactionResponseDto extends createZodDto(
-  TransactionResponseSchema,
 ) {}

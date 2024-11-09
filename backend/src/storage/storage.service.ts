@@ -1,50 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { StorageLocationResponseDto } from 'src/storage-locations/dto/storage-locations.dto';
 
 @Injectable()
 export class StorageService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: string, data: any): Promise<StorageLocationResponseDto> {
+  async create(userId: string, data: any) {
     return this.prisma.getPrismaClient(userId).storage.create({
       data: { ...data, userId },
       include: { location: true },
     });
   }
 
-  async findAll(userId: string): Promise<StorageLocationResponseDto[]> {
+  async findAll(userId: string) {
     return this.prisma.getPrismaClient(userId).storage.findMany({
       where: { userId },
       include: { location: true },
     });
   }
 
-  async findOne(
-    id: string,
-    userId: string,
-  ): Promise<StorageLocationResponseDto> {
+  async findOne(id: string, userId: string) {
     return this.prisma.getPrismaClient(userId).storage.findFirst({
       where: { id, userId },
       include: { location: true },
     });
   }
 
-  async findByInvestment(
-    investmentId: string,
-    userId: string,
-  ): Promise<StorageLocationResponseDto[]> {
+  async findByInvestment(investmentId: string, userId: string) {
     return this.prisma.getPrismaClient(userId).storage.findMany({
       where: { investmentId, userId },
       include: { location: true },
     });
   }
 
-  async update(
-    id: string,
-    userId: string,
-    data: any,
-  ): Promise<StorageLocationResponseDto> {
+  async update(id: string, userId: string, data: any) {
     return this.prisma.getPrismaClient(userId).storage.update({
       where: { id, userId },
       data: { ...data, userId },
@@ -52,10 +41,7 @@ export class StorageService {
     });
   }
 
-  async delete(
-    id: string,
-    userId: string,
-  ): Promise<StorageLocationResponseDto> {
+  async delete(id: string, userId: string) {
     return await this.prisma.getPrismaClient(userId).storage.delete({
       where: { id, userId },
       include: { location: true },

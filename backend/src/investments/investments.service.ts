@@ -1,14 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Investment, Transaction, Staking, Storage } from '@prisma/client';
 import { CreateInvestmentDto } from './dto/investment.dto';
 import { CoingeckoService } from 'src/coingecko/coingecko.service';
-
-export type InvestmentWithDetails = Investment & {
-  transactions: Transaction[];
-  stakings: Staking[];
-  storages: Storage[];
-};
 
 @Injectable()
 export class InvestmentsService {
@@ -17,7 +10,7 @@ export class InvestmentsService {
     private coingeckoService: CoingeckoService,
   ) {}
 
-  async getAllInvestments(userId: string): Promise<InvestmentWithDetails[]> {
+  async getAllInvestments(userId: string) {
     try {
       return await this.prisma.getPrismaClient(userId).investment.findMany({
         where: { userId },
@@ -33,10 +26,7 @@ export class InvestmentsService {
     }
   }
 
-  async getInvestmentById(
-    id: string,
-    userId: string,
-  ): Promise<InvestmentWithDetails | null> {
+  async getInvestmentById(id: string, userId: string) {
     try {
       return await this.prisma.getPrismaClient(userId).investment.findUnique({
         where: { id, userId },
@@ -52,10 +42,7 @@ export class InvestmentsService {
     }
   }
 
-  async getInvestmentBySymbol(
-    symbol: string,
-    userId: string,
-  ): Promise<InvestmentWithDetails | null> {
+  async getInvestmentBySymbol(symbol: string, userId: string) {
     try {
       return await this.prisma
         .getPrismaClient(userId)
@@ -73,10 +60,7 @@ export class InvestmentsService {
     }
   }
 
-  async createInvestment(
-    data: CreateInvestmentDto,
-    userId: string,
-  ): Promise<InvestmentWithDetails> {
+  async createInvestment(data: CreateInvestmentDto, userId: string) {
     try {
       const coinPrices = await this.coingeckoService.fetchCoinPrices([
         data.coinId,
@@ -103,10 +87,7 @@ export class InvestmentsService {
     }
   }
 
-  async deleteInvestment(
-    id: string,
-    userId: string,
-  ): Promise<InvestmentWithDetails> {
+  async deleteInvestment(id: string, userId: string) {
     try {
       return await this.prisma.getPrismaClient(userId).investment.delete({
         where: { id, userId },
