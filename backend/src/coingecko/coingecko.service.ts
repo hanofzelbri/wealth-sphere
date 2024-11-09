@@ -166,7 +166,7 @@ export class CoingeckoService extends BaseApiService {
       const chartData90 = await this.fetchCoinMarketChart(
         investment.coinId,
         'usd',
-        90,
+        89,
       );
       const chartData365 = await this.fetchCoinMarketChart(
         investment.coinId,
@@ -174,7 +174,7 @@ export class CoingeckoService extends BaseApiService {
         365,
       );
 
-      for (const data of chartData90.prices) {
+      for (const data of chartData365.prices) {
         await prismaClient.chartDataDaily.upsert({
           where: {
             userId: user,
@@ -195,7 +195,7 @@ export class CoingeckoService extends BaseApiService {
         });
       }
 
-      for (const data of chartData365.prices) {
+      for (const data of chartData90.prices) {
         await prismaClient.chartDataHourly.upsert({
           where: {
             userId: user,

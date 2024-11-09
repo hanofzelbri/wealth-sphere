@@ -73,14 +73,14 @@ export const coingeckoControllerGetMarketChartData = <ThrowOnError extends boole
 };
 
 export const coingeckoControllerUpdateCoinPrices = <ThrowOnError extends boolean = false>(options?: Options<unknown, ThrowOnError>) => {
-    return (options?.client ?? client).post<unknown, unknown, ThrowOnError>({
+    return (options?.client ?? client).put<unknown, unknown, ThrowOnError>({
         ...options,
         url: '/coingecko/update-coin-prices'
     });
 };
 
 export const coingeckoControllerUpdateMarketChartData = <ThrowOnError extends boolean = false>(options?: Options<unknown, ThrowOnError>) => {
-    return (options?.client ?? client).post<unknown, unknown, ThrowOnError>({
+    return (options?.client ?? client).put<unknown, unknown, ThrowOnError>({
         ...options,
         url: '/coingecko/update-market-chart-data'
     });

@@ -1,4 +1,12 @@
-import { Controller, Get, Query, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  UseGuards,
+  Put,
+  Body,
+} from '@nestjs/common';
 import { CoingeckoService } from './coingecko.service';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -6,11 +14,11 @@ import { ApiResponse } from '@nestjs/swagger';
 import { ChartDataEntity } from './chart-data.entity';
 
 @Controller('coingecko')
+@UseGuards(JwtAuthGuard)
 export class CoingeckoController {
   constructor(private readonly coingeckoService: CoingeckoService) {}
 
   @Get('market-chart')
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     description: 'Successful response',
@@ -41,8 +49,8 @@ export class CoingeckoController {
     return this.coingeckoService.getMarketChartData(coinId, 'usd', days);
   }
 
-  @Post('update-coin-prices')
-  @ApiResponse({ status: 200, description: 'Coin prices updated successfully' })
+  @Put('update-coin-prices')
+  @ApiResponse({ status: 204, description: 'Coin prices updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
@@ -50,9 +58,9 @@ export class CoingeckoController {
     this.coingeckoService.storeCoinPrices(userId);
   }
 
-  @Post('update-market-chart-data')
+  @Put('update-market-chart-data')
   @ApiResponse({
-    status: 200,
+    status: 204,
     description: 'Market chart data updated successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
