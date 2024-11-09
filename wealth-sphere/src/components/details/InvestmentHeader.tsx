@@ -6,7 +6,8 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { CardTitle } from "@/components/ui/card";
-import { useInvestments } from "@/hooks/investments";
+import { useQuery } from "@tanstack/react-query";
+import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
 import { formatNumber } from "@/utils/investmentCalculations";
 import RefreshButton from "../utils/RefreshButton";
 
@@ -15,7 +16,9 @@ interface InvestmentHeaderProps {
 }
 
 export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
-  const { data: investments } = useInvestments();
+  const { data: investments } = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
 
   const investment = investments?.find(
     (investment) => investment.id === investmentId

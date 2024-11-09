@@ -47,9 +47,6 @@ export class ConfigService {
       COINGECKO_API_KEY: this.coingeckoApiKey,
       COINGECKO_API_URL: this.coingeckoApiUrl,
     };
-
-    console.log(this.databaseUrl);
-
     const missingVars = Object.entries(configMap)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, value]) => !value)

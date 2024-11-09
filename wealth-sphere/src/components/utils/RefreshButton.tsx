@@ -1,21 +1,28 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { useInvestments } from "@/hooks/investments";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  useUpdateInvestmentLiveData,
-  useUpdateMarketData,
-} from "@/hooks/coingecko";
+  coingeckoControllerUpdateCoinPricesMutation,
+  coingeckoControllerUpdateMarketChartDataMutation,
+  investmentsControllerGetAllInvestmentsOptions,
+} from "@/api-client/@tanstack/react-query.gen";
 
 const RefreshButton: React.FC = () => {
-  const investments = useInvestments();
-  const updateInvestmentLiveData = useUpdateInvestmentLiveData();
-  const updateMarketData = useUpdateMarketData();
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
+  const updateCoinPrices = useMutation({
+    ...coingeckoControllerUpdateCoinPricesMutation(),
+  });
+  const updateMarketData = useMutation({
+    ...coingeckoControllerUpdateMarketChartDataMutation(),
+  });
 
   const isLoading = investments.isLoading;
   const onRefresh = () => {
-    updateInvestmentLiveData.mutateAsync();
-    updateMarketData.mutateAsync();
+    updateCoinPrices.mutateAsync({});
+    updateMarketData.mutateAsync({});
   };
 
   return (

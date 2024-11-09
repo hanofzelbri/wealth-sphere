@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Storage } from "@/types/storage.types";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,8 +13,12 @@ import { AddStorageDialog } from "./AddStorageDialog";
 import { EditStorageDialog } from "./EditStorageDialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useDeleteStorage } from "@/hooks/storages";
-import { useInvestments } from "@/hooks/investments";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  investmentsControllerGetAllInvestmentsOptions,
+  storageControllerDeleteMutation,
+} from "@/api-client/@tanstack/react-query.gen";
+import { StorageEntity } from "@/api-client/types.gen";
 
 interface StorageListProps {
   investmentId: string;
@@ -23,10 +26,16 @@ interface StorageListProps {
 
 export function StorageList({ investmentId }: StorageListProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedStorage, setSelectedStorage] = useState<Storage | null>(null);
+  const [selectedStorage, setSelectedStorage] = useState<StorageEntity | null>(
+    null
+  );
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const investments = useInvestments();
-  const deleteStorage = useDeleteStorage();
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
+  const deleteStorage = useMutation({
+    ...storageControllerDeleteMutation(),
+  });
 
   if (investments.isLoading) return <p>Loading investments...</p>;
   if (investments.isError) return <p>Error: {investments.error.message}</p>;
@@ -124,7 +133,9 @@ export function StorageList({ investmentId }: StorageListProps) {
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={() => deleteStorage.mutateAsync({ id: deleteId || "" })}
+        onConfirm={() =>
+          deleteStorage.mutateAsync({ path: { id: deleteId || "" } })
+        }
         title="Delete Storage"
         description="Are you sure you want to delete this storage entry? This action cannot be undone."
       />

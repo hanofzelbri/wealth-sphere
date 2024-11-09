@@ -24,9 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStorageLocations } from "@/hooks/storage-locations";
 import { LoadingState } from "@/components/utils/LoadingState";
-import { useCreateStorage } from "@/hooks/storages"; // Corrected import
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  storageControllerCreateMutation,
+  storageLocationsControllerFindAllOptions,
+} from "@/api-client/@tanstack/react-query.gen";
 
 const storageSchema = z.object({
   amount: z.number().min(0),
@@ -51,7 +54,9 @@ export function AddStorageDialog({
     data: storageLocations,
     error: storageLocationsError,
     isLoading: storageLocationsLoading,
-  } = useStorageLocations();
+  } = useQuery({
+    ...storageLocationsControllerFindAllOptions(),
+  });
 
   const form = useForm<StorageFormData>({
     resolver: zodResolver(storageSchema),
@@ -62,7 +67,10 @@ export function AddStorageDialog({
     },
   });
 
-  const createStorage = useCreateStorage(() => onOpenChange(false));
+  const createStorage = useMutation({
+    ...storageControllerCreateMutation(),
+    onSuccess: () => onOpenChange(false),
+  });
 
   if (storageLocationsLoading) return <LoadingState />;
   if (storageLocationsError)
@@ -78,9 +86,11 @@ export function AddStorageDialog({
           <form
             onSubmit={form.handleSubmit((data: StorageFormData) =>
               createStorage.mutateAsync({
-                ...data,
-                date: new Date(data.date),
-                investmentId,
+                body: {
+                  ...data,
+                  date: new Date(data.date),
+                  investmentId,
+                },
               })
             )}
             className="space-y-4"

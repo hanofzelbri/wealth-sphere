@@ -4,17 +4,23 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCreateInvestment } from "@/hooks/investments";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "../ui/input";
+import { investmentsControllerCreateInvestmentMutation } from "@/api-client/@tanstack/react-query.gen";
+import { useMutation } from "@tanstack/react-query";
 
 export const AddInvestment = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [coinId, setCoinId] = useState("");
-  const createInvestment = useCreateInvestment(() => setShowDialog(false));
+  const createInvestment = useMutation({
+    ...investmentsControllerCreateInvestmentMutation(),
+    onSuccess: () => {
+      setShowDialog(false);
+    },
+  });
 
   return (
     <div>
@@ -38,7 +44,7 @@ export const AddInvestment = () => {
               Cancel
             </Button>
             <Button
-              onClick={() => createInvestment.mutateAsync({ coinId })}
+              onClick={() => createInvestment.mutate({ body: { coinId } })}
               disabled={!coinId.trim()}
             >
               Add Investment

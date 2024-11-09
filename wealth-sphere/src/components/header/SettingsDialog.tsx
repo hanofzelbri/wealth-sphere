@@ -21,10 +21,6 @@ import {
 } from "@radix-ui/react-tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
-  StorageLocation,
-  StorageLocationType,
-} from "@/types/storage-location.types";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -32,11 +28,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  useStorageLocations,
-  useCreateStorageLocation,
-  useUpdateStorageLocation,
-  useDeleteStorageLocation,
-} from "@/hooks/storage-locations";
+  StorageLocationEntity,
+  storageLocationType,
+} from "@/api-client/types.gen";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  storageLocationsControllerCreateMutation,
+  storageLocationsControllerDeleteMutation,
+  storageLocationsControllerFindAllOptions,
+  storageLocationsControllerUpdateMutation,
+} from "@/api-client/@tanstack/react-query.gen";
+import { ConfirmDialog } from "../ui/confirm-dialog";
 
 export default function SettingsDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -44,9 +46,14 @@ export default function SettingsDialog() {
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [storageLocationType, setStorageLocationType] =
-    useState<StorageLocationType>("exchange");
+    useState<storageLocationType>("exchange");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const { data: storageLocations } = useStorageLocations();
+  const [storageLocationToDelete, setStorageLocationToDelete] =
+    useState<StorageLocationEntity | null>(null);
+
+  const storageLocations = useQuery({
+    ...storageLocationsControllerFindAllOptions({}),
+  });
 
   const handleCloseForm = () => {
     setName("");
@@ -55,39 +62,56 @@ export default function SettingsDialog() {
     setFormOpen(false);
   };
 
-  const createStorageLocation = useCreateStorageLocation(handleCloseForm);
-  const updateStorageLocation = useUpdateStorageLocation(handleCloseForm);
-  const deleteStorageLocation = useDeleteStorageLocation();
+  const createStorageLocation = useMutation({
+    ...storageLocationsControllerCreateMutation(),
+    onSuccess: () => {
+      handleCloseForm();
+    },
+  });
+
+  const updateStorageLocation = useMutation({
+    ...storageLocationsControllerUpdateMutation(),
+    onSuccess: () => {
+      handleCloseForm();
+    },
+  });
+
+  const deleteStorageLocation = useMutation({
+    ...storageLocationsControllerDeleteMutation(),
+    onSuccess: () => {
+      handleCloseForm();
+    },
+  });
 
   const isFormValid = name.trim() !== "" && image.trim() !== "";
 
   const handleSave = async () => {
     if (editingId) {
       await updateStorageLocation.mutateAsync({
-        id: editingId,
-        name,
-        image,
-        storageLocationType,
+        path: { id: editingId },
+        body: {
+          name,
+          image,
+          storageLocationType,
+        },
       });
     } else {
       await createStorageLocation.mutateAsync({
-        name,
-        image,
-        storageLocationType,
+        body: {
+          name,
+          image,
+          storageLocationType,
+        },
       });
     }
   };
 
-  const handleEdit = (location: StorageLocation) => {
+  const handleEdit = (location: StorageLocationEntity) => {
     setName(location.name);
     setImage(location.image);
     setStorageLocationType(location.storageLocationType);
     setEditingId(location.id);
     setFormOpen(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    await deleteStorageLocation.mutateAsync({ id });
   };
 
   return (
@@ -107,55 +131,59 @@ export default function SettingsDialog() {
             <div className="py-4">
               <h3 className="mb-2 font-semibold">Existing Storage Locations</h3>
               <ul className="space-y-2">
-                {storageLocations &&
-                  storageLocations.map((location) => (
-                    <li
-                      key={location.id}
-                      className="flex items-center justify-between p-2 bg-secondary rounded-md"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Avatar>
-                                <AvatarImage
-                                  src={location.image}
-                                  className="w-8 h-8 rounded-full"
-                                />
-                                <AvatarFallback>
-                                  {location.name} Icon
-                                </AvatarFallback>
-                              </Avatar>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{location.name} Icon</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <span>{location.name}</span>
-                      </div>
-                      <div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(location)}
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit {location.name}</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(location.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">
-                            Delete {location.name}
-                          </span>
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
+                {(storageLocations?.data?.length ?? 0) > 0 &&
+                  storageLocations.data?.map(
+                    (location: StorageLocationEntity) => (
+                      <li
+                        key={location.id}
+                        className="flex items-center justify-between p-2 bg-secondary rounded-md"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Avatar>
+                                  <AvatarImage
+                                    src={location.image}
+                                    className="w-8 h-8 rounded-full"
+                                  />
+                                  <AvatarFallback>
+                                    {location.name} Icon
+                                  </AvatarFallback>
+                                </Avatar>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{location.name} Icon</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <span>{location.name}</span>
+                        </div>
+                        <div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(location)}
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">
+                              Edit {location.name}
+                            </span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setStorageLocationToDelete(location)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">
+                              Delete {location.name}
+                            </span>
+                          </Button>
+                        </div>
+                      </li>
+                    )
+                  )}
               </ul>
               <Button className="mt-4" onClick={() => setFormOpen(true)}>
                 <Plus className="h-4 w-4" />
@@ -195,7 +223,7 @@ export default function SettingsDialog() {
                   </Label>
                   <Select
                     value={storageLocationType}
-                    onValueChange={(value: StorageLocationType) =>
+                    onValueChange={(value: storageLocationType) =>
                       setStorageLocationType(value)
                     }
                   >
@@ -226,6 +254,18 @@ export default function SettingsDialog() {
           )}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!storageLocationToDelete}
+        onOpenChange={(open) => !open && setStorageLocationToDelete(null)}
+        onConfirm={() =>
+          deleteStorageLocation.mutateAsync({
+            path: { id: storageLocationToDelete?.id || "" },
+          })
+        }
+        title="Delete Storage Location"
+        description="Are you sure you want to delete this storage location? This action cannot be undone."
+      />
     </>
   );
 }

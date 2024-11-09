@@ -72,6 +72,14 @@ export type CreateInvestmentDto = {
     coinId: string;
 };
 
+export type ChartDataEntity = {
+    id: number;
+    userId: string;
+    investmentId: string;
+    timestamp: Date;
+    price: number;
+};
+
 export type CreateTransactionDto = {
     investmentId: string;
     quantity: number;
@@ -102,16 +110,6 @@ export type UpdateStakingDto = {
     websiteLink?: string;
     coolDownPeriod?: number;
     startDate?: Date;
-};
-
-export type StorageLocationResponseDto = {
-    id: string;
-    name: string;
-    description: string;
-    address: string;
-    userId: string;
-    createdAt: Date;
-    updatedAt: Date;
 };
 
 export type CreateStorageLocationDto = {
@@ -183,6 +181,8 @@ export type CoingeckoControllerGetAllMarketChartDataData = {
     };
 };
 
+export type CoingeckoControllerGetAllMarketChartDataResponse = Array<ChartDataEntity>;
+
 export type CoingeckoControllerGetMarketChartDataData = {
     body?: never;
     path: {
@@ -192,6 +192,8 @@ export type CoingeckoControllerGetMarketChartDataData = {
         days: number;
     };
 };
+
+export type CoingeckoControllerGetMarketChartDataResponse = Array<ChartDataEntity>;
 
 export type TransactionsControllerGetAllTransactionsResponse = Array<TransactionEntity>;
 
@@ -275,13 +277,13 @@ export type StakingsControllerUpdateStakingData = {
 
 export type StakingsControllerUpdateStakingResponse = StakingEntity;
 
-export type StorageLocationsControllerFindAllResponse = Array<StorageLocationResponseDto>;
+export type StorageLocationsControllerFindAllResponse = Array<StorageLocationEntity>;
 
 export type StorageLocationsControllerCreateData = {
     body: CreateStorageLocationDto;
 };
 
-export type StorageLocationsControllerCreateResponse = StorageLocationResponseDto;
+export type StorageLocationsControllerCreateResponse = StorageLocationEntity;
 
 export type StorageLocationsControllerDeleteData = {
     body?: never;
@@ -299,7 +301,7 @@ export type StorageLocationsControllerFindOneData = {
     query?: never;
 };
 
-export type StorageLocationsControllerFindOneResponse = StorageLocationResponseDto;
+export type StorageLocationsControllerFindOneResponse = StorageLocationEntity;
 
 export type StorageLocationsControllerUpdateData = {
     body: UpdateStorageLocationDto;
@@ -309,7 +311,7 @@ export type StorageLocationsControllerUpdateData = {
     query?: never;
 };
 
-export type StorageLocationsControllerUpdateResponse = StorageLocationResponseDto;
+export type StorageLocationsControllerUpdateResponse = StorageLocationEntity;
 
 export type StorageControllerFindAllResponse = Array<StorageEntity>;
 

@@ -9,6 +9,7 @@ export class StorageLocationsService {
   async findAll(userId: string): Promise<StorageLocation[]> {
     return this.prisma.getPrismaClient(userId).storageLocation.findMany({
       where: { userId },
+      orderBy: { name: 'asc' },
     });
   }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Staking } from "@/types/staking.types";
+import { StakingEntity } from "@/api-client/types.gen";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,8 +14,12 @@ import { AddStakingDialog } from "./AddStakingDialog";
 import { EditStakingDialog } from "./EditStakingDialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useDeleteStaking } from "@/hooks/stakings";
-import { useInvestments } from "@/hooks/investments";
+import { useQuery } from "@tanstack/react-query";
+import {
+  investmentsControllerGetAllInvestmentsOptions,
+  stakingsControllerDeleteStakingMutation,
+} from "@/api-client/@tanstack/react-query.gen";
+import { useMutation } from "@tanstack/react-query";
 
 interface StakingListProps {
   investmentId: string;
@@ -23,10 +27,16 @@ interface StakingListProps {
 
 export function StakingList({ investmentId }: StakingListProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedStaking, setSelectedStaking] = useState<Staking | null>(null);
+  const [selectedStaking, setSelectedStaking] = useState<StakingEntity | null>(
+    null
+  );
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const investments = useInvestments();
-  const deleteStaking = useDeleteStaking(() => setDeleteId(null));
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
+  const deleteStaking = useMutation({
+    ...stakingsControllerDeleteStakingMutation(),
+  });
 
   if (investments.isLoading) return <p>Loading investments...</p>;
   if (investments.isError) return <p>Error: {investments.error.message}</p>;
@@ -36,10 +46,10 @@ export function StakingList({ investmentId }: StakingListProps) {
 
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
-    await deleteStaking.mutateAsync({ id: deleteId });
+    await deleteStaking.mutateAsync({ path: { id: deleteId } });
   };
 
-  const handleEdit = (staking: Staking) => {
+  const handleEdit = (staking: StakingEntity) => {
     setSelectedStaking(staking);
   };
 
@@ -94,7 +104,9 @@ export function StakingList({ investmentId }: StakingListProps) {
                   </a>
                 </TableCell>
                 <TableCell>{staking.coolDownPeriod} days</TableCell>
-                <TableCell>{format(new Date(staking.startDate), "PP")}</TableCell>
+                <TableCell>
+                  {format(new Date(staking.startDate), "PP")}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button

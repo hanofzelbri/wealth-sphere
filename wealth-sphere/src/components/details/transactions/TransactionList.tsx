@@ -8,15 +8,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Transaction } from "@/types/transaction.types";
 import { AddTransactionDialog } from "./AddTransactionDialog";
 import { EditTransactionDialog } from "./EditTransactionDialog";
 import { format } from "date-fns";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useDeleteTransaction } from "@/hooks/transactions";
-import { useInvestments } from "@/hooks/investments";
 import { formatNumber } from "@/utils/investmentCalculations";
+import {
+  investmentsControllerGetAllInvestmentsOptions,
+  transactionsControllerDeleteTransactionMutation,
+} from "@/api-client/@tanstack/react-query.gen";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { TransactionEntity } from "@/api-client/types.gen";
 
 interface TransactionListProps {
   investmentId: string;
@@ -25,10 +28,14 @@ interface TransactionListProps {
 export function TransactionList({ investmentId }: TransactionListProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+    useState<TransactionEntity | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const investments = useInvestments();
-  const deleteTransaction = useDeleteTransaction(() => setDeleteId(null));
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
+  const deleteTransaction = useMutation({
+    ...transactionsControllerDeleteTransactionMutation(),
+  });
 
   if (investments.isLoading) return <p>Loading investments...</p>;
   if (investments.isError) return <p>Error: {investments.error.message}</p>;
@@ -123,7 +130,9 @@ export function TransactionList({ investmentId }: TransactionListProps) {
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        onConfirm={() => deleteTransaction.mutateAsync({ id: deleteId || "" })}
+        onConfirm={() =>
+          deleteTransaction.mutateAsync({ path: { id: deleteId || "" } })
+        }
         title="Delete Transaction"
         description="Are you sure you want to delete this transaction? This action cannot be undone."
       />

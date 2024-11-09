@@ -9,12 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Transaction } from "@/types/transaction.types";
+import { TransactionEntity } from "@/api-client/types.gen";
 
 interface HandleTransactionFormProps {
   submitButtonText: string;
-  transaction?: Transaction;
-  onSubmit: (transaction: Transaction) => Promise<void>;
+  transaction?: TransactionEntity;
+  onSubmit: (transaction: TransactionEntity) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -37,8 +37,9 @@ export const HandleTransactionForm: React.FC<HandleTransactionFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ret: Transaction = {
+    const ret: TransactionEntity = {
       id: transaction?.id ?? "",
+      userId: transaction?.userId ?? "",
       investmentId: transaction?.investmentId ?? "",
       type,
       quantity: parseFloat(quantity),

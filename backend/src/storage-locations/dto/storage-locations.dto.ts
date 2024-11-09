@@ -1,6 +1,5 @@
 import { createZodDto } from '@anatine/zod-nestjs';
 import { z } from 'zod';
-import { ApiProperty } from '@nestjs/swagger';
 
 import { StorageLocationType } from '@prisma/client';
 
@@ -23,26 +22,3 @@ export class CreateStorageLocationDto extends createZodDto(
 export class UpdateStorageLocationDto extends createZodDto(
   UpdateStorageLocationSchema,
 ) {}
-
-export class StorageLocationResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  description: string;
-
-  @ApiProperty()
-  address: string;
-
-  @ApiProperty()
-  userId: string;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-}

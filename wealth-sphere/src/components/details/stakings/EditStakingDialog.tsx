@@ -17,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Staking } from "@/types/staking.types";
 import {
   Select,
   SelectItem,
@@ -25,9 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStorageLocations } from "@/hooks/storage-locations";
 import { LoadingState } from "@/components/utils/LoadingState";
-import { useUpdateStaking } from "@/hooks/stakings";
+import { StakingEntity } from "@/api-client/types.gen";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  stakingsControllerUpdateStakingMutation,
+  storageLocationsControllerFindAllOptions,
+} from "@/api-client/@tanstack/react-query.gen";
 
 const stakingSchema = z.object({
   amount: z.number().min(0),
@@ -40,7 +43,7 @@ const stakingSchema = z.object({
 type StakingFormData = z.infer<typeof stakingSchema>;
 
 interface EditStakingDialogProps {
-  staking: Staking;
+  staking: StakingEntity;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -54,7 +57,9 @@ export function EditStakingDialog({
     data: storageLocations,
     error: storageLocationsError,
     isLoading: storageLocationsLoading,
-  } = useStorageLocations();
+  } = useQuery({
+    ...storageLocationsControllerFindAllOptions(),
+  });
 
   const form = useForm<StakingFormData>({
     resolver: zodResolver(stakingSchema),
@@ -67,16 +72,18 @@ export function EditStakingDialog({
     },
   });
 
-  const onSuccess = () => {
-    onOpenChange(false);
-  };
-  const updateStaking = useUpdateStaking(onSuccess);
+  const updateStaking = useMutation({
+    ...stakingsControllerUpdateStakingMutation(),
+    onSuccess: () => onOpenChange(false),
+  });
 
   const onSubmit = async (data: StakingFormData) => {
     await updateStaking.mutateAsync({
-      ...data,
-      startDate: new Date(data.startDate),
-      id: staking.id,
+      path: { id: staking.id },
+      body: {
+        ...data,
+        startDate: new Date(data.startDate),
+      },
     });
   };
 

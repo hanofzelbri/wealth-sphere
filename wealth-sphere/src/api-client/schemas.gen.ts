@@ -173,6 +173,29 @@ export const CreateInvestmentDtoSchema = {
     required: ['coinId']
 } as const;
 
+export const ChartDataEntitySchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'number'
+        },
+        userId: {
+            type: 'string'
+        },
+        investmentId: {
+            type: 'string'
+        },
+        timestamp: {
+            format: 'date-time',
+            type: 'string'
+        },
+        price: {
+            type: 'number'
+        }
+    },
+    required: ['id', 'userId', 'investmentId', 'timestamp', 'price']
+} as const;
+
 export const CreateTransactionDtoSchema = {
     type: 'object',
     properties: {
@@ -270,36 +293,6 @@ export const UpdateStakingDtoSchema = {
             format: 'date-time'
         }
     }
-} as const;
-
-export const StorageLocationResponseDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string'
-        },
-        name: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        address: {
-            type: 'string'
-        },
-        userId: {
-            type: 'string'
-        },
-        createdAt: {
-            format: 'date-time',
-            type: 'string'
-        },
-        updatedAt: {
-            format: 'date-time',
-            type: 'string'
-        }
-    },
-    required: ['id', 'name', 'description', 'address', 'userId', 'createdAt', 'updatedAt']
 } as const;
 
 export const CreateStorageLocationDtoSchema = {

@@ -3,6 +3,7 @@ import { CoingeckoService } from './coingecko.service';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ApiResponse } from '@nestjs/swagger';
+import { ChartDataEntity } from './chart-data.entity';
 
 @Controller('coingecko')
 export class CoingeckoController {
@@ -13,6 +14,7 @@ export class CoingeckoController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
+    type: [ChartDataEntity],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -28,6 +30,7 @@ export class CoingeckoController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
+    type: [ChartDataEntity],
   })
   @ApiResponse({ status: 404, description: 'Coin not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })

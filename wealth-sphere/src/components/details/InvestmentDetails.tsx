@@ -7,12 +7,14 @@ import { TransactionList } from "./transactions/TransactionList";
 import { InvestmentSummary } from "./InvestmentSummary";
 import { StakingList } from "./stakings/StakingList";
 import { StorageList } from "./storages/StorageList";
-import { useInvestments } from "@/hooks/investments";
+import { useQuery } from "@tanstack/react-query";
+import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
 
 export const InvestmentDetails = () => {
   const { symbol } = useParams<{ symbol: string }>();
-
-  const investments = useInvestments();
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
 
   if (investments.isLoading) return <LoadingState />;
   if (investments.isError)

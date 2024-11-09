@@ -24,9 +24,12 @@ import {
   SelectValue,
   SelectTrigger,
 } from "@/components/ui/select";
-import { useStorageLocations } from "@/hooks/storage-locations";
 import { LoadingState } from "@/components/utils/LoadingState";
-import { useCreateStaking } from "@/hooks/stakings";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  stakingsControllerCreateStakingMutation,
+  storageLocationsControllerFindAllOptions,
+} from "@/api-client/@tanstack/react-query.gen";
 
 const stakingSchema = z.object({
   amount: z.number().min(0),
@@ -53,13 +56,18 @@ export function AddStakingDialog({
     data: storageLocations,
     error: storageLocationsError,
     isLoading: storageLocationsLoading,
-  } = useStorageLocations();
+  } = useQuery({
+    ...storageLocationsControllerFindAllOptions(),
+  });
 
   const onSuccess = () => {
     onOpenChange(false);
     form.reset();
   };
-  const createStaking = useCreateStaking(onSuccess);
+  const createStaking = useMutation({
+    ...stakingsControllerCreateStakingMutation(),
+    onSuccess,
+  });
 
   const form = useForm<StakingFormData>({
     resolver: zodResolver(stakingSchema),
@@ -74,9 +82,11 @@ export function AddStakingDialog({
 
   const onSubmit = async (data: StakingFormData) => {
     await createStaking.mutateAsync({
-      ...data,
-      startDate: new Date(data.startDate),
-      investmentId,
+      body: {
+        ...data,
+        startDate: new Date(data.startDate),
+        investmentId,
+      },
     });
   };
 

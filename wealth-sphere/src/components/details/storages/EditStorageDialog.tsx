@@ -24,10 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Storage } from "@/types/storage.types";
-import { useStorageLocations } from "@/hooks/storage-locations";
 import { LoadingState } from "@/components/utils/LoadingState";
-import { useUpdateStorage } from "@/hooks/storages";
+import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import {
+  storageControllerUpdateMutation,
+  storageLocationsControllerFindAllOptions,
+} from "@/api-client/@tanstack/react-query.gen";
+import { StorageEntity } from "@/api-client/types.gen";
 
 const storageSchema = z.object({
   amount: z.number().min(0),
@@ -38,7 +42,7 @@ const storageSchema = z.object({
 type StorageFormData = z.infer<typeof storageSchema>;
 
 interface EditStorageDialogProps {
-  storage: Storage;
+  storage: StorageEntity;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -52,9 +56,13 @@ export function EditStorageDialog({
     data: storageLocations,
     error: storageLocationsError,
     isLoading: storageLocationsLoading,
-  } = useStorageLocations();
+  } = useQuery({
+    ...storageLocationsControllerFindAllOptions({}),
+  });
 
-  const updateStorage = useUpdateStorage(() => onOpenChange(false));
+  const updateStorage = useMutation({
+    ...storageControllerUpdateMutation(),
+  });
 
   const form = useForm<StorageFormData>({
     resolver: zodResolver(storageSchema),
@@ -67,10 +75,13 @@ export function EditStorageDialog({
 
   const onSubmit = async (data: StorageFormData) => {
     updateStorage.mutateAsync({
-      ...data,
-      id: storage.id,
-      date: new Date(data.date),
+      path: { id: storage.id },
+      body: {
+        ...data,
+        date: new Date(data.date),
+      },
     });
+    onOpenChange(false);
   };
 
   if (storageLocationsLoading) return <LoadingState />;

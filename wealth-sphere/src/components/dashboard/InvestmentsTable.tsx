@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Investment } from "../../types/investment.types";
 import {
   Table,
   TableBody,
@@ -17,10 +16,15 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { ArrowUpIcon, ArrowDownIcon, Eye, Trash2 } from "lucide-react";
-import { useDeleteInvestment, useInvestments } from "@/hooks/investments";
+import { ArrowUpRight, ArrowDownRight, Eye, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { formatNumber } from "@/utils/investmentCalculations";
+import { InvestmentEntity } from "@/api-client/types.gen";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  investmentsControllerDeleteInvestmentMutation,
+  investmentsControllerGetAllInvestmentsOptions,
+} from "@/api-client/@tanstack/react-query.gen";
 
 type SortField =
   | "symbol"
@@ -36,12 +40,16 @@ export const InvestmentsTable: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>("value");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [investmentToDelete, setInvestmentToDelete] =
-    useState<Investment | null>(null);
+    useState<InvestmentEntity | null>(null);
   const navigate = useNavigate();
-  const investments = useInvestments();
-  const deleteInvestment = useDeleteInvestment();
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
+  const deleteInvestment = useMutation({
+    ...investmentsControllerDeleteInvestmentMutation(),
+  });
 
-  const calculateValue = (investment: Investment) => {
+  const calculateValue = (investment: InvestmentEntity) => {
     const totalQuantity = investment.transactions.reduce(
       (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
       0
@@ -49,7 +57,7 @@ export const InvestmentsTable: React.FC = () => {
     return totalQuantity * investment.currentPrice;
   };
 
-  const calculateGainLoss = useCallback((investment: Investment) => {
+  const calculateGainLoss = useCallback((investment: InvestmentEntity) => {
     const value = calculateValue(investment);
     const costBasis = investment.transactions.reduce(
       (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
@@ -58,22 +66,25 @@ export const InvestmentsTable: React.FC = () => {
     return value - costBasis;
   }, []);
 
-  const calculateTotalQuantity = (investment: Investment) => {
+  const calculateTotalQuantity = (investment: InvestmentEntity) => {
     return investment.transactions.reduce(
       (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
       0
     );
   };
 
-  const calculateStakingPercentage = useCallback((investment: Investment) => {
-    if (!investment.stakings) return 0;
+  const calculateStakingPercentage = useCallback(
+    (investment: InvestmentEntity) => {
+      if (!investment.stakings) return 0;
 
-    return (
-      (investment.stakings.reduce((sum, t) => sum + t.amount, 0) /
-        calculateTotalQuantity(investment)) *
-      100
-    );
-  }, []);
+      return (
+        (investment.stakings.reduce((sum, t) => sum + t.amount, 0) /
+          calculateTotalQuantity(investment)) *
+        100
+      );
+    },
+    []
+  );
 
   const sortedInvestments = useMemo(() => {
     if (!investments.isSuccess) return [];
@@ -137,9 +148,9 @@ export const InvestmentsTable: React.FC = () => {
   const renderSortIcon = (field: SortField) => {
     if (field !== sortField) return null;
     return sortDirection === "asc" ? (
-      <ArrowUpIcon className="inline ml-1 w-4 h-4" />
+      <ArrowUpRight className="inline ml-1 w-6 h-6" />
     ) : (
-      <ArrowDownIcon className="inline ml-1 w-4 h-4" />
+      <ArrowDownRight className="inline ml-1 w-6 h-6" />
     );
   };
 
@@ -239,9 +250,9 @@ export const InvestmentsTable: React.FC = () => {
                       >
                         ${formatNumber(Math.abs(gainLoss))}
                         {gainLoss >= 0 ? (
-                          <ArrowUpIcon className="inline ml-1" />
+                          <ArrowUpRight className="inline ml-1" />
                         ) : (
-                          <ArrowDownIcon className="inline ml-1" />
+                          <ArrowDownRight className="inline ml-1" />
                         )}
                       </TableCell>
                       <TableCell>
@@ -278,7 +289,9 @@ export const InvestmentsTable: React.FC = () => {
             open={!!investmentToDelete}
             onOpenChange={(open) => !open && setInvestmentToDelete(null)}
             onConfirm={() =>
-              deleteInvestment.mutateAsync({ id: investmentToDelete?.id || "" })
+              deleteInvestment.mutateAsync({
+                path: { id: investmentToDelete?.id || "" },
+              })
             }
             title="Delete Investment"
             description="Are you sure you want to delete this investment? This action cannot be undone."

@@ -42,8 +42,8 @@ const PortfolioChart: React.FC = () => {
   useEffect(() => {
     if (!data) return;
 
-    const labels = data[0].timestamps;
-    const prices = data[0].prices;
+    const labels = data.map((item) => item.timestamp.toISOString());
+    const prices = data.map((item) => item.price);
 
     setChartData({
       labels,
@@ -86,7 +86,7 @@ const PortfolioChart: React.FC = () => {
               callbacks: {
                 title: (tooltipItem) => {
                   const timestamp =
-                    data?.[0]?.timestamps[tooltipItem[0].dataIndex];
+                    data?.[tooltipItem[0].dataIndex]?.timestamp?.toISOString();
                   const date = timestamp ? new Date(timestamp) : new Date();
                   const formattedDate = date.toLocaleDateString();
                   const formattedTime = date.toLocaleTimeString([], {

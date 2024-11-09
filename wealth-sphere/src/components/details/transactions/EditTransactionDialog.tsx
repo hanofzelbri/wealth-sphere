@@ -1,10 +1,11 @@
-import { Transaction, UpdateTransactionInput } from "@/types/transaction.types";
+import { TransactionEntity } from "@/api-client/types.gen";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { HandleTransactionForm } from "./HandleTransactionForm";
-import { useUpdateTransaction } from "@/hooks/transactions";
+import { useMutation } from "@tanstack/react-query";
+import { transactionsControllerUpdateTransactionMutation } from "@/api-client/@tanstack/react-query.gen";
 
 interface EditTransactionDialogProps {
-  transaction: Transaction;
+  transaction: TransactionEntity;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -14,10 +15,19 @@ export function EditTransactionDialog({
   open,
   onOpenChange,
 }: EditTransactionDialogProps) {
-  const updateTransaction = useUpdateTransaction(() => onOpenChange(false));
+  const updateTransaction = useMutation({
+    ...transactionsControllerUpdateTransactionMutation(),
+    onSuccess: () => onOpenChange(false),
+  });
 
-  const handleSubmit = async (updatedTransaction: UpdateTransactionInput) => {
-    updateTransaction.mutateAsync(updatedTransaction);
+  const handleSubmit = async (updatedTransaction: TransactionEntity) => {
+    updateTransaction.mutateAsync({
+      path: { id: updatedTransaction.id },
+      body: {
+        ...updatedTransaction,
+        date: new Date(updatedTransaction.date),
+      },
+    });
   };
 
   return (

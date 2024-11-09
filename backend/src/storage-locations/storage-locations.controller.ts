@@ -12,12 +12,12 @@ import { StorageLocationsService } from './storage-locations.service';
 import {
   CreateStorageLocationDto,
   UpdateStorageLocationDto,
-  StorageLocationResponseDto,
 } from './dto/storage-locations.dto';
 import { User } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ApiResponse, ApiOkResponse } from '@nestjs/swagger';
 import { StorageLocation } from '@prisma/client';
+import { StorageLocationEntity } from 'src/entities/storage-location.entity';
 
 @Controller('storage-locations')
 @UseGuards(JwtAuthGuard)
@@ -29,7 +29,7 @@ export class StorageLocationsController {
   @Get()
   @ApiOkResponse({
     description: 'Successful response',
-    type: [StorageLocationResponseDto],
+    type: [StorageLocationEntity],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -41,7 +41,7 @@ export class StorageLocationsController {
   @Get(':id')
   @ApiOkResponse({
     description: 'Successful response',
-    type: StorageLocationResponseDto,
+    type: StorageLocationEntity,
   })
   @ApiResponse({ status: 404, description: 'Storage location not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -57,7 +57,7 @@ export class StorageLocationsController {
   @Post()
   @ApiOkResponse({
     description: 'Storage location created successfully',
-    type: StorageLocationResponseDto,
+    type: StorageLocationEntity,
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -73,7 +73,7 @@ export class StorageLocationsController {
   @Put(':id')
   @ApiOkResponse({
     description: 'Storage location updated successfully',
-    type: StorageLocationResponseDto,
+    type: StorageLocationEntity,
   })
   @ApiResponse({ status: 404, description: 'Storage location not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })

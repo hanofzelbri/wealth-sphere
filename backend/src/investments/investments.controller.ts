@@ -10,7 +10,10 @@ import {
 import { InvestmentsService } from './investments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../decorators/user.decorator';
-import { CreateInvestmentDto } from './dto/investment.dto';
+import {
+  CreateInvestmentDto,
+  CreateInvestmentSchema,
+} from './dto/investment.dto';
 import { ApiResponse, ApiOkResponse } from '@nestjs/swagger';
 import { InvestmentEntity } from 'src/entities/investment.entity';
 
@@ -76,6 +79,10 @@ export class InvestmentsController {
     @Body() data: CreateInvestmentDto,
     @User() user: string,
   ): Promise<InvestmentEntity> {
+    const result = CreateInvestmentSchema.safeParse(data);
+    if (!result.success) {
+      console.error(result.error); // Gibt die Validierungsfehler aus
+    }
     return this.investmentsService.createInvestment(data, user);
   }
 

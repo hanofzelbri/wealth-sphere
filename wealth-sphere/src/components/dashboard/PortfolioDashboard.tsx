@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export const PortfolioDashboard: React.FC = () => {
   const { isError, error, isLoading } = useQuery({
-    ...investmentsControllerGetAllInvestmentsOptions({}),
+    ...investmentsControllerGetAllInvestmentsOptions(),
   });
 
   if (isError) return <p>Error: {error.message}</p>;

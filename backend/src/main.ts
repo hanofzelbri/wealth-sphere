@@ -1,8 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { patchNestjsSwagger } from '@anatine/zod-nestjs';
+import { ExceptionFilter } from '@nestjs/common';
+import { ArgumentsHost } from '@nestjs/common';
+import { ZodError } from 'zod';
+import { Catch } from '@nestjs/common';
+
+@Catch(ZodError)
+export class ZodFilter<T extends ZodError> implements ExceptionFilter {
+  catch(exception: T, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const status = 400;
+    response.status(status).json({
+      errors: exception.errors,
+      message: exception.message,
+      statusCode: status,
+    });
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,13 +36,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
   app.enableCors();
+  app.useGlobalFilters(new ZodFilter());
+
   await app.listen(3001);
 }
 bootstrap();

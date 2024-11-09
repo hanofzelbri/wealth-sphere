@@ -1,21 +1,26 @@
 import React, { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { PerformerCard } from "./PerformerCard";
 import {
   calculateProfitLoss,
   formatNumber,
 } from "@/utils/investmentCalculations";
 import { LoadingState } from "../utils/LoadingState";
+import { InvestmentEntity } from "@/api-client/types.gen";
+import { useQuery } from "@tanstack/react-query";
+import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
 
 interface Performer {
-  investment: Investment;
+  investment: InvestmentEntity;
   profitLoss: number;
   profitLossPercentage: number;
 }
 
 export const PortfolioSummary: React.FC = () => {
-  const investments = useInvestments();
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
 
   const { totalValue, totalGainLoss, bestPerformer, worstPerformer } =
     useMemo(() => {
@@ -104,9 +109,9 @@ export const PortfolioSummary: React.FC = () => {
             }`}
           >
             {totalGainLoss ?? 0 >= 0 ? (
-              <ArrowUpIcon className="w-4 h-4 mr-1" />
+              <ArrowUpRight className="w-4 h-4 mr-1" />
             ) : (
-              <ArrowDownIcon className="w-4 h-4 mr-1" />
+              <ArrowDownRight className="w-4 h-4 mr-1" />
             )}
             {totalValue
               ? formatNumber(
