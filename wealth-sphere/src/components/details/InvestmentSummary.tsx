@@ -1,5 +1,4 @@
 import React from "react";
-import { Investment } from "../../types/investment.types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   calculateAverageBuyingPrice,
@@ -9,9 +8,10 @@ import {
   storageLocationPercentage,
   formatNumber,
 } from "@/utils/investmentCalculations";
+import { InvestmentEntity } from "@/api-client/types.gen";
 
 interface InvestmentSummaryProps {
-  investment: Investment;
+  investment: InvestmentEntity;
 }
 
 export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({

@@ -16,7 +16,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, ArrowDownRight, Eye, Trash2 } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Eye, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { ConfirmDialog } from "../ui/confirm-dialog";
 import { formatNumber } from "@/utils/investmentCalculations";
 import { InvestmentEntity } from "@/api-client/types.gen";
@@ -148,9 +148,9 @@ export const InvestmentsTable: React.FC = () => {
   const renderSortIcon = (field: SortField) => {
     if (field !== sortField) return null;
     return sortDirection === "asc" ? (
-      <ArrowUpRight className="inline ml-1 w-6 h-6" />
+      <ArrowUp className="inline ml-1 w-6 h-6" />
     ) : (
-      <ArrowDownRight className="inline ml-1 w-6 h-6" />
+      <ArrowDown className="inline ml-1 w-6 h-6" />
     );
   };
 

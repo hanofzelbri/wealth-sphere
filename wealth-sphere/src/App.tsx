@@ -4,7 +4,7 @@ import { Header } from "./components/header/Header";
 import { InvestmentDetails } from "./components/details/InvestmentDetails";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PageNotFound } from "./components/utils/PageNotFound";
-import PortfolioChart from "./components/dashboard/PortfolioChart";
+import PortfolioChart from "./components/utils/PortfolioChart";
 import { client } from "./api-client/services.gen";
 import { setupAxiosInstance } from "./lib/axios";
 import { AxiosStatic } from "axios";
