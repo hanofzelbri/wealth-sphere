@@ -1,7 +1,4 @@
-import { Investment } from "@/types/investment.types";
-import { Staking } from "@/types/staking.types";
-import { StorageLocationType } from "@/types/storage-location.types";
-import { Transaction } from "@/types/transaction.types";
+import { InvestmentEntity, StakingEntity, storageLocationType, TransactionEntity } from "@/api-client/types.gen";
 
 export function formatNumber(value: number): string {
   if (Math.abs(value) < 1) {
@@ -11,7 +8,7 @@ export function formatNumber(value: number): string {
 }
 
 export const calculateAverageBuyingPrice = (
-  transactions: Transaction[] = []
+  transactions: TransactionEntity[] = []
 ): number => {
   const buyTransactions = transactions.filter((t) => t.type === "buy");
   if (!buyTransactions.length) return 0;
@@ -26,7 +23,7 @@ export const calculateAverageBuyingPrice = (
 };
 
 export function calculateProfitLoss(
-  transactions: Transaction[],
+  transactions: TransactionEntity[],
   currentPrice: number
 ): { profitLoss: number; profitLossPercentage: number } {
   const buyTransactions = transactions.filter((t) => t.type === "buy");
@@ -58,7 +55,9 @@ export function calculateProfitLoss(
   return { profitLoss, profitLossPercentage };
 }
 
-export const calculateTotalHolding = (transactions: Transaction[]): number => {
+export const calculateTotalHolding = (
+  transactions: TransactionEntity[]
+): number => {
   return transactions.reduce((total, transaction) => {
     if (transaction.type === "buy") {
       return total + transaction.quantity;
@@ -69,12 +68,12 @@ export const calculateTotalHolding = (transactions: Transaction[]): number => {
   }, 0);
 };
 
-export const calculateTotalStaking = (stakings: Staking[]): number => {
+export const calculateTotalStaking = (stakings: StakingEntity[]): number => {
   return stakings.reduce((total, staking) => total + staking.amount, 0);
 };
 export const calculateStorageLocationPercentageStakings = (
-  investment: Investment,
-  storageLocationType: StorageLocationType
+  investment: InvestmentEntity,
+  storageLocationType: storageLocationType
 ): { total: number; percentage: number; storageLocationAmount: number } => {
   const { totalAmount, storageLocationAmount } = investment.stakings.reduce(
     ({ totalAmount, storageLocationAmount }, staking) => {
@@ -93,8 +92,8 @@ export const calculateStorageLocationPercentageStakings = (
 };
 
 export const calculateStorageLocationPercentageStorages = (
-  investment: Investment,
-  storageLocationType: StorageLocationType
+  investment: InvestmentEntity,
+  storageLocationType: storageLocationType
 ): { total: number; percentage: number; storageLocationAmount: number } => {
   const { totalAmount, storageLocationAmount } = investment.storages.reduce(
     ({ totalAmount, storageLocationAmount }, storage) => {
@@ -113,8 +112,8 @@ export const calculateStorageLocationPercentageStorages = (
 };
 
 export const storageLocationPercentage = (
-  investment: Investment,
-  storageLocationType: StorageLocationType
+  investment: InvestmentEntity,
+  storageLocationType: storageLocationType
 ): number => {
   const staking = calculateStorageLocationPercentageStakings(
     investment,

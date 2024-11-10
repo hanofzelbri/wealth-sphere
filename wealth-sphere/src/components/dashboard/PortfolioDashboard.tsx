@@ -7,6 +7,7 @@ import { AddInvestment } from "./AddInvestment";
 import RefreshButton from "../utils/RefreshButton";
 import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
+import { PortfolioChart } from "./PortfolioChart";
 
 export const PortfolioDashboard: React.FC = () => {
   const { isError, error, isLoading } = useQuery({
@@ -31,7 +32,7 @@ export const PortfolioDashboard: React.FC = () => {
           ) : (
             <>
               <PortfolioSummary />
-              {/* <PortfolioChart /> */}
+              <PortfolioChart />
               <InvestmentsTable />
             </>
           )}

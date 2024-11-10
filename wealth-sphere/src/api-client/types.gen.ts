@@ -195,6 +195,10 @@ export type CoingeckoControllerGetMarketChartDataData = {
 
 export type CoingeckoControllerGetMarketChartDataResponse = Array<ChartDataEntity>;
 
+export type CoingeckoControllerUpdateCoinPricesResponse = void;
+
+export type CoingeckoControllerUpdateMarketChartDataResponse = void;
+
 export type TransactionsControllerGetAllTransactionsResponse = Array<TransactionEntity>;
 
 export type TransactionsControllerCreateTransactionData = {

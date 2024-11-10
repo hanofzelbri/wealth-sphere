@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { appConfig } from './config/configuration';
 import { StorageLocationsModule } from './storage-locations/storage-locations.module';
 import { StorageModule } from './storage/storage.module';
+import { PortfolioModule } from './portfolio/portfolio.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { StorageModule } from './storage/storage.module';
     CoingeckoModule,
     StorageLocationsModule,
     StorageModule,
+    PortfolioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

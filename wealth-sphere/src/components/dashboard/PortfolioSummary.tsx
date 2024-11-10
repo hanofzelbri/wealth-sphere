@@ -54,8 +54,6 @@ export const PortfolioSummary: React.FC = () => {
           profitLossPercentage,
         };
 
-        console.log(profitLossPercentage);
-
         if (!best || profitLossPercentage > best.profitLossPercentage) {
           best = performer;
         }

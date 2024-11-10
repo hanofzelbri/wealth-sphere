@@ -22,7 +22,7 @@ const timeFrames = [
 ];
 
 const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
-  const [selectedDays, setSelectedDays] = useState<number>(1);
+  const [selectedDays, setSelectedDays] = useState<number>(30);
 
   const { data } = useQuery({
     ...coingeckoControllerGetMarketChartDataOptions({
@@ -82,7 +82,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
         },
       ],
     });
-  }, [data]);
+  }, [data, selectedDays]);
 
   const percentageChange =
     data && data.length > 1

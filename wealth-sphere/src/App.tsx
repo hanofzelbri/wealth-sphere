@@ -4,7 +4,6 @@ import { Header } from "./components/header/Header";
 import { InvestmentDetails } from "./components/details/InvestmentDetails";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PageNotFound } from "./components/utils/PageNotFound";
-import PortfolioChart from "./components/utils/PortfolioChart";
 import { client } from "./api-client/services.gen";
 import { setupAxiosInstance } from "./lib/axios";
 import { AxiosStatic } from "axios";
@@ -37,7 +36,6 @@ function App() {
             <div className="container mx-auto p-4">
               <Routes>
                 <Route path="/" element={<PortfolioDashboard />} />
-                <Route path="/chart" element={<PortfolioChart />} />
                 <Route
                   path="/investment/:symbol"
                   element={<InvestmentDetails />}
