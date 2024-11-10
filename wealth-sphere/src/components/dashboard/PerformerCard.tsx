@@ -21,8 +21,10 @@ export const PerformerCard: React.FC<PerformerCardProps> = ({
   return (
     <Card>
       <CardContent className="pt-6">
-          <h3 className="text-sm font-medium text-gray-500 text-center">{title}</h3>
-        <div className="flex items-center gap-2 justify-center mt-4">
+        <h3 className="text-sm font-medium text-gray-500 text-center mb-2">
+          {title}
+        </h3>
+        <div className="flex items-center gap-2 justify-center">
           <img
             src={image}
             alt={`${name} image`}
@@ -32,7 +34,7 @@ export const PerformerCard: React.FC<PerformerCardProps> = ({
         </div>
         <div className="flex items-center justify-center gap-4 mt-1">
           <span
-            className={`text-sm font-medium ${
+            className={`text-sm ${
               value >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >

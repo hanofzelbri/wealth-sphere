@@ -84,18 +84,23 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
     });
   }, [data]);
 
+  const percentageChange =
+    data && data.length > 1
+      ? ((data[data.length - 1].price - data[0].price) / data[0].price) * 100
+      : 0;
+
   return (
     <div>
       <div className="flex flex-row items-center justify-between mb-4">
         <div className="flex flex-row items-center justify-center space-x-2">
           <h2 className="text-2xl font-bold">History</h2>
-          <span style={{ color: "#16c784" }}>
+          <span
+            className={
+              percentageChange >= 0 ? "text-green-600" : "text-red-600"
+            }
+          >
             {data && data.length > 1
-              ? `( ${formatNumber(
-                  ((data[data.length - 1].price - data[0].price) /
-                    data[0].price) *
-                    100
-                )}% )`
+              ? `( ${formatNumber(percentageChange)}% )`
               : "N/A"}
           </span>
         </div>
