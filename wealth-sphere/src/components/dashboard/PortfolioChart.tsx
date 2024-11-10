@@ -6,11 +6,16 @@ import { coingeckoControllerGetMarketChartDataOptions } from "@/api-client/@tans
 
 Chart.register(...registerables);
 
-const PortfolioChart: React.FC = () => {
+interface PortfolioChartProps {
+  coinId: string;
+  days: number;
+}
+
+const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId, days }) => {
   const { data } = useQuery({
     ...coingeckoControllerGetMarketChartDataOptions({
-      path: { coinId: "bitcoin" },
-      query: { days: 365 },
+      path: { coinId },
+      query: { days },
     }),
   });
 
@@ -63,10 +68,8 @@ const PortfolioChart: React.FC = () => {
   }, [data]);
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-4">
-      {" "}
-      {/* Anpassung */}
-      <h2 className="text-lg font-semibold mb-4">History</h2> {/* Titel */}
+    <div>
+      <h2 className="text-2xl font-bold mb-4">History</h2>
       <Line
         data={chartData}
         options={{

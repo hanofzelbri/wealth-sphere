@@ -43,7 +43,7 @@ export class UserService {
     if (error) throw error;
     if (data.user && data.session) {
       this.setCurrentUser(data.user, data.session.access_token);
-      // await supabase.auth.startAutoRefresh();
+      await supabase.auth.startAutoRefresh();
       return this.currentUserValue;
     }
     return null;
