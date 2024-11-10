@@ -79,7 +79,7 @@ export class CoingeckoService extends BaseApiService {
   }
 
   async getMarketChartData(userId: string, coinId: string, days: number) {
-    const startDate = new Date(new Date().setDate(new Date().getDate() - days));
+    const startDate = subDays(new Date(), days);
     const prismaClient = this.prisma.getPrismaClient(userId);
     return days < 90
       ? await prismaClient.chartDataHourly.findMany({

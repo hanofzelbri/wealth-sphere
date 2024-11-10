@@ -19,7 +19,7 @@ export const PortfolioDashboard: React.FC = () => {
     <div className="space-y-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Portfolio Summary</CardTitle>
+          <CardTitle className="text-2xl font-bold">Portfolio Summary</CardTitle>
           <div className="flex gap-2">
             <AddInvestment />
             <RefreshButton />

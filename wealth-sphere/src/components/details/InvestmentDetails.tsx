@@ -35,7 +35,7 @@ export const InvestmentDetails = () => {
       <CardContent>
         <InvestmentSummary investment={investment} />
         <div className="mt-8">
-          <PortfolioChart coinId={investment.coinId} days={365} />
+          <PortfolioChart coinId={investment.coinId} />
         </div>
         <div className="mt-8">
           <TransactionList investmentId={investment.id} />

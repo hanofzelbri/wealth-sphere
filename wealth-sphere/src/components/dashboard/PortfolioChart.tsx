@@ -3,19 +3,31 @@ import { Line } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 import { useQuery } from "@tanstack/react-query";
 import { coingeckoControllerGetMarketChartDataOptions } from "@/api-client/@tanstack/react-query.gen";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 Chart.register(...registerables);
 
 interface PortfolioChartProps {
   coinId: string;
-  days: number;
 }
 
-const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId, days }) => {
+const timeFrames = [
+  { label: "24h", days: 1 },
+  { label: "7d", days: 7 },
+  { label: "30d", days: 30 },
+  { label: "90d", days: 89 },
+  { label: "All", days: 3650 },
+];
+
+const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
+  const [selectedDays, setSelectedDays] = useState<number>(1);
+
   const { data } = useQuery({
     ...coingeckoControllerGetMarketChartDataOptions({
       path: { coinId },
-      query: { days },
+      query: { days: selectedDays },
     }),
   });
 
@@ -48,7 +60,12 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId, days }) => {
   useEffect(() => {
     if (!data) return;
 
-    const labels = data.map((item) => item.timestamp.toString());
+    const labels = data.map((item) => {
+      if (selectedDays > 1) {
+        return format(new Date(item.timestamp), "d MMM");
+      }
+      return format(new Date(item.timestamp), "HH:mm");
+    });
     const prices = data.map((item) => item.price);
 
     setChartData({
@@ -69,7 +86,31 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId, days }) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">History</h2>
+      <div className="flex flex-row items-center justify-between mb-4">
+        <div className="flex flex-row items-center justify-center space-x-2">
+          <h2 className="text-2xl font-bold">History</h2>
+          <span style={{ color: "#16c784" }}>
+            {data && data.length > 1
+              ? `( ${formatNumber(
+                  ((data[data.length - 1].price - data[0].price) /
+                    data[0].price) *
+                    100
+                )}% )`
+              : "N/A"}
+          </span>
+        </div>
+        <div className="flex space-x-2">
+          {timeFrames.map((timeFrame) => (
+            <Button
+              key={timeFrame.label}
+              variant={selectedDays === timeFrame.days ? "outline" : "default"}
+              onClick={() => setSelectedDays(timeFrame.days)}
+            >
+              {timeFrame.label}
+            </Button>
+          ))}
+        </div>
+      </div>
       <Line
         data={chartData}
         options={{
@@ -86,7 +127,6 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId, days }) => {
               enabled: true,
               mode: "index",
               intersect: false,
-
               callbacks: {
                 title: (tooltipItem) => {
                   const timestamp =
