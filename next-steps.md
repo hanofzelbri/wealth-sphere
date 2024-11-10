@@ -1,2 +1,3 @@
 - Graph plotting for investment performance for different time frames, 1d, 1w, 3m, 1y, all time, custom time frame
+- Fügen Sie eine Portfolio-Zusammensetzung als Donut-Chart hinzu über aktuelle Investments
 - Market sentiment, altcoin season index, fear and greed index, CBBI
