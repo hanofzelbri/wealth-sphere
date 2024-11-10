@@ -8,5 +8,6 @@ import { CoingeckoModule } from 'src/coingecko/coingecko.module';
   imports: [CoingeckoModule],
   providers: [InvestmentsService, PrismaService],
   controllers: [InvestmentsController],
+  exports: [InvestmentsService],
 })
 export class InvestmentsModule {}

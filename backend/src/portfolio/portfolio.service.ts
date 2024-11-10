@@ -50,13 +50,26 @@ export class PortfolioService {
           };
         });
 
+        const uniqueInvestments = historicalValues.reduce(
+          (acc, { timestamp, value }) => {
+            const existing = acc.find((item) => item.timestamp === timestamp);
+            if (existing) {
+              existing.value += value;
+            } else {
+              acc.push({ timestamp, value });
+            }
+            return acc;
+          },
+          [],
+        );
+
         return {
           timestamp: new Date(),
-          totalValue: historicalValues.reduce(
+          totalValue: uniqueInvestments.reduce(
             (acc, { value }) => acc + value,
             0,
           ),
-          investments: historicalValues.map(({ value }) => ({
+          investments: uniqueInvestments.map(({ value }) => ({
             coinId: investments[index].coinId,
             value,
           })),

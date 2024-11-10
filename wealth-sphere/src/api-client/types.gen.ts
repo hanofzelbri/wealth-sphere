@@ -137,6 +137,17 @@ export type UpdateStorageDto = {
     date: Date;
 };
 
+export type InvestmentAggregate = {
+    coinId: string;
+    value: number;
+};
+
+export type PortfolioHistoryEntity = {
+    timestamp: Date;
+    totalValue: number;
+    investments: Array<InvestmentAggregate>;
+};
+
 export type InvestmentsControllerGetAllInvestmentsResponse = Array<InvestmentEntity>;
 
 export type InvestmentsControllerCreateInvestmentData = {
@@ -352,3 +363,13 @@ export type StorageControllerUpdateData = {
 };
 
 export type StorageControllerUpdateResponse = StorageEntity;
+
+export type PortfolioControllerGetPortfolioHistoryData = {
+    body?: never;
+    path?: never;
+    query: {
+        days: number;
+    };
+};
+
+export type PortfolioControllerGetPortfolioHistoryResponse = Array<PortfolioHistoryEntity>;

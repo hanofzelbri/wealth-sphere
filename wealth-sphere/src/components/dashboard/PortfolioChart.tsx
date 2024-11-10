@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { formatNumber } from "@/utils/investmentCalculations";
 import { Card } from "@/components/ui/card";
+import { portfolioControllerGetPortfolioHistoryOptions } from "@/api-client/@tanstack/react-query.gen";
 
 Chart.register(...registerables);
 
@@ -21,7 +22,7 @@ export const PortfolioChart: React.FC = () => {
   const [selectedDays, setSelectedDays] = useState<number>(30);
 
   const { data: portfolioHistory, isLoading } = useQuery({
-    ...investmentsControllerGetPortfolioHistoryOptions({
+    ...portfolioControllerGetPortfolioHistoryOptions({
       query: { days: selectedDays },
     }),
   });
@@ -103,7 +104,7 @@ export const PortfolioChart: React.FC = () => {
                 title: (tooltipItems) => {
                   const timestamp =
                     portfolioHistory?.[tooltipItems[0].dataIndex].timestamp;
-                  return format(new Date(timestamp), "PPpp");
+                  return timestamp ? format(new Date(timestamp), "PPpp") : "";
                 },
               },
             },

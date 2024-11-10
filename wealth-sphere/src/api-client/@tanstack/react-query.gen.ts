@@ -2,8 +2,8 @@
 
 import type { Options } from '@hey-api/client-axios';
 import { queryOptions, type UseMutationOptions, type DefaultError } from '@tanstack/react-query';
-import { client, appControllerGetHello, investmentsControllerGetAllInvestments, investmentsControllerCreateInvestment, investmentsControllerDeleteInvestment, investmentsControllerGetInvestmentById, investmentsControllerGetInvestmentBySymbol, coingeckoControllerGetAllMarketChartData, coingeckoControllerGetMarketChartData, coingeckoControllerUpdateCoinPrices, coingeckoControllerUpdateMarketChartData, transactionsControllerGetAllTransactions, transactionsControllerCreateTransaction, transactionsControllerGetAllTransactionsForInvestmentId, transactionsControllerDeleteTransaction, transactionsControllerGetTransactionById, transactionsControllerUpdateTransaction, stakingsControllerGetAllStakings, stakingsControllerCreateStaking, stakingsControllerDeleteStaking, stakingsControllerGetStakingById, stakingsControllerUpdateStaking, storageLocationsControllerFindAll, storageLocationsControllerCreate, storageLocationsControllerDelete, storageLocationsControllerFindOne, storageLocationsControllerUpdate, storageControllerFindAll, storageControllerCreate, storageControllerDelete, storageControllerFindOne, storageControllerUpdate } from '../services.gen';
-import type { InvestmentsControllerCreateInvestmentData, InvestmentsControllerCreateInvestmentResponse, InvestmentsControllerDeleteInvestmentData, InvestmentsControllerGetInvestmentByIdData, InvestmentsControllerGetInvestmentBySymbolData, CoingeckoControllerGetAllMarketChartDataData, CoingeckoControllerGetMarketChartDataData, CoingeckoControllerUpdateCoinPricesResponse, CoingeckoControllerUpdateMarketChartDataResponse, TransactionsControllerCreateTransactionData, TransactionsControllerCreateTransactionResponse, TransactionsControllerGetAllTransactionsForInvestmentIdData, TransactionsControllerDeleteTransactionData, TransactionsControllerGetTransactionByIdData, TransactionsControllerUpdateTransactionData, TransactionsControllerUpdateTransactionResponse, StakingsControllerCreateStakingData, StakingsControllerCreateStakingResponse, StakingsControllerDeleteStakingData, StakingsControllerGetStakingByIdData, StakingsControllerUpdateStakingData, StakingsControllerUpdateStakingResponse, StorageLocationsControllerCreateData, StorageLocationsControllerCreateResponse, StorageLocationsControllerDeleteData, StorageLocationsControllerFindOneData, StorageLocationsControllerUpdateData, StorageLocationsControllerUpdateResponse, StorageControllerCreateData, StorageControllerCreateResponse, StorageControllerDeleteData, StorageControllerFindOneData, StorageControllerUpdateData, StorageControllerUpdateResponse } from '../types.gen';
+import { client, appControllerGetHello, investmentsControllerGetAllInvestments, investmentsControllerCreateInvestment, investmentsControllerDeleteInvestment, investmentsControllerGetInvestmentById, investmentsControllerGetInvestmentBySymbol, coingeckoControllerGetAllMarketChartData, coingeckoControllerGetMarketChartData, coingeckoControllerUpdateCoinPrices, coingeckoControllerUpdateMarketChartData, transactionsControllerGetAllTransactions, transactionsControllerCreateTransaction, transactionsControllerGetAllTransactionsForInvestmentId, transactionsControllerDeleteTransaction, transactionsControllerGetTransactionById, transactionsControllerUpdateTransaction, stakingsControllerGetAllStakings, stakingsControllerCreateStaking, stakingsControllerDeleteStaking, stakingsControllerGetStakingById, stakingsControllerUpdateStaking, storageLocationsControllerFindAll, storageLocationsControllerCreate, storageLocationsControllerDelete, storageLocationsControllerFindOne, storageLocationsControllerUpdate, storageControllerFindAll, storageControllerCreate, storageControllerDelete, storageControllerFindOne, storageControllerUpdate, portfolioControllerGetPortfolioHistory } from '../services.gen';
+import type { InvestmentsControllerCreateInvestmentData, InvestmentsControllerCreateInvestmentResponse, InvestmentsControllerDeleteInvestmentData, InvestmentsControllerGetInvestmentByIdData, InvestmentsControllerGetInvestmentBySymbolData, CoingeckoControllerGetAllMarketChartDataData, CoingeckoControllerGetMarketChartDataData, CoingeckoControllerUpdateCoinPricesResponse, CoingeckoControllerUpdateMarketChartDataResponse, TransactionsControllerCreateTransactionData, TransactionsControllerCreateTransactionResponse, TransactionsControllerGetAllTransactionsForInvestmentIdData, TransactionsControllerDeleteTransactionData, TransactionsControllerGetTransactionByIdData, TransactionsControllerUpdateTransactionData, TransactionsControllerUpdateTransactionResponse, StakingsControllerCreateStakingData, StakingsControllerCreateStakingResponse, StakingsControllerDeleteStakingData, StakingsControllerGetStakingByIdData, StakingsControllerUpdateStakingData, StakingsControllerUpdateStakingResponse, StorageLocationsControllerCreateData, StorageLocationsControllerCreateResponse, StorageLocationsControllerDeleteData, StorageLocationsControllerFindOneData, StorageLocationsControllerUpdateData, StorageLocationsControllerUpdateResponse, StorageControllerCreateData, StorageControllerCreateResponse, StorageControllerDeleteData, StorageControllerFindOneData, StorageControllerUpdateData, StorageControllerUpdateResponse, PortfolioControllerGetPortfolioHistoryData } from '../types.gen';
 import type { AxiosError } from 'axios';
 
 type QueryKey<TOptions extends Options> = [
@@ -635,4 +635,23 @@ export const storageControllerUpdateMutation = (options?: Partial<Options<Storag
         }
     };
     return mutationOptions;
+};
+
+export const portfolioControllerGetPortfolioHistoryQueryKey = (options: Options<PortfolioControllerGetPortfolioHistoryData>) => [
+    createQueryKey('portfolioControllerGetPortfolioHistory', options)
+];
+
+export const portfolioControllerGetPortfolioHistoryOptions = (options: Options<PortfolioControllerGetPortfolioHistoryData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await portfolioControllerGetPortfolioHistory({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: portfolioControllerGetPortfolioHistoryQueryKey(options)
+    });
 };

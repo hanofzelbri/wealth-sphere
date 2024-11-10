@@ -371,3 +371,36 @@ export const UpdateStorageDtoSchema = {
     },
     required: ['amount', 'storageLocationId', 'date']
 } as const;
+
+export const InvestmentAggregateSchema = {
+    type: 'object',
+    properties: {
+        coinId: {
+            type: 'string'
+        },
+        value: {
+            type: 'number'
+        }
+    },
+    required: ['coinId', 'value']
+} as const;
+
+export const PortfolioHistoryEntitySchema = {
+    type: 'object',
+    properties: {
+        timestamp: {
+            format: 'date-time',
+            type: 'string'
+        },
+        totalValue: {
+            type: 'number'
+        },
+        investments: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/InvestmentAggregate'
+            }
+        }
+    },
+    required: ['timestamp', 'totalValue', 'investments']
+} as const;
