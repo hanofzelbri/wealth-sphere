@@ -44,7 +44,7 @@ model Investment {
 }
 
 model Storage {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
   investmentId String @db.Uuid
 
@@ -56,6 +56,7 @@ model Storage {
   User              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   storageLocationId String     @db.Uuid
 
+  @@id([id, date])
   @@map("storages")
 }
 
@@ -73,7 +74,7 @@ model StorageLocation {
 }
 
 model Staking {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
   investmentId String @db.Uuid
 
@@ -87,11 +88,12 @@ model Staking {
   User              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   storageLocationId String     @db.Uuid
 
+  @@id([id, startDate])
   @@map("stakings")
 }
 
 model Transaction {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String @default(dbgenerated("(current_setting('app.current_user_id'::text))::uuid")) @db.Uuid
   investmentId String @db.Uuid
 
@@ -103,6 +105,7 @@ model Transaction {
   investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
   User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@id([id, date])
   @@map("transactions")
 }
 

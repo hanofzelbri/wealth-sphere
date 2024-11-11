@@ -53,3 +53,7 @@ CREATE POLICY tenant_isolation_policy ON "chart_data_daily" USING ("userId" = cu
 -- Create policies to bypass RLS (optional)
 CREATE POLICY bypass_rls_policy ON "chart_data_hourly" USING (current_setting('app.bypass_rls', TRUE)::text = 'on');
 CREATE POLICY bypass_rls_policy ON "chart_data_daily" USING (current_setting('app.bypass_rls', TRUE)::text = 'on');
+
+-- Create hypertables
+SELECT create_hypertable('chart_data_hourly', 'timestamp');
+SELECT create_hypertable('chart_data_daily', 'timestamp');

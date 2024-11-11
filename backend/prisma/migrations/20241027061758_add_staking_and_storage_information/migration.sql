@@ -7,7 +7,7 @@ CREATE TABLE "storages" (
     "location" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "storages_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "storages_pkey" PRIMARY KEY ("id", "date")
 );
 
 -- CreateTable
@@ -21,7 +21,7 @@ CREATE TABLE "stakings" (
     "coolDownPeriod" INTEGER NOT NULL,
     "startDate" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "stakings_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "stakings_pkey" PRIMARY KEY ("id", "startDate")
 );
 
 -- AddForeignKey
@@ -51,3 +51,7 @@ CREATE POLICY tenant_isolation_policy ON "stakings" USING ("userId" = current_se
 -- Create policies to bypass RLS (optional)
 CREATE POLICY bypass_rls_policy ON "storages" USING (current_setting('app.bypass_rls', TRUE)::text = 'on');
 CREATE POLICY bypass_rls_policy ON "stakings" USING (current_setting('app.bypass_rls', TRUE)::text = 'on');
+
+-- Create hypertables
+SELECT create_hypertable('storages', 'date');
+SELECT create_hypertable('stakings', 'startDate');

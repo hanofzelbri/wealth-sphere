@@ -1,3 +1,6 @@
+-- Create timescaledbextension
+CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+
 -- CreateEnum
 CREATE TYPE "TransactionType" AS ENUM ('buy', 'sell');
 
@@ -30,7 +33,7 @@ CREATE TABLE "transactions" (
     "date" TIMESTAMP(3) NOT NULL,
     "type" "TransactionType" NOT NULL,
 
-    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id", "date")
 );
 
 -- AddForeignKey
@@ -41,3 +44,6 @@ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_investmentId_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Create hypertable
+SELECT create_hypertable('transactions', 'date');
