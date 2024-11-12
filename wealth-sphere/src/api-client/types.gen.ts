@@ -374,3 +374,9 @@ export type PortfolioControllerGetPortfolioHistoryData = {
 };
 
 export type PortfolioControllerGetPortfolioHistoryResponse = Array<PortfolioHistoryEntity>;
+
+export type BlockchainCenterControllerGetAltcoinSeasonIndexResponse = {
+    altcoinSeason?: number;
+    month?: number;
+    year?: number;
+};

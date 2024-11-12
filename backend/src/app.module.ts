@@ -11,6 +11,7 @@ import { appConfig } from './config/configuration';
 import { StorageLocationsModule } from './storage-locations/storage-locations.module';
 import { StorageModule } from './storage/storage.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { BlockchainCenterModule } from './blockchaincenter/blockchaincenter.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PortfolioModule } from './portfolio/portfolio.module';
     StorageLocationsModule,
     StorageModule,
     PortfolioModule,
+    BlockchainCenterModule,
   ],
   controllers: [AppController],
   providers: [AppService],
