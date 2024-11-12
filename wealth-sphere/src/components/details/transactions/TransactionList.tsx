@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "./AddTransactionDialog";
 import { EditTransactionDialog } from "./EditTransactionDialog";
-import { format } from "date-fns";
+import { compareDesc, format } from "date-fns";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { formatNumber } from "@/utils/investmentCalculations";
@@ -43,6 +43,11 @@ export function TransactionList({ investmentId }: TransactionListProps) {
   const investment = investments.data?.find((inv) => inv.id === investmentId);
   if (!investment) return <p>Investment not found</p>;
 
+  // Sort transactions by date in descending order
+  const sortedTransactions = investment.transactions.sort((a, b) =>
+    compareDesc(new Date(a.date), new Date(b.date))
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -69,8 +74,8 @@ export function TransactionList({ investmentId }: TransactionListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {investment.transactions.length > 0 ? (
-            investment.transactions.map((transaction) => (
+          {sortedTransactions.length > 0 ? (
+            sortedTransactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>
                   {format(new Date(transaction.date), "PP")}

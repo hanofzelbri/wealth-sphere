@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { formatNumber } from "@/utils/investmentCalculations";
-import { Card } from "@/components/ui/card";
 import { portfolioControllerGetPortfolioHistoryOptions } from "@/api-client/@tanstack/react-query.gen";
 
 Chart.register(...registerables);
@@ -13,8 +12,8 @@ Chart.register(...registerables);
 const timeFrames = [
   { label: "7d", days: 7 },
   { label: "30d", days: 30 },
-  { label: "90d", days: 90 },
-  { label: "All", days: 365 },
+  { label: "90d", days: 89 },
+  { label: "All", days: 3650 },
 ];
 
 export const PortfolioChart: React.FC = () => {
@@ -54,7 +53,7 @@ export const PortfolioChart: React.FC = () => {
       : 0;
 
   return (
-    <Card className="p-6">
+    <div>
       <div className="flex flex-row items-center justify-between mb-4">
         <div className="flex flex-row items-center justify-center space-x-2">
           <h2 className="text-2xl font-bold">Portfolio History</h2>
@@ -127,6 +126,6 @@ export const PortfolioChart: React.FC = () => {
           },
         }}
       />
-    </Card>
+    </div>
   );
 };

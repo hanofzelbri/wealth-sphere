@@ -31,7 +31,7 @@ import {
   StorageLocationEntity,
   storageLocationType,
 } from "@/api-client/types.gen";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   storageLocationsControllerCreateMutation,
   storageLocationsControllerDeleteMutation,
@@ -55,11 +55,16 @@ export default function SettingsDialog() {
     ...storageLocationsControllerFindAllOptions({}),
   });
 
+  const queryClient = useQueryClient();
+
   const handleCloseForm = () => {
     setName("");
     setImage("");
     setEditingId(null);
     setFormOpen(false);
+    queryClient.invalidateQueries({
+      queryKey: [storageLocationsControllerFindAllOptions().queryKey],
+    });
   };
 
   const createStorageLocation = useMutation({

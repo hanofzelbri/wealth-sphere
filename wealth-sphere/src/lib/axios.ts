@@ -1,6 +1,9 @@
 import axios from "axios";
 import { QueryClient } from "@tanstack/react-query";
-import { investmentsControllerGetAllInvestmentsQueryKey } from "@/api-client/@tanstack/react-query.gen";
+import {
+  investmentsControllerGetAllInvestmentsQueryKey,
+  portfolioControllerGetPortfolioHistoryQueryKey,
+} from "@/api-client/@tanstack/react-query.gen";
 
 export const setupAxiosInstance = (
   baseURL: string,
@@ -32,6 +35,13 @@ export const setupAxiosInstance = (
         await queryClient.invalidateQueries({
           queryKey: investmentsControllerGetAllInvestmentsQueryKey(),
         });
+        for (const days of [7, 30, 89, 3650]) {
+          await queryClient.invalidateQueries({
+            queryKey: portfolioControllerGetPortfolioHistoryQueryKey({
+              query: { days },
+            }),
+          });
+        }
         // }
       }
 

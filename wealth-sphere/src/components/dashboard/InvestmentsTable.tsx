@@ -16,15 +16,19 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, ArrowDownRight, Eye, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Eye, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { ConfirmDialog } from "../ui/confirm-dialog";
-import { formatNumber } from "@/utils/investmentCalculations";
+import {
+  calculateProfitLoss,
+  formatNumber,
+} from "@/utils/investmentCalculations";
 import { InvestmentEntity } from "@/api-client/types.gen";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   investmentsControllerDeleteInvestmentMutation,
   investmentsControllerGetAllInvestmentsOptions,
 } from "@/api-client/@tanstack/react-query.gen";
+import { GainLossDisplay } from "../utils/GainLossDisplay";
 
 type SortField =
   | "symbol"
@@ -56,15 +60,6 @@ export const InvestmentsTable: React.FC = () => {
     );
     return totalQuantity * investment.currentPrice;
   };
-
-  const calculateGainLoss = useCallback((investment: InvestmentEntity) => {
-    const value = calculateValue(investment);
-    const costBasis = investment.transactions.reduce(
-      (sum, t) => sum + (t.type === "buy" ? t.quantity * t.price : 0),
-      0
-    );
-    return value - costBasis;
-  }, []);
 
   const calculateTotalQuantity = (investment: InvestmentEntity) => {
     return investment.transactions.reduce(
@@ -111,8 +106,14 @@ export const InvestmentsTable: React.FC = () => {
           bValue = calculateValue(b);
           break;
         case "gainLoss":
-          aValue = calculateGainLoss(a);
-          bValue = calculateGainLoss(b);
+          aValue = calculateProfitLoss(
+            a.transactions,
+            a.currentPrice
+          ).profitLoss;
+          bValue = calculateProfitLoss(
+            b.transactions,
+            b.currentPrice
+          ).profitLoss;
           break;
         case "stakingPercentage":
           aValue = calculateStakingPercentage(a);
@@ -128,7 +129,6 @@ export const InvestmentsTable: React.FC = () => {
       return 0;
     });
   }, [
-    calculateGainLoss,
     calculateStakingPercentage,
     investments.data,
     investments.isSuccess,
@@ -214,7 +214,11 @@ export const InvestmentsTable: React.FC = () => {
               {sortedInvestments.map((investment) => {
                 const totalQuantity = calculateTotalQuantity(investment);
                 const value = calculateValue(investment);
-                const gainLoss = calculateGainLoss(investment);
+                const { profitLoss, profitLossPercentage } =
+                  calculateProfitLoss(
+                    investment.transactions,
+                    investment.currentPrice
+                  );
                 const stakingPercentage =
                   calculateStakingPercentage(investment);
                 return (
@@ -243,17 +247,12 @@ export const InvestmentsTable: React.FC = () => {
                         ${formatNumber(investment.currentPrice)}
                       </TableCell>
                       <TableCell>${formatNumber(value)}</TableCell>
-                      <TableCell
-                        className={
-                          gainLoss >= 0 ? "text-green-600" : "text-red-600"
-                        }
-                      >
-                        ${formatNumber(Math.abs(gainLoss))}
-                        {gainLoss >= 0 ? (
-                          <ArrowUpRight className="inline ml-1" />
-                        ) : (
-                          <ArrowDownRight className="inline ml-1" />
-                        )}
+                      <TableCell>
+                        <GainLossDisplay
+                          value={profitLoss}
+                          percentage={profitLossPercentage}
+                          vertical={true}
+                        />
                       </TableCell>
                       <TableCell>
                         {isNaN(stakingPercentage)
