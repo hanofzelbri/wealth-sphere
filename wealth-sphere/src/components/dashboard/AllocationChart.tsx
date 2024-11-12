@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
+import { Chart as ChartJS, ArcElement, Legend, Title } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import {
   Dialog,
@@ -11,93 +11,72 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { useQuery } from "@tanstack/react-query";
+import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
+import { LoadingState } from "../utils/LoadingState";
+import {
+  calculateTotalHolding,
+  formatNumber,
+} from "@/utils/investmentCalculations";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 
-ChartJS.register(ArcElement, Tooltip, Legend, Title);
-
-// Mock data structure
-const allocationData = [
-  {
-    name: "SOL",
-    value: 17081.64,
-    ratio: 71.26,
-    symbol: "SOL",
-    fullName: "Solana",
-  },
-  {
-    name: "INJ",
-    value: 2821.64,
-    ratio: 11.77,
-    symbol: "INJ",
-    fullName: "Injective",
-  },
-  {
-    name: "AVAX",
-    value: 2118.84,
-    ratio: 8.84,
-    symbol: "AVAX",
-    fullName: "Avalanche",
-  },
-  {
-    name: "NEAR",
-    value: 1366.32,
-    ratio: 5.7,
-    symbol: "NEAR",
-    fullName: "NEAR Protocol",
-  },
-  {
-    name: "CELR",
-    value: 259.2,
-    ratio: 1.08,
-    symbol: "CELR",
-    fullName: "Celer Network",
-  },
-  {
-    name: "GLMR",
-    value: 146.02,
-    ratio: 0.61,
-    symbol: "GLMR",
-    fullName: "Moonbeam",
-  },
-  {
-    name: "SNX",
-    value: 67.72,
-    ratio: 0.28,
-    symbol: "SNX",
-    fullName: "Synthetix",
-  },
-  {
-    name: "AUDIO",
-    value: 54.91,
-    ratio: 0.23,
-    symbol: "AUDIO",
-    fullName: "Audius",
-  },
-  {
-    name: "ALGO",
-    value: 53.74,
-    ratio: 0.22,
-    symbol: "ALGO",
-    fullName: "Algorand",
-  },
-];
+ChartJS.register(ArcElement, Legend, Title);
 
 export default function AllocationChart() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const investments = useQuery({
+    ...investmentsControllerGetAllInvestmentsOptions(),
+  });
 
-  const topTokens = allocationData.slice(0, 7);
-  const restTokens = allocationData.slice(7);
-  const restRatio = restTokens.reduce((acc, token) => acc + token.ratio, 0);
+  if (investments.isLoading) return <LoadingState />;
+  if (investments.isError) return <p>Error: {investments.error?.message}</p>;
+
+  let totalPortfolioValue = 0;
+  const totalHoldings = investments.data?.map((investment) => {
+    const investmentTotalValue =
+      calculateTotalHolding(investment.transactions) * investment.currentPrice;
+    totalPortfolioValue += investmentTotalValue;
+    return {
+      investmentId: investment.id,
+      symbol: investment.symbol,
+      name: investment.name,
+      image: investment.image,
+      totalValue: investmentTotalValue,
+    };
+  });
+
+  const percentageHoldings = totalHoldings
+    ?.map((holding) => ({
+      ...holding,
+      percentage: (holding.totalValue / totalPortfolioValue) * 100,
+    }))
+    .sort((a, b) => b.percentage - a.percentage);
+
+  if (!percentageHoldings) return null;
+
+  const topTokens = percentageHoldings.slice(0, 7);
+  const restTokens = percentageHoldings.slice(7);
+  const restRatio = restTokens.reduce(
+    (acc, token) => acc + token.percentage,
+    0
+  );
 
   const chartData = {
     labels: [
       ...topTokens.map(
-        (token) => `${token.symbol} (${token.ratio.toFixed(2)}%)`
+        (token) => `${token.symbol} (${token.percentage.toFixed(2)}%)`
       ),
       `Rest (${restRatio.toFixed(2)}%)`,
     ],
     datasets: [
       {
-        data: [...topTokens.map((token) => token.ratio), restRatio],
+        data: [...topTokens.map((token) => token.percentage), restRatio],
         backgroundColor: [
           "#3b82f6", // blue
           "#ec4899", // pink
@@ -169,29 +148,37 @@ export default function AllocationChart() {
               <div className="text-right">Value</div>
               <div className="text-right">Ratio</div>
             </div>
-            {allocationData.map((token) => (
+            {percentageHoldings.map((token) => (
               <div
                 key={token.name}
                 className="grid grid-cols-3 items-center px-4 py-2 hover:bg-muted/50 rounded-lg"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={token.image} />
+                          <AvatarFallback>{token.symbol}</AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{token.symbol}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <div>
-                    <div className="font-medium">{token.fullName}</div>
+                    <div className="font-medium">{token.name}</div>
                     <div className="text-sm text-muted-foreground">
                       {token.symbol}
                     </div>
                   </div>
                 </div>
                 <div className="text-right font-mono">
-                  $
-                  {token.value.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  ${formatNumber(token.totalValue)}
                 </div>
                 <div className="text-right font-mono">
-                  {token.ratio.toFixed(2)}%
+                  {token.percentage.toFixed(2)}%
                 </div>
               </div>
             ))}
