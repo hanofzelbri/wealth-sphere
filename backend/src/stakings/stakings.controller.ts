@@ -79,8 +79,8 @@ export class StakingsController {
     @Param('id') id: string,
     @Body() data: UpdateStakingDto,
     @User() userId: string,
-  ): Promise<Staking> {
-    return await this.stakingsService.updateStaking(id, userId, data);
+  ): Promise<void> {
+    await this.stakingsService.updateStaking(id, userId, data);
   }
 
   @Delete(':id')

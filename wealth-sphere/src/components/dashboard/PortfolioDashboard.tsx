@@ -8,6 +8,7 @@ import RefreshButton from "../utils/RefreshButton";
 import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { PortfolioChart } from "./PortfolioChart";
+import AllocationChart from "./AllocationChart";
 
 export const PortfolioDashboard: React.FC = () => {
   const { isError, error, isLoading } = useQuery({
@@ -35,7 +36,10 @@ export const PortfolioDashboard: React.FC = () => {
             <>
               <div className="flex flex-col gap-8">
                 <PortfolioSummary />
-                <PortfolioChart />
+                <div className="flex gap-4">
+                  <PortfolioChart />
+                  <AllocationChart />
+                </div>
                 <InvestmentsTable />
               </div>
             </>

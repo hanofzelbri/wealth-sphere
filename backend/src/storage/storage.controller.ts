@@ -79,8 +79,8 @@ export class StorageController {
     @Param('id') id: string,
     @User('id') userId: string,
     @Body() updateDto: UpdateStorageDto,
-  ): Promise<Storage> {
-    return await this.storageService.update(id, userId, updateDto);
+  ): Promise<void> {
+    await this.storageService.update(id, userId, updateDto);
   }
 
   @Delete(':id')
