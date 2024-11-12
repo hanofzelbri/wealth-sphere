@@ -89,11 +89,27 @@ export default function AllocationChart() {
   const restRatio = restTokens.reduce((acc, token) => acc + token.ratio, 0);
 
   const chartData = {
-    labels: [...topTokens.map((token) => token.symbol), "Rest"],
+    labels: [
+      ...topTokens.map(
+        (token) => `${token.symbol} (${token.ratio.toFixed(2)}%)`
+      ),
+      `Rest (${restRatio.toFixed(2)}%)`,
+    ],
     datasets: [
       {
         data: [...topTokens.map((token) => token.ratio), restRatio],
+        backgroundColor: [
+          "#3b82f6", // blue
+          "#ec4899", // pink
+          "#f97316", // orange
+          "#eab308", // yellow
+          "#06b6d4", // cyan
+          "#8b5cf6", // purple
+          "#6b7280", // gray
+          "#94a3b8", // slate
+        ],
         borderWidth: 1,
+        borderColor: "transparent",
       },
     ],
   };
@@ -102,56 +118,44 @@ export default function AllocationChart() {
     responsive: true,
     plugins: {
       legend: {
-        display: false,
+        display: true,
+        position: "bottom" as const,
+        labels: {
+          padding: 10,
+          font: {
+            size: 12,
+          },
+          boxWidth: 15,
+          boxHeight: 15,
+        },
       },
       tooltip: {
         callbacks: {
           label: (context: { label: string; parsed: number }) => {
-            const label = context.label || "";
-            const value = context.parsed || 0;
-            return `${label}: ${value.toFixed(2)}%`;
+            return `${context.parsed.toFixed(2)}%`;
           },
         },
       },
     },
     cutout: "60%",
+    maintainAspectRatio: false,
   };
 
   return (
-    <div className="">
+    <div className="h-full">
       <div className="flex justify-between items-start mb-4">
         <h2 className="text-2xl font-bold">Allocation</h2>
+        <Button
+          variant="link"
+          onClick={() => setIsDialogOpen(true)}
+          className="text-primary hover:underline"
+        >
+          View all
+        </Button>
       </div>
 
-      <div className="flex justify-center">
-        <div style={{ maxWidth: '200px', maxHeight: '200px' }}>
-          <Doughnut data={chartData} options={chartOptions} />
-        </div>
-        <div className="flex flex-col gap-2">
-          {topTokens.map((token) => (
-            <div key={token.name} className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" />
-              <span className="text-sm font-medium">{token.symbol}</span>
-              <span className="text-sm text-muted-foreground ml-auto">
-                {token.ratio.toFixed(2)}%
-              </span>
-            </div>
-          ))}
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" />
-            <span className="text-sm font-medium">Rest</span>
-            <span className="text-sm text-muted-foreground ml-auto">
-              {restRatio.toFixed(2)}%
-            </span>
-          </div>
-          <Button
-            variant="link"
-            onClick={() => setIsDialogOpen(true)}
-            className="text-primary hover:underline"
-          >
-            View all
-          </Button>
-        </div>
+      <div className="h-64">
+        <Doughnut data={chartData} options={chartOptions} />
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

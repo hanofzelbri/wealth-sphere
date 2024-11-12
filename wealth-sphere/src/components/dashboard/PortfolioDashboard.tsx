@@ -36,9 +36,13 @@ export const PortfolioDashboard: React.FC = () => {
             <>
               <div className="flex flex-col gap-8">
                 <PortfolioSummary />
-                <div className="flex gap-4">
-                  <PortfolioChart />
-                  <AllocationChart />
+                <div className="flex gap-8 w-full">
+                  <div className="w-[60%]">
+                    <PortfolioChart />
+                  </div>
+                  <div className="w-[40%]">
+                    <AllocationChart />
+                  </div>
                 </div>
                 <InvestmentsTable />
               </div>

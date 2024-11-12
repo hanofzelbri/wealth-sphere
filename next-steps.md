@@ -1,3 +1,2 @@
-- Fügen Sie eine Portfolio-Zusammensetzung als Donut-Chart hinzu über aktuelle Investments
 - Market sentiment, altcoin season index, fear and greed index, CBBI
 - Fix user handling token and login, autorefresh, ...
