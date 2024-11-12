@@ -3,19 +3,15 @@ import { CoingeckoService } from '../coingecko/coingecko.service';
 import { InvestmentsService } from '../investments/investments.service';
 import { PortfolioHistoryEntity } from 'src/entities/portfolio-history.entity';
 import { PrismaService } from '../prisma/prisma.service';
-import { isSameDay, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
 
-interface PortfolioHistoryRecord {
-  ts: Date;
+interface PortfolioHistoryCache {
+  chart_data_id: string;
   investmentId: string;
-  cumulativequantity: number;
-  avgprice: number;
-  investmentvalue: number;
-}
-
-interface TransactionCache {
-  investmentId: string;
-  total_quantity: number;
+  date: string;
+  price: number;
+  cumulative_quantity: number;
+  investment_value: number;
 }
 
 @Injectable()
@@ -31,112 +27,115 @@ export class PortfolioService {
     days: number,
   ): Promise<PortfolioHistoryEntity[]> {
     const endDate = new Date();
-    const startDate = subDays(endDate, days);
+    const startDate = subDays(endDate, +days + 1);
 
-    let timeBucketLength = '1 hour';
-    if (days > 89) {
-      timeBucketLength = '1 day';
-    }
-    const portfolioHistoryRecords: PortfolioHistoryRecord[] =
+    const portfolioHistoryCache: PortfolioHistoryCache[] =
       await this.prisma.getPrismaClient(userId).$queryRaw`
-WITH cumulativeQuantities AS (
+WITH
+  valid_transactions AS (
     SELECT
-        time_bucket(${timeBucketLength}::interval, date) AS ts,
-        "investmentId",
-        SUM(
-            CASE 
-                WHEN type = 'buy' THEN quantity
-                WHEN type = 'sell' THEN -quantity
-                ELSE 0
-            END
-        ) OVER (
-            PARTITION BY "investmentId"
-            ORDER BY time_bucket(${timeBucketLength}::interval, date) ASC
-            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) AS cumulativeQuantity
-    FROM transactions
-    WHERE date > ${startDate}
-),
-daily_investmentValues AS (
+      t."investmentId",
+      t.date,
+      SUM(
+        CASE
+          WHEN t.type = 'buy' THEN t.quantity
+          WHEN t.type = 'sell' THEN - t.quantity
+          ELSE 0
+        END
+      ) OVER (
+        PARTITION BY
+          t."investmentId"
+        ORDER BY
+          t.date ROWS BETWEEN UNBOUNDED PRECEDING
+          AND CURRENT ROW
+      ) AS cumulative_quantity
+    FROM
+      public.transactions t
+  ),
+  latest_valid_transactions AS (
+    SELECT DISTINCT
+      ON (cdd."investmentId", cdd."timestamp") cdd."investmentId",
+      cdd."timestamp",
+      v.cumulative_quantity,
+      v.date AS transaction_date
+    FROM
+      public.chart_data_daily cdd
+      LEFT JOIN valid_transactions v ON cdd."investmentId" = v."investmentId"
+      AND v.date <= cdd."timestamp"
+    ORDER BY
+      cdd."investmentId",
+      cdd."timestamp",
+      v.date DESC
+  ),
+  daily_data AS (
     SELECT
-        time_bucket(${timeBucketLength}::interval, timestamp) AS ts,
-        "investmentId",
-        AVG(price) AS avgPrice
-    FROM chart_data_daily
-    WHERE timestamp > ${startDate}
-    GROUP BY ts, "investmentId"
-),
-combinedData AS (
-    SELECT
-        d.ts,
-        d."investmentId",
-        COALESCE(c.cumulativeQuantity, 0) AS cumulativeQuantity,
-        d.avgPrice,
-        COALESCE(c.cumulativeQuantity, 0) * d.avgPrice AS investmentValue
-    FROM daily_investmentValues d
-    LEFT JOIN cumulativeQuantities c
-    ON d.ts = c.ts AND d."investmentId" = c."investmentId"
-)
+      cdd.id AS chart_data_id,
+      cdd."investmentId",
+      cdd."timestamp",
+      cdd.price,
+      lvt.cumulative_quantity,
+      (lvt.cumulative_quantity * cdd.price) AS investment_value,
+      ROW_NUMBER() OVER (
+        PARTITION BY cdd."investmentId", DATE(cdd."timestamp")
+        ORDER BY cdd."timestamp" DESC
+      ) AS row_num
+    FROM
+      public.chart_data_daily cdd
+      LEFT JOIN latest_valid_transactions lvt ON cdd."investmentId" = lvt."investmentId"
+      AND cdd."timestamp" = lvt."timestamp"
+    WHERE
+      cdd.timestamp >= ${startDate}
+  )
 SELECT
-    ts,
-    "investmentId",
-    cumulativeQuantity,
-    avgPrice,
-    investmentValue
-FROM combinedData
-ORDER BY ts, "investmentId";
-    `;
-
-    const transactionCache: TransactionCache[] =
-      await this.prisma.getPrismaClient(userId).$queryRaw`
-SELECT
-    "investmentId",
-    SUM(CASE
-        WHEN type = 'buy' THEN quantity
-        WHEN type = 'sell' THEN -quantity
-        ELSE 0
-    END) AS total_quantity
+  chart_data_id,
+  "investmentId",
+  DATE("timestamp") AS date,
+  price,
+  cumulative_quantity,
+  investment_value
 FROM
-    public.transactions
+  daily_data
 WHERE
-    date < ${startDate}
-GROUP BY
-    "investmentId";
-    `;
-    const cache: Record<string, number> = {};
-    transactionCache.forEach((record) => {
-      cache[record.investmentId] = record.total_quantity;
-    });
+  row_num = 1
+ORDER BY
+  "investmentId",
+  date;
+`;
 
-    console.log(cache);
-    const updatedRecords = portfolioHistoryRecords.map((record) => {
-      if (record.cumulativequantity !== 0) {
-        cache[record.investmentId] = record.cumulativequantity;
-        return record;
-      }
-      record.cumulativequantity = cache[record.investmentId] || 0;
-      record.investmentvalue = record.cumulativequantity * record.avgprice;
-      if (record.investmentvalue < 0) {
-        console.log(record);
-      }
-      return record;
-    });
+    const aggregatedData: PortfolioHistoryEntity[] = Object.values(
+      portfolioHistoryCache.reduce(
+        (
+          acc,
+          { date, investment_value, investmentId, cumulative_quantity },
+        ) => {
+          const timestampKey = date;
+          if (!acc[timestampKey]) {
+            acc[timestampKey] = {
+              date: timestampKey,
+              totalValue: 0,
+              investments: [],
+            };
+          }
+          acc[timestampKey].totalValue += investment_value;
+          const existingInvestment = acc[timestampKey].investments.find(
+            (investment) => investment.investmentId === investmentId,
+          );
+          if (existingInvestment) {
+            existingInvestment.totalQuantity += cumulative_quantity;
+            existingInvestment.totalValue += investment_value;
+          } else {
+            acc[timestampKey].investments.push({
+              investmentId,
+              totalQuantity: cumulative_quantity,
+              totalValue: investment_value,
+            });
+          }
+          return acc;
+        },
+        {} as Record<string, PortfolioHistoryEntity>,
+      ),
+    );
 
-    const ret: PortfolioHistoryEntity[] = [];
-    updatedRecords.reduce((acc, current) => {
-      const existingIndex = acc.findIndex((item) => {
-        return isSameDay(new Date(item.timestamp), new Date(current.ts));
-      });
-      if (existingIndex !== -1) {
-        acc[existingIndex].totalValue += current.investmentvalue;
-      } else {
-        acc.push({
-          timestamp: current.ts,
-          totalValue: current.investmentvalue,
-        });
-      }
-      return acc;
-    }, ret);
-    return ret;
+    return aggregatedData;
   }
 }

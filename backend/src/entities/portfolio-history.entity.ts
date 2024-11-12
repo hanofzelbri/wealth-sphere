@@ -13,11 +13,11 @@ export class InvestmentAggregate {
 
 export class PortfolioHistoryEntity {
   @ApiProperty()
-  timestamp: Date;
+  date: string;
 
   @ApiProperty()
   totalValue: number;
 
-  // @ApiProperty({ type: [InvestmentAggregate] })
-  // investments: InvestmentAggregate[];
+  @ApiProperty({ type: [InvestmentAggregate] })
+  investments: InvestmentAggregate[];
 }

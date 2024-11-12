@@ -11,7 +11,6 @@ import { portfolioControllerGetPortfolioHistoryOptions } from "@/api-client/@tan
 Chart.register(...registerables);
 
 const timeFrames = [
-  { label: "24h", days: 1 },
   { label: "7d", days: 7 },
   { label: "30d", days: 30 },
   { label: "90d", days: 90 },
@@ -27,17 +26,12 @@ export const PortfolioChart: React.FC = () => {
     }),
   });
 
-  console.log(portfolioHistory?.map((item) => item));
-
   if (isLoading) return <div>Loading...</div>;
 
   const chartData = {
     labels:
-      portfolioHistory?.map((item) =>
-        selectedDays === 1
-          ? format(new Date(item.timestamp), "HH:mm")
-          : format(new Date(item.timestamp), "d MMM")
-      ) || [],
+      portfolioHistory?.map((item) => format(new Date(item.date), "d MMM")) ||
+      [],
     datasets: [
       {
         label: "Portfolio Value",
@@ -104,9 +98,9 @@ export const PortfolioChart: React.FC = () => {
                   return `$${formatNumber(context.raw as number)}`;
                 },
                 title: (tooltipItems) => {
-                  const timestamp =
-                    portfolioHistory?.[tooltipItems[0].dataIndex].timestamp;
-                  return timestamp ? format(new Date(timestamp), "PPpp") : "";
+                  const date =
+                    portfolioHistory?.[tooltipItems[0].dataIndex].date;
+                  return date ? format(new Date(date), "PPpp") : "";
                 },
               },
             },

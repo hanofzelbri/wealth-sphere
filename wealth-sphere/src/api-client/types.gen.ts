@@ -137,9 +137,16 @@ export type UpdateStorageDto = {
     date: Date;
 };
 
-export type PortfolioHistoryEntity = {
-    timestamp: Date;
+export type InvestmentAggregate = {
+    investmentId: string;
+    totalQuantity: number;
     totalValue: number;
+};
+
+export type PortfolioHistoryEntity = {
+    date: string;
+    totalValue: number;
+    investments: Array<InvestmentAggregate>;
 };
 
 export type InvestmentsControllerGetAllInvestmentsResponse = Array<InvestmentEntity>;
