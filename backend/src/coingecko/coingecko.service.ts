@@ -154,11 +154,11 @@ export class CoingeckoService extends BaseApiService {
     }
   }
 
-  async storeMarketChartData(user: string): Promise<void> {
-    const prismaClient = this.prisma.getPrismaClient(user);
+  async storeMarketChartData(userId: string): Promise<void> {
+    const prismaClient = this.prisma.getPrismaClient(userId);
     const investments = await prismaClient.investment.findMany({
       where: {
-        userId: user,
+        userId: userId,
       },
     });
 
@@ -177,7 +177,7 @@ export class CoingeckoService extends BaseApiService {
       for (const data of chartData365.prices) {
         await prismaClient.chartDataDaily.upsert({
           where: {
-            userId: user,
+            userId: userId,
             investmentId_timestamp: {
               investmentId: investment.id,
               timestamp: new Date(data[0]),
@@ -187,7 +187,7 @@ export class CoingeckoService extends BaseApiService {
             price: data[1],
           },
           create: {
-            userId: user,
+            userId: userId,
             investmentId: investment.id,
             timestamp: new Date(data[0]),
             price: data[1],
@@ -198,7 +198,7 @@ export class CoingeckoService extends BaseApiService {
       for (const data of chartData90.prices) {
         await prismaClient.chartDataHourly.upsert({
           where: {
-            userId: user,
+            userId: userId,
             investmentId_timestamp: {
               investmentId: investment.id,
               timestamp: new Date(data[0]),
@@ -208,7 +208,7 @@ export class CoingeckoService extends BaseApiService {
             price: data[1],
           },
           create: {
-            userId: user,
+            userId: userId,
             investmentId: investment.id,
             timestamp: new Date(data[0]),
             price: data[1],

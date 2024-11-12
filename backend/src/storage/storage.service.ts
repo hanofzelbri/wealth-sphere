@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateStorageDto } from './dto/storage.dto';
 
 @Injectable()
 export class StorageService {
@@ -33,17 +34,24 @@ export class StorageService {
     });
   }
 
-  async update(id: string, userId: string, data: any) {
+  async update(id: string, userId: string, data: UpdateStorageDto) {
     return this.prisma.getPrismaClient(userId).storage.update({
-      where: { id, userId },
+      where: { id_date: { id, date: data.date } },
       data: { ...data, userId },
       include: { location: true },
     });
   }
 
   async delete(id: string, userId: string) {
-    return await this.prisma.getPrismaClient(userId).storage.delete({
+    const client = this.prisma.getPrismaClient(userId);
+    const deleteStorage = await client.storage.findFirstOrThrow({
       where: { id, userId },
+    });
+    return await client.storage.delete({
+      where: {
+        id_date: { id: deleteStorage.id, date: deleteStorage.date },
+        userId,
+      },
       include: { location: true },
     });
   }

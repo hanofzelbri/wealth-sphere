@@ -27,6 +27,8 @@ export const PortfolioChart: React.FC = () => {
     }),
   });
 
+  console.log(portfolioHistory?.map((item) => item));
+
   if (isLoading) return <div>Loading...</div>;
 
   const chartData = {

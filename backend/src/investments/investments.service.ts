@@ -11,95 +11,72 @@ export class InvestmentsService {
   ) {}
 
   async getAllInvestments(userId: string) {
-    try {
-      return await this.prisma.getPrismaClient(userId).investment.findMany({
-        where: { userId },
-        include: {
-          transactions: true,
-          stakings: { include: { location: true } },
-          storages: { include: { location: true } },
-        },
-      });
-    } catch (error) {
-      console.error('Error fetching all investments:', error);
-      throw error;
-    }
+    return this.prisma.getPrismaClient(userId).investment.findMany({
+      where: { userId },
+      include: {
+        transactions: true,
+        stakings: { include: { location: true } },
+        storages: { include: { location: true } },
+      },
+    });
   }
 
   async getInvestmentById(id: string, userId: string) {
-    try {
-      return await this.prisma.getPrismaClient(userId).investment.findUnique({
-        where: { id, userId },
-        include: {
-          transactions: true,
-          stakings: { include: { location: true } },
-          storages: { include: { location: true } },
-        },
-      });
-    } catch (error) {
-      console.error('Error fetching investment by ID:', error);
-      throw error;
-    }
+    return this.prisma.getPrismaClient(userId).investment.findUnique({
+      where: { id, userId },
+      include: {
+        transactions: true,
+        stakings: { include: { location: true } },
+        storages: { include: { location: true } },
+      },
+    });
   }
 
   async getInvestmentBySymbol(symbol: string, userId: string) {
-    try {
-      return await this.prisma
-        .getPrismaClient(userId)
-        .investment.findFirstOrThrow({
-          where: { symbol, userId },
-          include: {
-            transactions: true,
-            stakings: { include: { location: true } },
-            storages: { include: { location: true } },
-          },
-        });
-    } catch (error) {
-      console.error('Error fetching investment by symbol:', error);
-      throw error;
-    }
+    return this.prisma.getPrismaClient(userId).investment.findFirstOrThrow({
+      where: { symbol, userId },
+      include: {
+        transactions: true,
+        stakings: { include: { location: true } },
+        storages: { include: { location: true } },
+      },
+    });
   }
 
   async createInvestment(data: CreateInvestmentDto, userId: string) {
-    try {
-      const coinPrices = await this.coingeckoService.fetchCoinPrices([
-        data.coinId,
-      ]);
-      const coinInfo = coinPrices[0];
-      return await this.prisma.getPrismaClient(userId).investment.create({
-        data: {
-          coinId: data.coinId,
-          name: coinInfo.name,
-          symbol: coinInfo.symbol,
-          image: coinInfo.image,
-          currentPrice: coinInfo.current_price,
-          userId,
-        },
-        include: {
-          transactions: true,
-          stakings: { include: { location: true } },
-          storages: { include: { location: true } },
-        },
-      });
-    } catch (error) {
-      console.error('Error creating investment:', error);
-      throw error;
-    }
+    const coinPrices = await this.coingeckoService.fetchCoinPrices([
+      data.coinId,
+    ]);
+    const coinInfo = coinPrices[0];
+    const ret = await this.prisma.getPrismaClient(userId).investment.create({
+      data: {
+        coinId: data.coinId,
+        name: coinInfo.name,
+        symbol: coinInfo.symbol,
+        image: coinInfo.image,
+        currentPrice: coinInfo.current_price,
+        userId,
+      },
+      include: {
+        transactions: true,
+        stakings: { include: { location: true } },
+        storages: { include: { location: true } },
+      },
+    });
+
+    await this.coingeckoService.storeMarketChartData(userId);
+
+    return ret;
   }
 
   async deleteInvestment(id: string, userId: string) {
-    try {
-      return await this.prisma.getPrismaClient(userId).investment.delete({
-        where: { id, userId },
-        include: {
-          transactions: true,
-          stakings: { include: { location: true } },
-          storages: { include: { location: true } },
-        },
-      });
-    } catch (error) {
-      console.error('Error deleting investment:', error);
-      throw error;
-    }
+    return this.prisma.getPrismaClient(userId).investment.delete({
+      where: { id, userId },
+      include: {
+        transactions: true,
+        stakings: { include: { location: true } },
+        storages: { include: { location: true } },
+      },
+    });
   }
 }

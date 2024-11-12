@@ -93,6 +93,6 @@ export class StakingsController {
     @Param('id') id: string,
     @User() userId: string,
   ): Promise<void> {
-    return this.stakingsService.deleteStaking(id, userId);
+    await this.stakingsService.deleteStaking(id, userId);
   }
 }

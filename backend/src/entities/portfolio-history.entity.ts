@@ -2,10 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class InvestmentAggregate {
   @ApiProperty()
-  coinId: string;
+  investmentId: string;
 
   @ApiProperty()
-  value: number;
+  totalQuantity: number;
+
+  @ApiProperty()
+  totalValue: number;
 }
 
 export class PortfolioHistoryEntity {
@@ -15,6 +18,6 @@ export class PortfolioHistoryEntity {
   @ApiProperty()
   totalValue: number;
 
-  @ApiProperty({ type: [InvestmentAggregate] })
-  investments: InvestmentAggregate[];
+  // @ApiProperty({ type: [InvestmentAggregate] })
+  // investments: InvestmentAggregate[];
 }

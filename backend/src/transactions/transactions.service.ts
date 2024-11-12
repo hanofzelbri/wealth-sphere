@@ -24,7 +24,7 @@ export class TransactionsService {
     id: string,
     userId: string,
   ): Promise<Transaction | null> {
-    return await this.prisma.getPrismaClient(userId).transaction.findUnique({
+    return await this.prisma.getPrismaClient(userId).transaction.findFirst({
       where: { id, userId },
     });
   }
@@ -42,9 +42,10 @@ export class TransactionsService {
 
   async updateTransaction(id: string, userId: string, data: any) {
     try {
-      return await this.prisma.getPrismaClient(userId).transaction.update({
-        where: { id, userId },
-        data: { ...data, userId },
+      return await this.prisma.getPrismaClient(userId).transaction.upsert({
+        where: { id_date: { id, date: data.date }, userId },
+        update: { ...data, userId },
+        create: { ...data, userId },
       });
     } catch (error) {
       console.error('Error updating transaction:', error);
@@ -53,13 +54,14 @@ export class TransactionsService {
   }
 
   async deleteTransaction(id: string, userId: string) {
-    try {
-      return await this.prisma.getPrismaClient(userId).transaction.delete({
-        where: { id, userId },
-      });
-    } catch (error) {
-      console.error('Error deleting transaction:', error);
-      throw error;
-    }
+    const client = this.prisma.getPrismaClient(userId);
+    const deleteTransaction = await client.transaction.findFirstOrThrow({
+      where: { id, userId },
+    });
+    return await client.transaction.delete({
+      where: {
+        id_date: { id: deleteTransaction.id, date: deleteTransaction.date },
+      },
+    });
   }
 }

@@ -5,14 +5,12 @@ export function forUser(userId: string) {
   return Prisma.defineExtension((prisma) =>
     prisma.$extends({
       query: {
-        $allModels: {
-          async $allOperations({ args, query }) {
-            const [, result] = await prisma.$transaction([
-              prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}::text, TRUE)`,
-              query(args),
-            ]);
-            return result;
-          },
+        $allOperations: async ({ args, query }) => {
+          const [, result] = await prisma.$transaction([
+            prisma.$executeRaw`SELECT set_config('app.current_user_id', ${userId}::text, TRUE)`,
+            query(args),
+          ]);
+          return result;
         },
       },
     }),

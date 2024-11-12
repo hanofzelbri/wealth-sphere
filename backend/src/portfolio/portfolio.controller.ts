@@ -23,6 +23,6 @@ export class PortfolioController {
     @User() userId: string,
     @Query('days') days: number,
   ): Promise<PortfolioHistoryEntity[]> {
-    return this.portfolioService.getPortfolioHistory(userId, days);
+    return await this.portfolioService.getPortfolioHistory(userId, days);
   }
 }
