@@ -11,6 +11,7 @@ import { PortfolioChart } from "./PortfolioChart";
 import AllocationChart from "./AllocationChart";
 import { AltcoinSeasonIndex } from "./AltcoinSeasonIndex";
 import { CBBIIndex } from "./CBBIIndex";
+import { FearAndGreedIndex } from "./FearAndGreedIndex";
 
 export const PortfolioDashboard: React.FC = () => {
   const { isError, error, isLoading } = useQuery({
@@ -39,6 +40,7 @@ export const PortfolioDashboard: React.FC = () => {
               <div className="flex flex-col gap-8">
                 <AltcoinSeasonIndex />
                 <CBBIIndex />
+                <FearAndGreedIndex />
                 <PortfolioSummary />
                 <div className="flex gap-8 w-full">
                   <div className="w-[60%]">
