@@ -24,8 +24,8 @@ export const AltcoinSeasonIndex: React.FC = () => {
   };
 
   const getProgressColor = (value: number) => {
-    if (value <= 35) return "bg-orange-600";
-    if (value <= 45) return "bg-orange-400";
+    if (value <= 35) return "[&>*]:bg-orange-600";
+    if (value <= 45) return "[&>*]:bg-orange-400";
     if (value <= 55) return "[&>*]:bg-blue-500";
     if (value <= 80) return "[&>*]:bg-green-400";
     return "[&>*]:bg-green-600";
