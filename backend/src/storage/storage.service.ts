@@ -35,10 +35,9 @@ export class StorageService {
   }
 
   async update(id: string, userId: string, data: UpdateStorageDto) {
-    return this.prisma.getPrismaClient(userId).storage.update({
-      where: { id_date: { id, date: data.date } },
+    return this.prisma.getPrismaClient(userId).storage.updateMany({
+      where: { id, userId },
       data: { ...data, userId },
-      include: { location: true },
     });
   }
 
@@ -47,12 +46,11 @@ export class StorageService {
     const deleteStorage = await client.storage.findFirstOrThrow({
       where: { id, userId },
     });
-    return await client.storage.delete({
+    return await client.storage.deleteMany({
       where: {
-        id_date: { id: deleteStorage.id, date: deleteStorage.date },
+        id: deleteStorage.id,
         userId,
       },
-      include: { location: true },
     });
   }
 }

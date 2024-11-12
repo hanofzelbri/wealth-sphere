@@ -26,10 +26,9 @@ export class StakingsService {
   }
 
   async updateStaking(id: string, userId: string, data: any) {
-    return await this.prisma.getPrismaClient(userId).staking.update({
-      where: { id_startDate: { id, startDate: data.startDate } },
+    return await this.prisma.getPrismaClient(userId).staking.updateMany({
+      where: { id, userId },
       data: { ...data, userId },
-      include: { location: true },
     });
   }
 
@@ -38,12 +37,10 @@ export class StakingsService {
     const deleteStaking = await client.staking.findFirstOrThrow({
       where: { id: stakingId, investment: { userId } },
     });
-    return await client.staking.delete({
+    return await client.staking.deleteMany({
       where: {
-        id_startDate: {
-          id: deleteStaking.id,
-          startDate: deleteStaking.startDate,
-        },
+        id: deleteStaking.id,
+        userId,
       },
     });
   }

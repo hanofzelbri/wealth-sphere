@@ -15,7 +15,11 @@ import {
   CreateTransactionDto,
   UpdateTransactionDto,
 } from './dto/transaction.dto';
-import { ApiResponse, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+  ApiResponse,
+  ApiOkResponse,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
 import { TransactionEntity } from '../entities/transaction.entity';
 
 @Controller('transactions')
@@ -109,10 +113,7 @@ export class TransactionsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  async deleteTransaction(
-    @Param('id') id: string,
-    @User() userId: string,
-  ) {
+  async deleteTransaction(@Param('id') id: string, @User() userId: string) {
     await this.transactionsService.deleteTransaction(id, userId);
   }
 }
