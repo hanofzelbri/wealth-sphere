@@ -295,6 +295,25 @@ export const UpdateStakingDtoSchema = {
     }
 } as const;
 
+export const StakingPercentageEntitySchema = {
+    type: 'object',
+    properties: {
+        investmentId: {
+            type: 'string'
+        },
+        totalStakedAmount: {
+            type: 'number'
+        },
+        totalTransactionAmount: {
+            type: 'number'
+        },
+        percentageStaked: {
+            type: 'number'
+        }
+    },
+    required: ['investmentId', 'totalStakedAmount', 'totalTransactionAmount', 'percentageStaked']
+} as const;
+
 export const CreateStorageLocationDtoSchema = {
     type: 'object',
     properties: {
@@ -381,14 +400,14 @@ export const StorageAllocationEntitySchema = {
         locationName: {
             type: 'string'
         },
-        totalAmount: {
+        totalValue: {
             type: 'number'
         },
         percentage: {
             type: 'number'
         }
     },
-    required: ['locationId', 'locationName', 'totalAmount', 'percentage']
+    required: ['locationId', 'locationName', 'totalValue', 'percentage']
 } as const;
 
 export const InvestmentAggregateSchema = {

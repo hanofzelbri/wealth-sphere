@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -27,6 +27,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   investmentsControllerDeleteInvestmentMutation,
   investmentsControllerGetAllInvestmentsOptions,
+  stakingsControllerGetAllStakingPercentagesOptions,
 } from "@/api-client/@tanstack/react-query.gen";
 import { GainLossDisplay } from "../utils/GainLossDisplay";
 
@@ -48,6 +49,9 @@ export const InvestmentsTable: React.FC = () => {
   const investments = useQuery({
     ...investmentsControllerGetAllInvestmentsOptions(),
   });
+  const stakingPercentages = useQuery({
+    ...stakingsControllerGetAllStakingPercentagesOptions(),
+  });
   const deleteInvestment = useMutation({
     ...investmentsControllerDeleteInvestmentMutation(),
   });
@@ -59,19 +63,6 @@ export const InvestmentsTable: React.FC = () => {
     );
     return totalQuantity * investment.currentPrice;
   };
-
-  const calculateStakingPercentage = useCallback(
-    (investment: InvestmentEntity) => {
-      if (!investment.stakings) return 0;
-
-      return (
-        (investment.stakings.reduce((sum, t) => sum + t.amount, 0) /
-          calculateValue(investment)) *
-        100
-      );
-    },
-    []
-  );
 
   const sortedInvestments = useMemo(() => {
     if (!investments.isSuccess) return [];
@@ -104,24 +95,30 @@ export const InvestmentsTable: React.FC = () => {
           ).profitLoss;
           break;
         case "stakingPercentage":
-          aValue = calculateStakingPercentage(a);
-          bValue = calculateStakingPercentage(b);
+          aValue =
+            stakingPercentages.data?.find((sp) => sp.investmentId === a.id)
+              ?.percentageStaked ?? 0;
+          bValue =
+            stakingPercentages.data?.find((sp) => sp.investmentId === b.id)
+              ?.percentageStaked ?? 0;
           break;
         default:
           aValue = a[sortField];
           bValue = b[sortField];
       }
 
+      aValue = aValue ?? 0;
+      bValue = bValue ?? 0;
       if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
       if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
   }, [
-    calculateStakingPercentage,
     investments.data,
     investments.isSuccess,
     sortDirection,
     sortField,
+    stakingPercentages.data,
   ]);
 
   const handleSort = (field: SortField) => {
@@ -182,8 +179,10 @@ export const InvestmentsTable: React.FC = () => {
                     investment.transactions,
                     investment.currentPrice
                   );
-                const stakingPercentage =
-                  calculateStakingPercentage(investment);
+                const stakingPercentage = stakingPercentages.data?.find(
+                  (sp) => sp.investmentId === investment.id
+                )?.percentageStaked;
+
                 return (
                   <React.Fragment key={investment.id}>
                     <TableRow>
@@ -217,9 +216,9 @@ export const InvestmentsTable: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        {isNaN(stakingPercentage)
-                          ? "-"
-                          : `${formatNumber(stakingPercentage)}%`}
+                        {stakingPercentage !== undefined
+                          ? `${formatNumber(stakingPercentage)}%`
+                          : "-"}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">

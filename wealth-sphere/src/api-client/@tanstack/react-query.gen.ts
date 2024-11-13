@@ -2,7 +2,7 @@
 
 import type { Options } from '@hey-api/client-axios';
 import { queryOptions, type UseMutationOptions, type DefaultError } from '@tanstack/react-query';
-import { client, appControllerGetHello, investmentsControllerGetAllInvestments, investmentsControllerCreateInvestment, investmentsControllerDeleteInvestment, investmentsControllerGetInvestmentById, investmentsControllerGetInvestmentBySymbol, coingeckoControllerGetAllMarketChartData, coingeckoControllerGetMarketChartData, coingeckoControllerUpdateCoinPrices, coingeckoControllerUpdateMarketChartData, transactionsControllerGetAllTransactions, transactionsControllerCreateTransaction, transactionsControllerGetAllTransactionsForInvestmentId, transactionsControllerDeleteTransaction, transactionsControllerGetTransactionById, transactionsControllerUpdateTransaction, stakingsControllerGetAllStakings, stakingsControllerCreateStaking, stakingsControllerDeleteStaking, stakingsControllerGetStakingById, stakingsControllerUpdateStaking, storageLocationsControllerFindAll, storageLocationsControllerCreate, storageLocationsControllerDelete, storageLocationsControllerFindOne, storageLocationsControllerUpdate, storageControllerFindAll, storageControllerCreate, storageControllerDelete, storageControllerFindOne, storageControllerUpdate, storageControllerGetAllocationByLocation, portfolioControllerGetPortfolioHistory, blockchainCenterControllerGetAltcoinSeasonIndex } from '../services.gen';
+import { client, appControllerGetHello, investmentsControllerGetAllInvestments, investmentsControllerCreateInvestment, investmentsControllerDeleteInvestment, investmentsControllerGetInvestmentById, investmentsControllerGetInvestmentBySymbol, coingeckoControllerGetAllMarketChartData, coingeckoControllerGetMarketChartData, coingeckoControllerUpdateCoinPrices, coingeckoControllerUpdateMarketChartData, transactionsControllerGetAllTransactions, transactionsControllerCreateTransaction, transactionsControllerGetAllTransactionsForInvestmentId, transactionsControllerDeleteTransaction, transactionsControllerGetTransactionById, transactionsControllerUpdateTransaction, stakingsControllerGetAllStakings, stakingsControllerCreateStaking, stakingsControllerDeleteStaking, stakingsControllerGetStakingById, stakingsControllerUpdateStaking, stakingsControllerGetAllStakingPercentages, storageLocationsControllerFindAll, storageLocationsControllerCreate, storageLocationsControllerDelete, storageLocationsControllerFindOne, storageLocationsControllerUpdate, storageControllerFindAll, storageControllerCreate, storageControllerDelete, storageControllerFindOne, storageControllerUpdate, storageControllerGetAllocationByLocation, portfolioControllerGetPortfolioHistory, blockchainCenterControllerGetAltcoinSeasonIndex } from '../services.gen';
 import type { InvestmentsControllerCreateInvestmentData, InvestmentsControllerCreateInvestmentResponse, InvestmentsControllerDeleteInvestmentData, InvestmentsControllerGetInvestmentByIdData, InvestmentsControllerGetInvestmentBySymbolData, CoingeckoControllerGetAllMarketChartDataData, CoingeckoControllerGetMarketChartDataData, CoingeckoControllerUpdateCoinPricesResponse, CoingeckoControllerUpdateMarketChartDataResponse, TransactionsControllerCreateTransactionData, TransactionsControllerCreateTransactionResponse, TransactionsControllerGetAllTransactionsForInvestmentIdData, TransactionsControllerDeleteTransactionData, TransactionsControllerGetTransactionByIdData, TransactionsControllerUpdateTransactionData, TransactionsControllerUpdateTransactionResponse, StakingsControllerCreateStakingData, StakingsControllerCreateStakingResponse, StakingsControllerDeleteStakingData, StakingsControllerGetStakingByIdData, StakingsControllerUpdateStakingData, StakingsControllerUpdateStakingResponse, StorageLocationsControllerCreateData, StorageLocationsControllerCreateResponse, StorageLocationsControllerDeleteData, StorageLocationsControllerFindOneData, StorageLocationsControllerUpdateData, StorageLocationsControllerUpdateResponse, StorageControllerCreateData, StorageControllerCreateResponse, StorageControllerDeleteData, StorageControllerFindOneData, StorageControllerUpdateData, PortfolioControllerGetPortfolioHistoryData } from '../types.gen';
 import type { AxiosError } from 'axios';
 
@@ -437,6 +437,25 @@ export const stakingsControllerUpdateStakingMutation = (options?: Partial<Option
         }
     };
     return mutationOptions;
+};
+
+export const stakingsControllerGetAllStakingPercentagesQueryKey = (options?: Options) => [
+    createQueryKey('stakingsControllerGetAllStakingPercentages', options)
+];
+
+export const stakingsControllerGetAllStakingPercentagesOptions = (options?: Options) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await stakingsControllerGetAllStakingPercentages({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: stakingsControllerGetAllStakingPercentagesQueryKey(options)
+    });
 };
 
 export const storageLocationsControllerFindAllQueryKey = (options?: Options) => [

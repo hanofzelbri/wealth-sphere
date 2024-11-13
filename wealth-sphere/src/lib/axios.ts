@@ -3,6 +3,7 @@ import { QueryClient } from "@tanstack/react-query";
 import {
   investmentsControllerGetAllInvestmentsQueryKey,
   portfolioControllerGetPortfolioHistoryQueryKey,
+  stakingsControllerGetAllStakingPercentagesQueryKey,
 } from "@/api-client/@tanstack/react-query.gen";
 
 export const setupAxiosInstance = (
@@ -28,10 +29,6 @@ export const setupAxiosInstance = (
         response.config.method === "put" ||
         response.config.method === "delete"
       ) {
-        // const isInvestmentMutation =
-        //   response.config.url?.includes("/investments");
-
-        // if (isInvestmentMutation) {
         await queryClient.invalidateQueries({
           queryKey: investmentsControllerGetAllInvestmentsQueryKey(),
         });
@@ -42,7 +39,14 @@ export const setupAxiosInstance = (
             }),
           });
         }
-        // }
+
+        const isStakingMutation = response.config.url?.includes("/stakings");
+
+        if (isStakingMutation) {
+          await queryClient.invalidateQueries({
+            queryKey: stakingsControllerGetAllStakingPercentagesQueryKey(),
+          });
+        }
       }
 
       return response;

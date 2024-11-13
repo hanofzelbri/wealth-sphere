@@ -15,6 +15,7 @@ import { CreateStakingDto, UpdateStakingDto } from './dto/staking.dto';
 import { ApiResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Staking } from '@prisma/client';
 import { StakingEntity } from 'src/entities/staking.entity';
+import { StakingPercentageEntity } from '../entities/staking-percentage.entity';
 
 @Controller('stakings')
 @UseGuards(JwtAuthGuard)
@@ -31,22 +32,6 @@ export class StakingsController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async getAllStakings(@User() userId: string): Promise<Staking[]> {
     return await this.stakingsService.getAllStakings(userId);
-  }
-
-  @Get(':id')
-  @ApiOkResponse({
-    description: 'Successful response',
-    type: StakingEntity,
-  })
-  @ApiResponse({ status: 404, description: 'Staking not found' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  async getStakingById(
-    @Param('id') id: string,
-    @User() userId: string,
-  ): Promise<Staking> {
-    return await this.stakingsService.getStakingById(id, userId);
   }
 
   @Post()
@@ -94,5 +79,35 @@ export class StakingsController {
     @User() userId: string,
   ): Promise<void> {
     await this.stakingsService.deleteStaking(id, userId);
+  }
+
+  @Get('percentages')
+  @ApiOkResponse({
+    description: 'Get staking percentages for all investments',
+    type: [StakingPercentageEntity],
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async getAllStakingPercentages(
+    @User() userId: string,
+  ): Promise<StakingPercentageEntity[]> {
+    return await this.stakingsService.getAllStakingPercentages(userId);
+  }
+
+  @Get(':id')
+  @ApiOkResponse({
+    description: 'Successful response',
+    type: StakingEntity,
+  })
+  @ApiResponse({ status: 404, description: 'Staking not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async getStakingById(
+    @Param('id') id: string,
+    @User() userId: string,
+  ): Promise<Staking> {
+    return await this.stakingsService.getStakingById(id, userId);
   }
 }

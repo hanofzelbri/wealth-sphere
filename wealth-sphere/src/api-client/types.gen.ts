@@ -112,6 +112,13 @@ export type UpdateStakingDto = {
     startDate?: Date;
 };
 
+export type StakingPercentageEntity = {
+    investmentId: string;
+    totalStakedAmount: number;
+    totalTransactionAmount: number;
+    percentageStaked: number;
+};
+
 export type CreateStorageLocationDto = {
     name: string;
     image: string;
@@ -140,7 +147,7 @@ export type UpdateStorageDto = {
 export type StorageAllocationEntity = {
     locationId: string;
     locationName: string;
-    totalAmount: number;
+    totalValue: number;
     percentage: number;
 };
 
@@ -299,6 +306,8 @@ export type StakingsControllerUpdateStakingData = {
 };
 
 export type StakingsControllerUpdateStakingResponse = StakingEntity;
+
+export type StakingsControllerGetAllStakingPercentagesResponse = Array<StakingPercentageEntity>;
 
 export type StorageLocationsControllerFindAllResponse = Array<StorageLocationEntity>;
 
