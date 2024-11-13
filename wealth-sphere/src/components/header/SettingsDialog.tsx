@@ -121,7 +121,7 @@ export default function SettingsDialog() {
 
   return (
     <>
-      <Button variant="ghost" size="icon" onClick={() => setDialogOpen(true)}>
+      <Button variant="outline" size="icon" onClick={() => setDialogOpen(true)}>
         <Settings className="h-4 w-4" />
         <span className="sr-only">Open Settings</span>
       </Button>

@@ -29,9 +29,11 @@ export const PerformerCard: React.FC<PerformerCardProps> = ({
             alt={`${name} image`}
             className="w-6 h-6 rounded-full"
           />
-          <span className="text-2xl font-semibold">{name}</span>
+          <span className="text-xl font-semibold">{name}</span>
         </div>
-        <GainLossDisplay value={value} percentage={percentage} />
+        <div className="flex justify-center">
+          <GainLossDisplay value={value} percentage={percentage} />
+        </div>
       </CardContent>
     </Card>
   );

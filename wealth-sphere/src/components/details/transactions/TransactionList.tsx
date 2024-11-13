@@ -51,7 +51,7 @@ export function TransactionList({ investmentId }: TransactionListProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Transactions</h2>
+        <h2 className="text-xl font-bold">Transactions</h2>
         <Button
           onClick={() => setIsAddDialogOpen(true)}
           size="sm"

@@ -21,7 +21,7 @@ const timeFrames = [
   { label: "All", days: 3650 },
 ];
 
-const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
+const InvestmentDetailChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
   const [selectedDays, setSelectedDays] = useState<number>(30);
 
   const { data } = useQuery({
@@ -93,7 +93,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
     <div>
       <div className="flex flex-row items-center justify-between mb-4">
         <div className="flex flex-row items-center justify-center space-x-2">
-          <h2 className="text-2xl font-bold">History</h2>
+          <h2 className="text-xl font-bold">History</h2>
           <span
             className={
               percentageChange >= 0 ? "text-green-600" : "text-red-600"
@@ -177,4 +177,4 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ coinId }) => {
   );
 };
 
-export default PortfolioChart;
+export default InvestmentDetailChart;

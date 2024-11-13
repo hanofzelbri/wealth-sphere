@@ -9,7 +9,7 @@ import { StakingList } from "./stakings/StakingList";
 import { StorageList } from "./storages/StorageList";
 import { useQuery } from "@tanstack/react-query";
 import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
-import PortfolioChart from "../utils/PortfolioChart";
+import InvestmentDetailChart from "../utils/InvestmentDetailChart";
 
 export const InvestmentDetails = () => {
   const { symbol } = useParams<{ symbol: string }>();
@@ -35,7 +35,7 @@ export const InvestmentDetails = () => {
       <CardContent>
         <InvestmentSummary investment={investment} />
         <div className="mt-8">
-          <PortfolioChart coinId={investment.coinId} />
+          <InvestmentDetailChart coinId={investment.coinId} />
         </div>
         <div className="mt-8">
           <TransactionList investmentId={investment.id} />

@@ -90,14 +90,14 @@ export const PortfolioSummary: React.FC = () => {
   if (investments.isError) return <p>Error: {investments.error.message}</p>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
         <CardContent className="pt-6 text-center">
           <h3 className="text-sm font-medium text-gray-500 mb-2">
             All-time profit
           </h3>
           <div
-            className={`text-2xl font-semibold ${
+            className={`text-xl font-semibold ${
               (totalGainLoss ?? 0) >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
@@ -127,7 +127,7 @@ export const PortfolioSummary: React.FC = () => {
           <h3 className="text-sm font-medium text-gray-500 mb-2">
             Portfolio Value
           </h3>
-          <div className="text-2xl font-semibold">
+          <div className="text-xl font-semibold">
             ${formatNumber(totalValue || 0)}
           </div>
         </CardContent>

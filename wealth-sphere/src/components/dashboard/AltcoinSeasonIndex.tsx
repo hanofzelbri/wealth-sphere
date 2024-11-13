@@ -58,14 +58,14 @@ export const AltcoinSeasonIndex: React.FC = () => {
   );
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-xl font-semibold">
           Market Season Index
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <SeasonIndicator value={data.altcoinSeason ?? 0} label="90d" />
           <SeasonIndicator value={data.month ?? 0} label="30d" />
           <SeasonIndicator value={data.year ?? 0} label="365d" />

@@ -30,6 +30,8 @@ import {
   stakingsControllerGetAllStakingPercentagesOptions,
 } from "@/api-client/@tanstack/react-query.gen";
 import { GainLossDisplay } from "../utils/GainLossDisplay";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AddInvestment } from "./AddInvestment";
 
 type SortField =
   | "symbol"
@@ -144,122 +146,130 @@ export const InvestmentsTable: React.FC = () => {
   };
 
   return (
-    <>
-      {sortedInvestments.length > 0 ? (
-        <div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead onClick={() => handleSort("symbol")}>
-                  Symbol {renderSortIcon("symbol")}
-                </TableHead>
-                <TableHead onClick={() => handleSort("name")}>
-                  Name {renderSortIcon("name")}
-                </TableHead>
-                <TableHead onClick={() => handleSort("currentPrice")}>
-                  Current Price {renderSortIcon("currentPrice")}
-                </TableHead>
-                <TableHead onClick={() => handleSort("value")}>
-                  Value {renderSortIcon("value")}
-                </TableHead>
-                <TableHead onClick={() => handleSort("gainLoss")}>
-                  Gain/Loss {renderSortIcon("gainLoss")}
-                </TableHead>
-                <TableHead onClick={() => handleSort("stakingPercentage")}>
-                  Staked {renderSortIcon("stakingPercentage")}
-                </TableHead>
-                <TableHead className="text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedInvestments.map((investment) => {
-                const value = calculateValue(investment);
-                const { profitLoss, profitLossPercentage } =
-                  calculateProfitLoss(
-                    investment.transactions,
-                    investment.currentPrice
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-xl font-bold">Investments</CardTitle>
+        <AddInvestment />
+      </CardHeader>
+      <CardContent>
+        {sortedInvestments.length > 0 ? (
+          <div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead onClick={() => handleSort("symbol")}>
+                    Symbol {renderSortIcon("symbol")}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort("name")}>
+                    Name {renderSortIcon("name")}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort("currentPrice")}>
+                    Current Price {renderSortIcon("currentPrice")}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort("value")}>
+                    Value {renderSortIcon("value")}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort("gainLoss")}>
+                    Gain/Loss {renderSortIcon("gainLoss")}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort("stakingPercentage")}>
+                    Staked {renderSortIcon("stakingPercentage")}
+                  </TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedInvestments.map((investment) => {
+                  const value = calculateValue(investment);
+                  const { profitLoss, profitLossPercentage } =
+                    calculateProfitLoss(
+                      investment.transactions,
+                      investment.currentPrice
+                    );
+                  const stakingPercentage = stakingPercentages.data?.find(
+                    (sp) => sp.investmentId === investment.id
+                  )?.percentageStaked;
+
+                  return (
+                    <React.Fragment key={investment.id}>
+                      <TableRow>
+                        <TableCell>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Avatar>
+                                  <AvatarImage src={investment.image} />
+                                  <AvatarFallback>
+                                    {investment.symbol}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{investment.symbol}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </TableCell>
+                        <TableCell>{investment.name}</TableCell>
+                        <TableCell>
+                          ${formatNumber(Number(investment.currentPrice))}
+                        </TableCell>
+                        <TableCell>${formatNumber(value)}</TableCell>
+                        <TableCell>
+                          <GainLossDisplay
+                            value={profitLoss}
+                            percentage={profitLossPercentage}
+                            vertical={true}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {stakingPercentage !== undefined
+                            ? `${formatNumber(stakingPercentage)}%`
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() =>
+                                handleViewDetails(investment.symbol)
+                              }
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setInvestmentToDelete(investment)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
                   );
-                const stakingPercentage = stakingPercentages.data?.find(
-                  (sp) => sp.investmentId === investment.id
-                )?.percentageStaked;
+                })}
+              </TableBody>
+            </Table>
 
-                return (
-                  <React.Fragment key={investment.id}>
-                    <TableRow>
-                      <TableCell>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Avatar>
-                                <AvatarImage src={investment.image} />
-                                <AvatarFallback>
-                                  {investment.symbol}
-                                </AvatarFallback>
-                              </Avatar>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{investment.symbol}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
-                      <TableCell>{investment.name}</TableCell>
-                      <TableCell>
-                        ${formatNumber(Number(investment.currentPrice))}
-                      </TableCell>
-                      <TableCell>${formatNumber(value)}</TableCell>
-                      <TableCell>
-                        <GainLossDisplay
-                          value={profitLoss}
-                          percentage={profitLossPercentage}
-                          vertical={true}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {stakingPercentage !== undefined
-                          ? `${formatNumber(stakingPercentage)}%`
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleViewDetails(investment.symbol)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setInvestmentToDelete(investment)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-
-          <ConfirmDialog
-            open={!!investmentToDelete}
-            onOpenChange={(open) => !open && setInvestmentToDelete(null)}
-            onConfirm={() =>
-              deleteInvestment.mutateAsync({
-                path: { id: investmentToDelete?.id || "" },
-              })
-            }
-            title="Delete Investment"
-            description="Are you sure you want to delete this investment? This action cannot be undone."
-          />
-        </div>
-      ) : (
-        <p>No investments found. Add some investments to see them here.</p>
-      )}
-    </>
+            <ConfirmDialog
+              open={!!investmentToDelete}
+              onOpenChange={(open) => !open && setInvestmentToDelete(null)}
+              onConfirm={() =>
+                deleteInvestment.mutateAsync({
+                  path: { id: investmentToDelete?.id || "" },
+                })
+              }
+              title="Delete Investment"
+              description="Are you sure you want to delete this investment? This action cannot be undone."
+            />
+          </div>
+        ) : (
+          <p>No investments found. Add some investments to see them here.</p>
+        )}
+      </CardContent>
+    </Card>
   );
 };

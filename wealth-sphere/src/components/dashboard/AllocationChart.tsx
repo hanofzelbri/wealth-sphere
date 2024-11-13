@@ -25,6 +25,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Import Card and CardContent
 
 ChartJS.register(ArcElement, Legend, Title);
 
@@ -121,9 +122,9 @@ export default function AllocationChart() {
   };
 
   return (
-    <div className="h-full">
-      <div className="flex justify-between items-start mb-4">
-        <h2 className="text-2xl font-bold">Allocation</h2>
+    <Card className="h-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle className="text-xl font-bold">Allocation</CardTitle>
         <Button
           variant="link"
           onClick={() => setIsDialogOpen(true)}
@@ -131,11 +132,16 @@ export default function AllocationChart() {
         >
           View all
         </Button>
-      </div>
-
-      <div className="h-64">
-        <Doughnut data={chartData} options={chartOptions} />
-      </div>
+      </CardHeader>
+      <CardContent className="h-[80%]">
+        <Doughnut 
+          data={chartData} 
+          options={{
+            ...chartOptions,
+            maintainAspectRatio: false,
+          }} 
+        />
+      </CardContent>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
@@ -185,6 +191,6 @@ export default function AllocationChart() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-    </div>
+    </Card>
   );
 }

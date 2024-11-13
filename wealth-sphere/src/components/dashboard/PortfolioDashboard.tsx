@@ -1,16 +1,13 @@
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PortfolioSummary } from "./PortfolioSummary";
 import { InvestmentsTable } from "./InvestmentsTable";
 import { LoadingState } from "../utils/LoadingState";
-import { AddInvestment } from "./AddInvestment";
-import RefreshButton from "../utils/RefreshButton";
 import {
   investmentsControllerGetAllInvestmentsOptions,
   storageControllerGetAllocationByLocationOptions,
 } from "@/api-client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
-import { PortfolioChart } from "./PortfolioChart";
+import { PortfolioHistoryChart } from "./PortfolioHistoryChart";
 import AllocationChart from "./AllocationChart";
 import { AltcoinSeasonIndex } from "./AltcoinSeasonIndex";
 import { CBBIIndex } from "./CBBIIndex";
@@ -25,46 +22,41 @@ export const PortfolioDashboard: React.FC = () => {
     ...storageControllerGetAllocationByLocationOptions(),
   });
 
-  console.log(test.data);
-
   if (isError) return <p>Error: {error.message}</p>;
 
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold">
-            Portfolio Summary
-          </CardTitle>
-          <div className="flex gap-2">
-            <AddInvestment />
-            <RefreshButton />
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <LoadingState />
-          ) : (
-            <>
-              <div className="flex flex-col gap-8">
+    <div className="container mx-auto space-y-8 p-2">
+      {isLoading ? (
+        <LoadingState />
+      ) : (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <AltcoinSeasonIndex />
                 <CBBIIndex />
-                <FearAndGreedIndex />
-                <PortfolioSummary />
-                <div className="flex gap-8 w-full">
-                  <div className="w-[60%]">
-                    <PortfolioChart />
-                  </div>
-                  <div className="w-[40%]">
-                    <AllocationChart />
-                  </div>
-                </div>
-                <InvestmentsTable />
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            </div>
+
+            <div className="lg:col-span-4">
+              <FearAndGreedIndex />
+            </div>
+          </div>
+
+          <PortfolioSummary />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-8">
+              <PortfolioHistoryChart />
+            </div>
+            <div className="lg:col-span-4">
+              <AllocationChart />
+            </div>
+          </div>
+
+          <InvestmentsTable />
+        </div>
+      )}
     </div>
   );
 };

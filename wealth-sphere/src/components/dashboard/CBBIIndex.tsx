@@ -56,7 +56,7 @@ export const CBBIIndex: React.FC = () => {
     Object.values(data.Confidence).slice(-1)[0] * 100;
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-xl font-semibold">
           Bitcoin Bull Run Index (CBBI)
@@ -70,7 +70,7 @@ export const CBBIIndex: React.FC = () => {
                 {getMarketPhase(currentConfidentLevel)}
               </span>
               <span className="text-lg font-semibold">
-                {currentConfidentLevel}%
+                {currentConfidentLevel.toFixed(1)}%
               </span>
             </div>
             <Progress

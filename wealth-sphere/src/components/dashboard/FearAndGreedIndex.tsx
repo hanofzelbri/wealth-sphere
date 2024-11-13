@@ -68,7 +68,7 @@ export const FearAndGreedIndex = () => {
       </div>
       <Progress
         value={parseInt(value)}
-        className={`h-2 ${getClassificationColor(classification)}`}
+        className={`h-2.5 ${getClassificationColor(classification)}`}
       />
       <div className="flex justify-between items-center">
         <span className="font-medium">{value}</span>
@@ -78,9 +78,9 @@ export const FearAndGreedIndex = () => {
   );
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">Fear & Greed Index</CardTitle>
+        <CardTitle className="text-xl font-semibold">Fear & Greed Index</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {renderIndexCard(

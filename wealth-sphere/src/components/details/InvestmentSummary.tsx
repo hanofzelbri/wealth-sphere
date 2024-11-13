@@ -47,7 +47,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Holding Units</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">{formatNumber(totalHolding)}</p>
+          <p className="text-xl font-semibold">{formatNumber(totalHolding)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -55,9 +55,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Holding Value</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">
-            ${formatNumber(currentValue)}
-          </p>
+          <p className="text-xl font-semibold">${formatNumber(currentValue)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -65,7 +63,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Average Buying Price</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">
+          <p className="text-xl font-semibold">
             ${formatNumber(averageBuyingPrice)}
           </p>
         </CardContent>
@@ -76,7 +74,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
         </CardHeader>
         <CardContent>
           <p
-            className={`text-2xl font-semibold ${
+            className={`text-xl font-semibold ${
               profitLoss >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
@@ -90,7 +88,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Staked Units</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">{formatNumber(stakedUnits)}</p>
+          <p className="text-xl font-semibold">{formatNumber(stakedUnits)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -98,7 +96,7 @@ export const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
           <CardTitle className="text-lg">Staked Value</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">${formatNumber(stakedValue)}</p>
+          <p className="text-xl font-semibold">${formatNumber(stakedValue)}</p>
         </CardContent>
       </Card>
       <Card>

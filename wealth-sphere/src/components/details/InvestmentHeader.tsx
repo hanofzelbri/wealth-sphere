@@ -43,7 +43,7 @@ export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <CardTitle className="text-2xl font-bold ml-2">
+        <CardTitle className="text-xl font-bold ml-2">
           {investment.name}
         </CardTitle>
       </div>

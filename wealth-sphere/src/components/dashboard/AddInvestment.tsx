@@ -23,7 +23,7 @@ export const AddInvestment = () => {
   });
 
   return (
-    <div>
+    <>
       <Button onClick={() => setShowDialog(true)}>
         <Plus className="h-4 w-4" />
         <span>Add Investment</span>
@@ -52,6 +52,6 @@ export const AddInvestment = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
