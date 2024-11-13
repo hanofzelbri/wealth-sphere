@@ -20,6 +20,7 @@ import {
   stakingsControllerDeleteStakingMutation,
 } from "@/api-client/@tanstack/react-query.gen";
 import { useMutation } from "@tanstack/react-query";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 interface StakingListProps {
   investmentId: string;
@@ -82,7 +83,7 @@ export function StakingList({ investmentId }: StakingListProps) {
           {investment.stakings.length > 0 ? (
             investment.stakings.map((staking) => (
               <TableRow key={staking.id}>
-                <TableCell>{staking.amount}</TableCell>
+                <TableCell>{formatNumber(staking.amount)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <img

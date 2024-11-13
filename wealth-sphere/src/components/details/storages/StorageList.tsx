@@ -19,6 +19,7 @@ import {
   storageControllerDeleteMutation,
 } from "@/api-client/@tanstack/react-query.gen";
 import { StorageEntity } from "@/api-client/types.gen";
+import { formatNumber } from "@/utils/investmentCalculations";
 
 interface StorageListProps {
   investmentId: string;
@@ -70,7 +71,7 @@ export function StorageList({ investmentId }: StorageListProps) {
           {investment.storages.length > 0 ? (
             investment.storages.map((storage) => (
               <TableRow key={storage.id}>
-                <TableCell>{storage.amount}</TableCell>
+                <TableCell>{formatNumber(storage.amount)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <img

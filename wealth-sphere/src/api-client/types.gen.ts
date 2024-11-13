@@ -137,6 +137,13 @@ export type UpdateStorageDto = {
     date: Date;
 };
 
+export type StorageAllocationEntity = {
+    locationId: string;
+    locationName: string;
+    totalAmount: number;
+    percentage: number;
+};
+
 export type InvestmentAggregate = {
     investmentId: string;
     totalQuantity: number;
@@ -363,7 +370,7 @@ export type StorageControllerUpdateData = {
     query?: never;
 };
 
-export type StorageControllerUpdateResponse = StorageEntity;
+export type StorageControllerGetAllocationByLocationResponse = Array<StorageAllocationEntity>;
 
 export type PortfolioControllerGetPortfolioHistoryData = {
     body?: never;

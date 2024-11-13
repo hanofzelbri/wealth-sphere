@@ -1,10 +1,25 @@
-import { InvestmentEntity, StakingEntity, storageLocationType, TransactionEntity } from "@/api-client/types.gen";
+import {
+  InvestmentEntity,
+  StakingEntity,
+  storageLocationType,
+  TransactionEntity,
+} from "@/api-client/types.gen";
 
 export function formatNumber(value: number): string {
-  if (Math.abs(value) < 1) {
-    return value.toFixed(5);
+  if (value === 0) return "0";
+  const suffixes = ['', 'K', 'M', 'B', 'T'];
+  const i = Math.floor(Math.log10(Math.abs(value)) / 3);
+  if (i < 2) {
+    if (Math.abs(value) < 0.0001) {
+      return value.toExponential(2);
+    }
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
-  return value.toFixed(2);
+  const result = value / Math.pow(10, i * 3);
+  return `${result.toFixed(2)}${suffixes[i]}`;
 }
 
 export const calculateAverageBuyingPrice = (
@@ -86,7 +101,8 @@ export const calculateStorageLocationPercentageStakings = (
     { totalAmount: 0, storageLocationAmount: 0 }
   );
 
-  const percentage = totalAmount === 0 ? 0 : (storageLocationAmount / totalAmount) * 100;
+  const percentage =
+    totalAmount === 0 ? 0 : (storageLocationAmount / totalAmount) * 100;
 
   return { total: totalAmount, percentage, storageLocationAmount };
 };
@@ -106,7 +122,8 @@ export const calculateStorageLocationPercentageStorages = (
     { totalAmount: 0, storageLocationAmount: 0 }
   );
 
-  const percentage = totalAmount === 0 ? 0 : (storageLocationAmount / totalAmount) * 100;
+  const percentage =
+    totalAmount === 0 ? 0 : (storageLocationAmount / totalAmount) * 100;
 
   return { total: totalAmount, percentage, storageLocationAmount };
 };
@@ -125,7 +142,10 @@ export const storageLocationPercentage = (
   );
 
   const total = storage.total + staking.total;
-  const storageLocationAmount = storage.storageLocationAmount + staking.storageLocationAmount;
+  const storageLocationAmount =
+    storage.storageLocationAmount + staking.storageLocationAmount;
 
-  return storageLocationAmount === 0 ? 0 : total / storageLocationAmount * 100;
+  return storageLocationAmount === 0
+    ? 0
+    : (total / storageLocationAmount) * 100;
 };

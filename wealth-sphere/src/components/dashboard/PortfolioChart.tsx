@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { formatNumber } from "@/utils/investmentCalculations";
 import { portfolioControllerGetPortfolioHistoryOptions } from "@/api-client/@tanstack/react-query.gen";
+import { GainLossDisplay } from "../utils/GainLossDisplay";
 
 Chart.register(...registerables);
 
@@ -44,40 +45,39 @@ export const PortfolioChart: React.FC = () => {
     ],
   };
 
+  const portfolioValueChange =
+    portfolioHistory && portfolioHistory.length > 1
+      ? portfolioHistory[portfolioHistory.length - 1].totalValue -
+        portfolioHistory[0].totalValue
+      : 0;
   const percentageChange =
     portfolioHistory && portfolioHistory.length > 1
-      ? ((portfolioHistory[portfolioHistory.length - 1].totalValue -
-          portfolioHistory[0].totalValue) /
-          portfolioHistory[0].totalValue) *
-        100
+      ? (portfolioValueChange / portfolioHistory[0].totalValue) * 100
       : 0;
 
   return (
     <div>
       <div className="flex flex-row items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">Portfolio History</h2>
         <div className="flex flex-row items-center justify-center space-x-2">
-          <h2 className="text-2xl font-bold">Portfolio History</h2>
-          <span
-            className={
-              percentageChange >= 0 ? "text-green-600" : "text-red-600"
-            }
-          >
-            {portfolioHistory && portfolioHistory.length > 1
-              ? `(${formatNumber(percentageChange)}%)`
-              : "N/A"}
-          </span>
-        </div>
-        <div className="flex space-x-2">
-          {timeFrames.map((timeFrame) => (
-            <Button
-              key={timeFrame.label}
-              variant={selectedDays === timeFrame.days ? "outline" : "default"}
-              onClick={() => setSelectedDays(timeFrame.days)}
-              size="sm"
-            >
-              {timeFrame.label}
-            </Button>
-          ))}
+          <GainLossDisplay
+            value={portfolioValueChange}
+            percentage={percentageChange}
+          />
+          <div className="flex space-x-2">
+            {timeFrames.map((timeFrame) => (
+              <Button
+                key={timeFrame.label}
+                variant={
+                  selectedDays === timeFrame.days ? "outline" : "default"
+                }
+                onClick={() => setSelectedDays(timeFrame.days)}
+                size="sm"
+              >
+                {timeFrame.label}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
       <Line

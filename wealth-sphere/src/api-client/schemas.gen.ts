@@ -372,6 +372,25 @@ export const UpdateStorageDtoSchema = {
     required: ['amount', 'storageLocationId', 'date']
 } as const;
 
+export const StorageAllocationEntitySchema = {
+    type: 'object',
+    properties: {
+        locationId: {
+            type: 'string'
+        },
+        locationName: {
+            type: 'string'
+        },
+        totalAmount: {
+            type: 'number'
+        },
+        percentage: {
+            type: 'number'
+        }
+    },
+    required: ['locationId', 'locationName', 'totalAmount', 'percentage']
+} as const;
+
 export const InvestmentAggregateSchema = {
     type: 'object',
     properties: {

@@ -33,7 +33,6 @@ import { GainLossDisplay } from "../utils/GainLossDisplay";
 type SortField =
   | "symbol"
   | "name"
-  | "quantity"
   | "currentPrice"
   | "value"
   | "gainLoss"
@@ -61,20 +60,13 @@ export const InvestmentsTable: React.FC = () => {
     return totalQuantity * investment.currentPrice;
   };
 
-  const calculateTotalQuantity = (investment: InvestmentEntity) => {
-    return investment.transactions.reduce(
-      (sum, t) => sum + (t.type === "buy" ? t.quantity : -t.quantity),
-      0
-    );
-  };
-
   const calculateStakingPercentage = useCallback(
     (investment: InvestmentEntity) => {
       if (!investment.stakings) return 0;
 
       return (
         (investment.stakings.reduce((sum, t) => sum + t.amount, 0) /
-          calculateTotalQuantity(investment)) *
+          calculateValue(investment)) *
         100
       );
     },
@@ -96,10 +88,6 @@ export const InvestmentsTable: React.FC = () => {
         case "currentPrice":
           aValue = a.currentPrice;
           bValue = b.currentPrice;
-          break;
-        case "quantity":
-          aValue = calculateTotalQuantity(a);
-          bValue = calculateTotalQuantity(b);
           break;
         case "value":
           aValue = calculateValue(a);
@@ -165,54 +153,29 @@ export const InvestmentsTable: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead
-                  onClick={() => handleSort("symbol")}
-                  className="cursor-pointer"
-                >
+                <TableHead onClick={() => handleSort("symbol")}>
                   Symbol {renderSortIcon("symbol")}
                 </TableHead>
-                <TableHead
-                  onClick={() => handleSort("name")}
-                  className="cursor-pointer"
-                >
+                <TableHead onClick={() => handleSort("name")}>
                   Name {renderSortIcon("name")}
                 </TableHead>
-                <TableHead
-                  onClick={() => handleSort("quantity")}
-                  className="cursor-pointer"
-                >
-                  Quantity {renderSortIcon("quantity")}
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort("currentPrice")}
-                  className="cursor-pointer"
-                >
+                <TableHead onClick={() => handleSort("currentPrice")}>
                   Current Price {renderSortIcon("currentPrice")}
                 </TableHead>
-                <TableHead
-                  onClick={() => handleSort("value")}
-                  className="cursor-pointer"
-                >
+                <TableHead onClick={() => handleSort("value")}>
                   Value {renderSortIcon("value")}
                 </TableHead>
-                <TableHead
-                  onClick={() => handleSort("gainLoss")}
-                  className="cursor-pointer"
-                >
+                <TableHead onClick={() => handleSort("gainLoss")}>
                   Gain/Loss {renderSortIcon("gainLoss")}
                 </TableHead>
-                <TableHead
-                  onClick={() => handleSort("stakingPercentage")}
-                  className="cursor-pointer"
-                >
+                <TableHead onClick={() => handleSort("stakingPercentage")}>
                   Staked {renderSortIcon("stakingPercentage")}
                 </TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedInvestments.map((investment) => {
-                const totalQuantity = calculateTotalQuantity(investment);
                 const value = calculateValue(investment);
                 const { profitLoss, profitLossPercentage } =
                   calculateProfitLoss(
@@ -242,9 +205,8 @@ export const InvestmentsTable: React.FC = () => {
                         </TooltipProvider>
                       </TableCell>
                       <TableCell>{investment.name}</TableCell>
-                      <TableCell>{totalQuantity}</TableCell>
                       <TableCell>
-                        ${formatNumber(investment.currentPrice)}
+                        ${formatNumber(Number(investment.currentPrice))}
                       </TableCell>
                       <TableCell>${formatNumber(value)}</TableCell>
                       <TableCell>
@@ -257,7 +219,7 @@ export const InvestmentsTable: React.FC = () => {
                       <TableCell>
                         {isNaN(stakingPercentage)
                           ? "-"
-                          : `${formatNumber(stakingPercentage)} %`}
+                          : `${formatNumber(stakingPercentage)}%`}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">

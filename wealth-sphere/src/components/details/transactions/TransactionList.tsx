@@ -81,7 +81,7 @@ export function TransactionList({ investmentId }: TransactionListProps) {
                   {format(new Date(transaction.date), "PP")}
                 </TableCell>
                 <TableCell>{transaction.type}</TableCell>
-                <TableCell>{transaction.quantity}</TableCell>
+                <TableCell>{formatNumber(transaction.quantity)}</TableCell>
                 <TableCell>${formatNumber(transaction.price)}</TableCell>
                 <TableCell>
                   ${formatNumber(transaction.price * transaction.quantity)}

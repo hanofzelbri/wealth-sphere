@@ -5,7 +5,10 @@ import { InvestmentsTable } from "./InvestmentsTable";
 import { LoadingState } from "../utils/LoadingState";
 import { AddInvestment } from "./AddInvestment";
 import RefreshButton from "../utils/RefreshButton";
-import { investmentsControllerGetAllInvestmentsOptions } from "@/api-client/@tanstack/react-query.gen";
+import {
+  investmentsControllerGetAllInvestmentsOptions,
+  storageControllerGetAllocationByLocationOptions,
+} from "@/api-client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { PortfolioChart } from "./PortfolioChart";
 import AllocationChart from "./AllocationChart";
@@ -17,6 +20,12 @@ export const PortfolioDashboard: React.FC = () => {
   const { isError, error, isLoading } = useQuery({
     ...investmentsControllerGetAllInvestmentsOptions(),
   });
+
+  const test = useQuery({
+    ...storageControllerGetAllocationByLocationOptions(),
+  });
+
+  console.log(test.data);
 
   if (isError) return <p>Error: {error.message}</p>;
 

@@ -16,21 +16,37 @@ export const GainLossDisplay: React.FC<GainLossDisplayProps> = ({
   const isPositive = value >= 0;
 
   return (
-    <div className={`flex ${vertical ? "flex-col" : "flex-row"} items-center justify-center gap-4 mt-1`}>
-      <div className={`text-sm ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        <span className="mr-1">{value > 0 ? "+" : value < 0 ? "-" : ""}</span>$
-        {formatNumber(Math.abs(value))}
-      </div>
-      <div className={`flex items-center text-sm ${isPositive ? "text-green-600" : "text-red-600"}`}>
-        {isPositive ? (
-          <ArrowUpRight className="w-4 h-4 mr-1" />
-        ) : value < 0 ? (
-          <ArrowDownRight className="w-4 h-4 mr-1" />
-        ) : (
-          <ArrowRight className="w-4 h-4 mr-1" />
-        )}
-        {formatNumber(Math.abs(percentage))}%
-      </div>
+    <div
+      className={`flex ${
+        vertical ? "flex-col items-start" : "flex-row"
+      } gap-2 text-sm ${
+        isPositive ? "text-green-600" : "text-red-600"
+      }`}
+    >
+      <span>${formatNumber(Math.abs(value))}</span>
+      {vertical ? (
+        <div className="flex items-center">
+          {isPositive ? (
+            <ArrowUpRight className="w-4 h-4" />
+          ) : value < 0 ? (
+            <ArrowDownRight className="w-4 h-4" />
+          ) : (
+            <ArrowRight className="w-4 h-4" />
+          )}
+          {formatNumber(Math.abs(percentage))}%
+        </div>
+      ) : (
+        <>
+          {isPositive ? (
+            <ArrowUpRight className="w-4 h-4" />
+          ) : value < 0 ? (
+            <ArrowDownRight className="w-4 h-4" />
+          ) : (
+            <ArrowRight className="w-4 h-4" />
+          )}
+          {formatNumber(Math.abs(percentage))}%
+        </>
+      )}
     </div>
   );
 };
