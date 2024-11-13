@@ -45,11 +45,11 @@ export const CBBIIndex: React.FC = () => {
   };
 
   const getProgressColor = (value: number) => {
-    if (value <= 20) return "[&>*]:bg-green-600";
-    if (value <= 40) return "[&>*]:bg-green-400";
-    if (value <= 60) return "[&>*]:bg-yellow-400";
-    if (value <= 80) return "[&>*]:bg-orange-400";
-    return "[&>*]:bg-red-500";
+    if (value <= 30) return "[&>*]:bg-red-500";
+    if (value <= 50) return "[&>*]:bg-orange-500";
+    if (value <= 75) return "[&>*]:bg-yellow-500";
+    if (value <= 90) return "[&>*]:bg-green-500";
+    return "[&>*]:bg-emerald-500";
   };
 
   const currentConfidentLevel =
