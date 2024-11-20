@@ -4,7 +4,6 @@ import { InvestmentsTable } from "./InvestmentsTable";
 import { LoadingState } from "../utils/LoadingState";
 import {
   investmentsControllerGetAllInvestmentsOptions,
-  storageControllerGetAllocationByLocationOptions,
 } from "@/api-client/@tanstack/react-query.gen";
 import { useQuery } from "@tanstack/react-query";
 import { PortfolioHistoryChart } from "./PortfolioHistoryChart";
@@ -16,10 +15,6 @@ import { FearAndGreedIndex } from "./FearAndGreedIndex";
 export const PortfolioDashboard: React.FC = () => {
   const { isError, error, isLoading } = useQuery({
     ...investmentsControllerGetAllInvestmentsOptions(),
-  });
-
-  const test = useQuery({
-    ...storageControllerGetAllocationByLocationOptions(),
   });
 
   if (isError) return <p>Error: {error.message}</p>;
