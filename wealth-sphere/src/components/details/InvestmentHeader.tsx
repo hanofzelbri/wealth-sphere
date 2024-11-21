@@ -39,7 +39,7 @@ export const InvestmentHeader = ({ investmentId }: InvestmentHeaderProps) => {
               </Avatar>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{investment.symbol}</p>
+              <p>{investment.symbol} {investment.id}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
